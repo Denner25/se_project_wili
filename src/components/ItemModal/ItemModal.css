@@ -1,0 +1,142 @@
+/* Overlay with fade animation */
+.item-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.item-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Modal container */
+.item-modal {
+  width: 700px;
+  height: 520px;
+  display: flex;
+  background: white;
+  border-radius: 10px;
+  position: relative; /* so close button is positioned against this */
+  transform: scale(0.97);
+  transition: transform 0.3s ease;
+}
+
+.item-modal-overlay.open .item-modal {
+  transform: scale(1);
+}
+
+/* Close button appears outside visually */
+.item-modal__close {
+  position: absolute;
+  top: -20px;
+  right: -28px;
+  width: 20px;
+  height: 20px;
+  background: transparent url(../../assets/close-button.svg) no-repeat center;
+  background-size: contain;
+  border: none;
+  cursor: pointer;
+}
+
+/* Poster only has overflow hidden */
+.item-modal__poster-wrapper {
+  width: 300px;
+  height: 100%;
+  flex-shrink: 0;
+  overflow: hidden; /* clips poster zoom only */
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.item-modal__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.item-modal__poster-wrapper:hover .item-modal__poster {
+  transform: scale(1.05);
+}
+
+/* Right description */
+.item-modal__description {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.item-modal__subtitle {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+/* Tags */
+.item-modal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 350px;
+  padding-right: 4px;
+}
+
+.item-modal__tag {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #f0f0f0;
+  color: #444;
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item-modal__tag:hover {
+  transform: scale(1.05);
+  background: #e0e0e0;
+}
+
+.item-modal__tag.selected {
+  background: #ffb6c1;
+  color: #fff;
+  box-shadow: 0 0 6px rgba(255, 182, 193, 0.7);
+  transform: scale(1.08);
+}
+
+.item-modal__no-tags {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Save button sits naturally at bottom-right */
+.item-modal__save-button {
+  margin-top: auto;
+  align-self: flex-end;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #ffb6c1;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.item-modal__save-button:hover {
+  background: #ff99aa;
+}

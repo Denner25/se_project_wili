@@ -1,0 +1,17 @@
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 700;
+  src: url(../../vendor/Fonts/Montserrat-Bold.ttf) format("truetype");
+}
+
+.app {
+  background-color: rgb(2, 2, 47);
+  font-family: Arial, sans-serif;
+}
+
+.app__content {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 40px;
+}

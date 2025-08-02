@@ -1,0 +1,14 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 32px 0 28px;
+  font-size: 20px;
+  justify-content: space-between;
+}
+
+.header__logo {
+  font: 50px "Montserrat", Arial, sans-serif;
+  color: rgb(14, 219, 14);
+  margin: 0;
+  font-weight: 700;
+}
