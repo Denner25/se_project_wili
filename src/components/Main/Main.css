@@ -1,0 +1,17 @@
+.main__grid {
+  display: flex;
+  gap: 20px;
+}
+
+.main__empty {
+  color: #ffb6c1;
+}
+
+.main__text {
+  color: #ffb6c1;
+  font-weight: 700;
+}
+
+.main__poster {
+  width: 100%;
+}

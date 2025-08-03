@@ -1,18 +1,18 @@
 .autocomplete {
   position: relative;
-  width: 16rem;
+  width: 256px;
+  margin: 0 0 0 auto;
 }
 
 .autocomplete__input {
-  /* width: 100%; */
-  padding: 0.5rem 0.75rem;
+  padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 16px;
 }
 
 .loading-text {
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
+  margin-top: 4px;
+  font-size: 12px;
   color: gray;
 }

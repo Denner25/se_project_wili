@@ -1,0 +1,30 @@
+import React from "react";
+import ItemCard from "../ItemCard/ItemCard";
+import "./Main.css";
+import wiliPoster from "../../assets/wili-poster.png";
+
+function Main({ items, onCardClick }) {
+  return (
+    <div className="main">
+      <img src={wiliPoster} alt="WILI Poster" className="main__poster" />
+      {items.length === 0 ? (
+        <p className="main__empty">No items saved yet.</p>
+      ) : (
+        <>
+          <p className="main__text">What people are liking:</p>
+          <div className="main__grid">
+            {items.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                onClick={() => onCardClick(item)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default Main;
