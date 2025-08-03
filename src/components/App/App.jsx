@@ -2,13 +2,17 @@ import "./App.css";
 import Header from "../Header/Header";
 import ItemModal from "../ItemModal/ItemModal";
 import { useState } from "react";
+
 import Main from "../Main/Main";
 import Footer from "../Footer/Footer";
+import Profile from "../Profile/Profile";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   const [activeModal, setActiveModal] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
   const [savedItems, setSavedItems] = useState([]);
+  const [items, setItems] = useState([]);
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -40,7 +44,13 @@ function App() {
     <div className="app">
       <div className="app__content">
         <Header onItemClick={handleItemClick} />
-        <Main items={savedItems} onCardClick={handleItemClick} />
+        <Routes>
+          <Route
+            path="/"
+            element={<Main items={savedItems} onCardClick={handleItemClick} />}
+          />
+          <Route path="/profile" element={<Profile items={items} />} />
+        </Routes>
         <Footer />
       </div>
 
