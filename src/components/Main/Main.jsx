@@ -1,4 +1,3 @@
-import React from "react";
 import ItemCard from "../ItemCard/ItemCard";
 import "./Main.css";
 import wiliPoster from "../../assets/wili-poster.png";

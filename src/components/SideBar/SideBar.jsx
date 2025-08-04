@@ -1,5 +1,6 @@
 import "./SideBar.css";
 import avatar from "../../assets/avatar.png";
+import { Link } from "react-router-dom";
 
 function SideBar({ onEditProfile }) {
   return (
@@ -12,6 +13,9 @@ function SideBar({ onEditProfile }) {
         <button className="sidebar__button" onClick={onEditProfile}>
           Edit profile
         </button>
+        <Link className="sidebar__link" to="/top-moods">
+          <button className="sidebar__button">Your top moods</button>
+        </Link>
       </div>
     </div>
   );

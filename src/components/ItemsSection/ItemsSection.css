@@ -1,4 +1,6 @@
 .items-section__empty {
+  font-size: 20px;
+  margin: 35px 0 16px 0;
   font-weight: 700;
 }
 

@@ -7,6 +7,7 @@ import Main from "../Main/Main";
 import Footer from "../Footer/Footer";
 import Profile from "../Profile/Profile";
 import { Routes, Route } from "react-router-dom";
+import TopMoods from "../TopMoods/TopMoods";
 
 function App() {
   const [activeModal, setActiveModal] = useState("");
@@ -63,8 +64,12 @@ function App() {
           <Route
             path="/profile"
             element={
-              <Profile items={savedItems} onItemClick={handleItemClick} />
+              <Profile items={savedItems} onCardClick={handleItemClick} />
             }
+          />
+          <Route
+            path="/top-moods"
+            element={<TopMoods savedItems={savedItems} />}
           />
         </Routes>
         <Footer />

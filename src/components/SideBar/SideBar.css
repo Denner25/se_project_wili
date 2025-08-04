@@ -49,3 +49,7 @@
   display: inline-block;
   align-self: start;
 }
+
+.sidebar__link {
+  text-align: start;
+}
