@@ -1,0 +1,29 @@
+@import url(../src/vendor/normalize.css);
+
+/* 1. Reset some default browser quirks */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. Base typography & colors */
+html,
+body {
+  font-family: "Inter", sans-serif;
+  color: #ffb6c1;
+  background-color: #fdfdfd;
+  line-height: 1.5;
+}
+
+/* 3. Optional: Make links inherit color */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 4. Optional: Smooth font rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

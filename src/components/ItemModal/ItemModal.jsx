@@ -22,6 +22,7 @@ function ItemModal({ item, isOpen, onClose, onSave }) {
   const handleSave = () => {
     onSave?.({ ...item, moods: selectedTags });
     onClose();
+    setSelectedTags("");
   };
 
   if (!item) return null;

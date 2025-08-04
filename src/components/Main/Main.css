@@ -1,15 +1,17 @@
 .main__grid {
   display: flex;
-  gap: 20px;
+  gap: 23px;
+  flex-wrap: wrap;
 }
 
 .main__empty {
-  color: #ffb6c1;
+  font-weight: 700;
+  margin: 20px 0;
 }
 
 .main__text {
-  color: #ffb6c1;
   font-weight: 700;
+  margin: 20px 0;
 }
 
 .main__poster {

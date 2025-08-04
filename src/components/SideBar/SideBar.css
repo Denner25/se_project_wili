@@ -4,7 +4,7 @@
   max-width: 229px;
   width: 100%;
   min-height: 56px;
-  margin: 19px 116px auto 0;
+  margin: 23px 116px auto 0;
 }
 
 .sidebar__profile {
@@ -39,9 +39,13 @@
 
 .sidebar__button {
   background: transparent;
+  width: auto;
   border: none;
   text-align: left;
   font-size: 20px;
   cursor: pointer;
   font-weight: 700;
+  color: inherit;
+  display: inline-block;
+  align-self: start;
 }

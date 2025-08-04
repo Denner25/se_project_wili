@@ -7,6 +7,6 @@
 }
 
 .footer__copyright {
-  margin: 0;
   padding: 85px 0 24px 0;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
 }

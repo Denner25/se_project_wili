@@ -12,11 +12,16 @@ function App() {
   const [activeModal, setActiveModal] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
   const [savedItems, setSavedItems] = useState([]);
-  const [items, setItems] = useState([]);
+  // const [items, setItems] = useState([]);
+  const [query, setQuery] = useState("");
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
     setActiveModal("item");
+  };
+
+  const resetAutocomplete = () => {
+    setQuery("");
   };
 
   const handleSave = (itemWithMoods) => {
@@ -28,6 +33,7 @@ function App() {
       }
       return [...prev, itemWithMoods];
     });
+    resetAutocomplete();
   };
 
   const closeActiveModal = () => {
@@ -43,13 +49,23 @@ function App() {
   return (
     <div className="app">
       <div className="app__content">
-        <Header onItemClick={handleItemClick} />
+        <Header
+          onItemClick={handleItemClick}
+          onResetAutoComplete={resetAutocomplete}
+          query={query}
+          setQuery={setQuery}
+        />
         <Routes>
           <Route
             path="/"
             element={<Main items={savedItems} onCardClick={handleItemClick} />}
           />
-          <Route path="/profile" element={<Profile items={items} />} />
+          <Route
+            path="/profile"
+            element={
+              <Profile items={savedItems} onItemClick={handleItemClick} />
+            }
+          />
         </Routes>
         <Footer />
       </div>

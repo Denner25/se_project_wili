@@ -7,15 +7,8 @@
 
 .header__logo {
   font: 50px "Montserrat", Arial, sans-serif;
-  color: #ffb6c1;
-  margin: 0;
   font-weight: 700;
   line-height: 0.6;
-}
-
-.header__text {
-  font: 10px "Montserrat", Arial, sans-serif;
-  color: #ffb6c1;
 }
 
 .header__user-container {
@@ -24,15 +17,12 @@
 }
 
 .header__username {
-  margin: 0;
-  color: #ffb6c1;
+  font-weight: 700;
 }
 
 .header__link {
   display: flex;
   align-items: center;
-  text-decoration: none;
-  color: #ffb6c1;
   gap: 12px;
 }
 

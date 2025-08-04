@@ -1,15 +1,32 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { searchMulti, getDetails } from "../../utils/tmdbApi";
 import Dropdown from "../Dropdown/Dropdown";
 import "./Autocomplete.css";
 
 const detailCache = {};
 
-export default function Autocomplete({ onSelect }) {
-  const [query, setQuery] = useState("");
+function Autocomplete({ onSelect, query, setQuery }) {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef(null);
+  const containerRef = useRef(null); // 🔹 reference for click-out detection
+
+  // 🔹 Close dropdown
+  const closeDropdown = () => setSuggestions([]);
+
+  // 🔹 Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        closeDropdown();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // 🔹 Format title with year
   function formatTitle(item) {
@@ -119,7 +136,7 @@ export default function Autocomplete({ onSelect }) {
   };
 
   return (
-    <div className="autocomplete">
+    <div className="autocomplete" ref={containerRef}>
       <input
         value={query}
         onChange={handleChange}
@@ -131,3 +148,5 @@ export default function Autocomplete({ onSelect }) {
     </div>
   );
 }
+
+export default Autocomplete;
