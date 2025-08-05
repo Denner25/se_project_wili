@@ -29,3 +29,34 @@ git push
 git remote add origin https://github.com/Denner25/se_project_wili
 git push
 git push -u origin main
+ls
+ls -A
+git add -A
+git branch
+git commit -m "begin work on header, autocomplete and item modal"
+git push
+git push --set-upstream origin stage-1-frontend-and-api
+npm run dev
+touch Main.jsx Main.css
+pwd
+git add -A
+git commit -m "work on main, item card, footer and add poster"
+git push
+git add -A
+git commit -m "begin work on profile, sidebar and items section"
+git push
+cd ../../
+git clone https://github.com/Denner25/se_project_aroundtheus
+mkdir "Sprint 9"
+cd ~
+git add -A
+git commit -m "implement close dropdown on click outside, sidebar, profile and items section"
+git push
+mkdir topMoods
+mkdir TopMoods
+mkdir TopMoods
+touch TopMoods.jsx TopMoods.css
+git add -A
+git commit -m "begin work on top moods component"
+git push
+npm run dev

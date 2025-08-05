@@ -3,7 +3,8 @@ import "./TopMoods.css";
 import SideBar from "../SideBar/SideBar";
 
 function TopMoods({ savedItems, onEdit }) {
-  // Flatten all moods from all saved items
+  const colors = ["#26c6da", "#66bb6a", "#ff7043", "#ab47bc", "#ffa726"];
+
   const moodCounts = useMemo(() => {
     const counts = {};
     savedItems.forEach((item) => {
@@ -13,7 +14,7 @@ function TopMoods({ savedItems, onEdit }) {
     });
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10); // top 10
+      .slice(0, 10);
   }, [savedItems]);
 
   return (
@@ -28,11 +29,16 @@ function TopMoods({ savedItems, onEdit }) {
           <>
             <h2>Your Top Moods:</h2>
             <div className="top-moods__cloud">
-              {moodCounts.map(([tag, count]) => (
+              {moodCounts.map(([tag, count], i) => (
                 <span
                   key={tag}
-                  className="top-moods__tag"
-                  style={{ fontSize: `${0.8 + count * 0.2}rem` }}
+                  className={`top-moods__tag ${
+                    i === 0 ? "top-moods__tag--main" : ""
+                  }`}
+                  style={{
+                    fontSize: `${0.8 + count * 0.2}rem`,
+                    color: colors[i % colors.length], // cycle colors
+                  }}
                 >
                   {tag}
                 </span>

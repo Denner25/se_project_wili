@@ -11,6 +11,7 @@ function ItemModal({ item, isOpen, onClose, onSave }) {
     fetchKeywords(item.id, item.mediaType).then((keywords) => {
       setMoodTags(keywords.map((k) => k.name));
     });
+    setSelectedTags(item.moods);
   }, [item, isOpen]);
 
   const handleTagChange = (tag) => {
@@ -22,7 +23,7 @@ function ItemModal({ item, isOpen, onClose, onSave }) {
   const handleSave = () => {
     onSave?.({ ...item, moods: selectedTags });
     onClose();
-    setSelectedTags("");
+    setSelectedTags([]);
   };
 
   if (!item) return null;
