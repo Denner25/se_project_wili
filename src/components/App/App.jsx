@@ -2,7 +2,6 @@ import "./App.css";
 import Header from "../Header/Header";
 import ItemModal from "../ItemModal/ItemModal";
 import { useState } from "react";
-
 import Main from "../Main/Main";
 import Footer from "../Footer/Footer";
 import Profile from "../Profile/Profile";
@@ -13,17 +12,18 @@ function App() {
   const [activeModal, setActiveModal] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
   const [savedItems, setSavedItems] = useState([]);
+  const [resetAutocomplete, setResetAutocomplete] = useState(false);
   // const [items, setItems] = useState([]);
-  const [query, setQuery] = useState("");
+  // const [query, setQuery] = useState("");
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
     setActiveModal("item");
   };
 
-  const resetAutocomplete = () => {
-    setQuery("");
-  };
+  // const resetAutocomplete = () => {
+  //   setQuery("");
+  // };
 
   const handleSave = (itemWithMoods) => {
     // If item already exists, update it; else add new
@@ -34,7 +34,8 @@ function App() {
       }
       return [...prev, itemWithMoods];
     });
-    resetAutocomplete();
+    // resetAutocomplete();
+    setResetAutocomplete((f) => !f);
   };
 
   const closeActiveModal = () => {
@@ -52,9 +53,9 @@ function App() {
       <div className="app__content">
         <Header
           onItemClick={handleItemClick}
-          onResetAutoComplete={resetAutocomplete}
-          query={query}
-          setQuery={setQuery}
+          resetAutocomplete={resetAutocomplete}
+          // query={query}
+          // setQuery={setQuery}
         />
         <Routes>
           <Route
@@ -74,8 +75,6 @@ function App() {
         </Routes>
         <Footer />
       </div>
-
-      {/* Global modal at top-level */}
       <ItemModal
         item={selectedItem}
         isOpen={activeModal === "item"}

@@ -18,31 +18,17 @@
 
 .top-moods__cloud {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem; /* space between words */
-  max-width: 270px;
-  margin: 1rem auto;
-  text-align: center;
+  justify-content: flex-start; /* push content left */
+  align-items: flex-start; /* push content to top */
+  width: 100%;
+  max-width: 800px;
+  min-height: 300px;
+  margin: 0; /* remove centering margins */
+  padding: 1rem 0 0 1rem; /* top & left padding to prevent overlap */
 }
 
-.top-moods__tag {
-  display: inline-block;
-  color: #444;
-  font-weight: 600;
-  cursor: default;
-  transition: transform 0.2s ease, color 0.2s ease;
-
-  /* Optional random rotations for cloud feel */
-  transform: rotate(calc(var(--rand-rot, 0) * 1deg));
-}
-
-.top-moods__tag--main {
-  font-size: 2.5rem !important; /* biggest tag */
-}
-
-/* Hover effect */
-.top-moods__tag:hover {
-  color: #ff4081 !important;
-  transform: scale(1.2);
+.top-moods__cloud svg {
+  width: auto !important; /* let the cloud shrink-wrap */
+  height: auto !important;
+  transform: translate(-10%, -10%) !important; /* optional: nudge into corner */
 }
