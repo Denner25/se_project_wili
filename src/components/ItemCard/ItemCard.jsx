@@ -1,9 +1,21 @@
 import "./ItemCard.css";
 
-function ItemCard({ item, onClick }) {
+function ItemCard({ item, onClick, onDelete, hideDelete }) {
+  const showDelete = !hideDelete && item.moods && item.moods.length > 0;
+
   return (
     <div className="item-card" onClick={onClick}>
       <div className="item-card__poster-wrapper">
+        {showDelete && (
+          <button
+            type="button"
+            className="item-card__delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.(item.id);
+            }}
+          />
+        )}
         {item.poster && (
           <img
             src={item.poster.replace("/w92", "/w342")}

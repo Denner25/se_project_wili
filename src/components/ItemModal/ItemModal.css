@@ -77,6 +77,7 @@
   flex-direction: column;
   padding: 20px;
   overflow: hidden;
+  position: relative;
 }
 
 .item-modal__subtitle {
@@ -123,7 +124,24 @@
   font-style: italic;
 }
 
-/* Save button sits naturally at bottom-right */
+.item-modal__delete {
+  background: url("../../assets/delete-button.svg");
+  background-size: contain;
+  border: none;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 17px;
+  right: 17px;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.item-modal__delete:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
 .item-modal__save-button {
   margin-top: auto;
   align-self: flex-end;

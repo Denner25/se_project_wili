@@ -10,9 +10,9 @@ function Header({ onItemClick, resetAutocomplete }) {
     setQuery("");
   }, [resetAutocomplete]);
 
-  //moved `query` and `setQuery` state from the top-level component
+  // moved `query` and `setQuery` state from the top-level component
   // into the Header component to localize control and reduce unnecessary
-  // re-renders of word cloud component.
+  // re-renders of word cloud component and still be able to resetAutocomplete
 
   return (
     <header className="header">

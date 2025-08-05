@@ -17,6 +17,7 @@ function Main({ items, onCardClick }) {
                 key={item.id}
                 item={item}
                 onClick={() => onCardClick(item)}
+                hideDelete={true}
               />
             ))}
           </div>

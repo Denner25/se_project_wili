@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchKeywords } from "../../utils/tmdbApi";
 import "./ItemModal.css";
 
-function ItemModal({ item, isOpen, onClose, onSave }) {
+function ItemModal({ item, isOpen, onClose, onSave, onDelete }) {
   const [moodTags, setMoodTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
@@ -61,7 +61,16 @@ function ItemModal({ item, isOpen, onClose, onSave }) {
             {item.mediaType === "movie" ? "Movie" : "TV Show"}
             {item.length ? ` • ${item.length}` : ""}
           </p>
-
+          {item.moods && item.moods.length > 0 && (
+            <button
+              type="button"
+              className="item-modal__delete"
+              onClick={() => {
+                onDelete?.(item.id);
+                onClose();
+              }}
+            />
+          )}
           <div className="item-modal__tags">
             {moodTags.length === 0 ? (
               <span className="item-modal__no-tags">No tags found.</span>

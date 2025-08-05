@@ -1,7 +1,7 @@
 import ItemCard from "../ItemCard/ItemCard";
 import "./ItemsSection.css";
 
-function ItemsSection({ items, onCardClick }) {
+function ItemsSection({ items, onCardClick, onDelete }) {
   return (
     <div className="items-section">
       {items.length === 0 ? (
@@ -15,6 +15,7 @@ function ItemsSection({ items, onCardClick }) {
                 key={item.id}
                 item={item}
                 onClick={() => onCardClick(item)}
+                onDelete={onDelete}
               />
             ))}
           </div>

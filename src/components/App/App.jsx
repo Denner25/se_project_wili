@@ -28,6 +28,9 @@ function App() {
   const handleSave = (itemWithMoods) => {
     // If item already exists, update it; else add new
     setSavedItems((prev) => {
+      if (!itemWithMoods.moods || itemWithMoods.moods.length === 0) {
+        return prev.filter((i) => i.id !== itemWithMoods.id);
+      }
       const exists = prev.find((i) => i.id === itemWithMoods.id);
       if (exists) {
         return prev.map((i) => (i.id === itemWithMoods.id ? itemWithMoods : i));
@@ -48,14 +51,16 @@ function App() {
     }
   };
 
+  const handleDelete = (itemId) => {
+    setSavedItems((prev) => prev.filter((item) => item.id !== itemId));
+  };
+
   return (
     <div className="app">
       <div className="app__content">
         <Header
           onItemClick={handleItemClick}
           resetAutocomplete={resetAutocomplete}
-          // query={query}
-          // setQuery={setQuery}
         />
         <Routes>
           <Route
@@ -65,7 +70,11 @@ function App() {
           <Route
             path="/profile"
             element={
-              <Profile items={savedItems} onCardClick={handleItemClick} />
+              <Profile
+                items={savedItems}
+                onCardClick={handleItemClick}
+                onDelete={handleDelete}
+              />
             }
           />
           <Route
@@ -81,6 +90,7 @@ function App() {
         onOverlayClose={handleOverlayClose}
         onClose={closeActiveModal}
         onSave={handleSave}
+        onDelete={handleDelete}
       />
     </div>
   );
