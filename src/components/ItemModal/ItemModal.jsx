@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchKeywords } from "../../utils/tmdbApi";
 import "./ItemModal.css";
 
-function ItemModal({ item, isOpen, onClose, onSave, onDelete }) {
+function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
   const [moodTags, setMoodTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
@@ -66,8 +66,7 @@ function ItemModal({ item, isOpen, onClose, onSave, onDelete }) {
               type="button"
               className="item-modal__delete"
               onClick={() => {
-                onDelete?.(item.id);
-                onClose();
+                onDeleteRequest?.(item.id);
               }}
             />
           )}

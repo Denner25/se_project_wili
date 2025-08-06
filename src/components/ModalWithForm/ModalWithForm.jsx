@@ -9,7 +9,8 @@ function ModalWithForm({
   onClose,
   onOverlayClose,
   onSubmit,
-  secondaryButton,
+  secondaryButtonText,
+  onSecondaryClick,
 }) {
   return (
     <Modal
@@ -21,10 +22,19 @@ function ModalWithForm({
       <form onSubmit={onSubmit} className="modal__form">
         {children}
         <div className="modal__button-group">
-          <button type="submit" className="modal__submit">
+          <button type="submit" className="modal__button">
             {buttonText}
           </button>
-          {secondaryButton}
+
+          {secondaryButtonText && (
+            <button
+              type="button"
+              className="modal__button"
+              onClick={onSecondaryClick || onClose}
+            >
+              {secondaryButtonText}
+            </button>
+          )}
         </div>
       </form>
     </Modal>

@@ -7,26 +7,38 @@ import Footer from "../Footer/Footer";
 import Profile from "../Profile/Profile";
 import { Routes, Route } from "react-router-dom";
 import TopMoods from "../TopMoods/TopMoods";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
+import EditProfileModal from "../EditProfileModal/EditProfileModal";
 
 function App() {
   const [activeModal, setActiveModal] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
   const [savedItems, setSavedItems] = useState([]);
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
-  // const [items, setItems] = useState([]);
-  // const [query, setQuery] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [profileName, setProfileName] = useState("My Name");
+
+  const handleConfirmClick = (id) => {
+    setPendingDeleteId(id);
+    setActiveModal("confirmation");
+  };
+
+  const handleConfirmDelete = () => {
+    setSavedItems((prev) => prev.filter((item) => item.id !== pendingDeleteId));
+    setPendingDeleteId(null);
+    closeActiveModal();
+  };
+
+  const handleEditProfileClick = () => {
+    setActiveModal("edit-profile");
+  };
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
     setActiveModal("item");
   };
 
-  // const resetAutocomplete = () => {
-  //   setQuery("");
-  // };
-
   const handleSave = (itemWithMoods) => {
-    // If item already exists, update it; else add new
     setSavedItems((prev) => {
       if (!itemWithMoods.moods || itemWithMoods.moods.length === 0) {
         return prev.filter((i) => i.id !== itemWithMoods.id);
@@ -37,7 +49,6 @@ function App() {
       }
       return [...prev, itemWithMoods];
     });
-    // resetAutocomplete();
     setResetAutocomplete((f) => !f);
   };
 
@@ -51,16 +62,13 @@ function App() {
     }
   };
 
-  const handleDelete = (itemId) => {
-    setSavedItems((prev) => prev.filter((item) => item.id !== itemId));
-  };
-
   return (
     <div className="app">
       <div className="app__content">
         <Header
           onItemClick={handleItemClick}
           resetAutocomplete={resetAutocomplete}
+          profileName={profileName}
         />
         <Routes>
           <Route
@@ -73,13 +81,21 @@ function App() {
               <Profile
                 items={savedItems}
                 onCardClick={handleItemClick}
-                onDelete={handleDelete}
+                onDeleteRequest={handleConfirmClick}
+                onEditProfile={handleEditProfileClick}
+                profileName={profileName}
               />
             }
           />
           <Route
             path="/top-moods"
-            element={<TopMoods savedItems={savedItems} />}
+            element={
+              <TopMoods
+                savedItems={savedItems}
+                onEditProfile={handleEditProfileClick}
+                profileName={profileName}
+              />
+            }
           />
         </Routes>
         <Footer />
@@ -90,7 +106,20 @@ function App() {
         onOverlayClose={handleOverlayClose}
         onClose={closeActiveModal}
         onSave={handleSave}
-        onDelete={handleDelete}
+        onDeleteRequest={handleConfirmClick}
+      />
+      <ConfirmationModal
+        isOpen={activeModal === "confirmation"}
+        onClose={closeActiveModal}
+        onOverlayClose={handleOverlayClose}
+        onConfirm={handleConfirmDelete}
+      />
+      <EditProfileModal
+        isOpen={activeModal === "edit-profile"}
+        onClose={closeActiveModal}
+        onOverlayClose={handleOverlayClose}
+        currentName={profileName}
+        onSave={(newName) => setProfileName(newName)}
       />
     </div>
   );

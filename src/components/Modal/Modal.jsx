@@ -6,7 +6,7 @@ function Modal({ isOpen, onClose, onOverlayClose, title, children }) {
       className={`modal${isOpen ? " modal_opened" : ""}`}
       onClick={onOverlayClose}
     >
-      <div className="modal__content">
+      <div className="modal__content" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}
           type="button"

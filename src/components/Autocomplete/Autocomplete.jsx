@@ -140,7 +140,7 @@ function Autocomplete({ onSelect, query, setQuery }) {
       <input
         value={query}
         onChange={handleChange}
-        placeholder="Search movies or shows..."
+        placeholder="Search movies and animes..."
         className="autocomplete__input"
       />
       <Dropdown items={suggestions} onItemClick={handleSelect} />

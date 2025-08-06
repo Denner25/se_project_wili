@@ -4,7 +4,7 @@ import avatar from "../../assets/avatar.png";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-function Header({ onItemClick, resetAutocomplete }) {
+function Header({ onItemClick, resetAutocomplete, profileName }) {
   const [query, setQuery] = useState("");
   useEffect(() => {
     setQuery("");
@@ -22,7 +22,7 @@ function Header({ onItemClick, resetAutocomplete }) {
       <Autocomplete onSelect={onItemClick} query={query} setQuery={setQuery} />
       <div className="header__user-container">
         <Link className="header__link" to="/profile">
-          <p className="header__username">Denner Cardoso</p>
+          <p className="header__username">{profileName}</p>
           <img src={avatar} alt="User Avatar" className="header__avatar" />
         </Link>
       </div>

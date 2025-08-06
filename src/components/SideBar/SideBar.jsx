@@ -2,12 +2,12 @@ import "./SideBar.css";
 import avatar from "../../assets/avatar.png";
 import { Link } from "react-router-dom";
 
-function SideBar({ onEditProfile }) {
+function SideBar({ onEditProfile, profileName }) {
   return (
     <div className="sidebar">
       <div className="sidebar__profile">
         <img className="sidebar__avatar" src={avatar} alt="User Avatar" />
-        <p className="sidebar__username">Denner Cardoso</p>
+        <p className="sidebar__username">{profileName}</p>
       </div>
       <div className="sidebar__buttons">
         <button className="sidebar__button" onClick={onEditProfile}>

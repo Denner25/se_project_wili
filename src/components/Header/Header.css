@@ -18,6 +18,10 @@
 
 .header__username {
   font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 123px;
+  white-space: nowrap;
 }
 
 .header__link {

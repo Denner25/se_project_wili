@@ -1,6 +1,6 @@
 .dropdown {
   position: absolute;
-  width: 320px;
+  max-width: inherit;
   margin-top: 0.25rem;
   border: 1px solid #ccc;
   border-radius: 8px;

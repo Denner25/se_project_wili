@@ -1,6 +1,6 @@
 import "./ItemCard.css";
 
-function ItemCard({ item, onClick, onDelete, hideDelete }) {
+function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
   const showDelete = !hideDelete && item.moods && item.moods.length > 0;
 
   return (
@@ -12,7 +12,7 @@ function ItemCard({ item, onClick, onDelete, hideDelete }) {
             className="item-card__delete"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete?.(item.id);
+              onDeleteRequest?.(item.id);
             }}
           />
         )}
