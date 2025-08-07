@@ -1,4 +1,5 @@
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
+import { BUTTONS } from "../../utils/constants";
 
 function ConfirmationModal({ isOpen, onClose, onOverlayClose, onConfirm }) {
   return (
@@ -7,8 +8,8 @@ function ConfirmationModal({ isOpen, onClose, onOverlayClose, onConfirm }) {
       isOpen={isOpen}
       onClose={onClose}
       onOverlayClose={onOverlayClose}
-      buttonText="Delete"
-      secondaryButtonText="Cancel"
+      buttonText={BUTTONS.DELETE}
+      secondaryButtonText={BUTTONS.CANCEL}
       onSecondaryClick={onClose} // custom handler optional
       onSubmit={(e) => {
         e.preventDefault();

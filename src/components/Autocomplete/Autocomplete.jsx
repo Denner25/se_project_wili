@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { searchMulti, getDetails } from "../../utils/tmdbApi";
 import Dropdown from "../Dropdown/Dropdown";
+import { IMAGE_BASE_URL_W92, ERROR_MESSAGES } from "../../utils/constants";
 import "./Autocomplete.css";
 
 const detailCache = {};
@@ -8,6 +9,7 @@ const detailCache = {};
 function Autocomplete({ onSelect, query, setQuery }) {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const debounceRef = useRef(null);
   const containerRef = useRef(null); // 🔹 reference for click-out detection
 
@@ -58,10 +60,12 @@ function Autocomplete({ onSelect, query, setQuery }) {
   const fetchSuggestions = (text) => {
     if (!text.trim()) {
       setSuggestions([]);
+      setError(null);
       return;
     }
 
     setLoading(true);
+    setError(null);
 
     searchMulti(text)
       .then((data) => {
@@ -77,12 +81,13 @@ function Autocomplete({ onSelect, query, setQuery }) {
             mediaType: item.media_type,
             title: formatTitle(item),
             poster: item.poster_path
-              ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+              ? `${IMAGE_BASE_URL_W92}${item.poster_path}`
               : null,
             length: null,
           }));
 
         setSuggestions(baseResults);
+        setError(null);
 
         // Sequentially fetch details to get runtime/episodes
         baseResults.forEach((item, index) => {
@@ -118,10 +123,16 @@ function Autocomplete({ onSelect, query, setQuery }) {
                 )
               );
             })
-            .catch((err) => console.error("Detail fetch error:", err));
+            .catch((err) => {
+              console.error("Detail fetch error:", err);
+              setError(ERROR_MESSAGES.FETCH_DETAILS_FAILED);
+            });
         });
       })
-      .catch((err) => console.error("Search error:", err))
+      .catch((err) => {
+        console.error("Search error:", err);
+        setError(ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -143,6 +154,8 @@ function Autocomplete({ onSelect, query, setQuery }) {
         placeholder="Search movies and animes..."
         className="autocomplete__input"
       />
+      {/* Show error message if error exists */}
+      {error && <div className="autocomplete__error">{error}</div>}
       <Dropdown items={suggestions} onItemClick={handleSelect} />
       {loading && <div className="loading-text">Loading…</div>}
     </div>

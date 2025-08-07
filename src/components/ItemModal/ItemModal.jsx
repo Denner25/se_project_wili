@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchKeywords } from "../../utils/tmdbApi";
 import "./ItemModal.css";
+import { BUTTONS } from "../../utils/constants";
 
 function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
   const [moodTags, setMoodTags] = useState([]);
@@ -41,8 +42,10 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
         <button
           className="item-modal__close"
           onClick={onClose}
-          aria-label="Close modal"
-        />
+          aria-label={BUTTONS.CLOSE}
+        >
+          {BUTTONS.CLOSE}
+        </button>
 
         {/* Poster on the left */}
         <div className="item-modal__poster-wrapper">
@@ -68,7 +71,7 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
               onClick={() => {
                 onDeleteRequest?.(item.id);
               }}
-            />
+            ></button>
           )}
           <div className="item-modal__tags">
             {moodTags.length === 0 ? (
@@ -93,7 +96,7 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
             className="item-modal__save-button"
             onClick={handleSave}
           >
-            Save
+            {BUTTONS.SAVE}
           </button>
         </div>
       </div>

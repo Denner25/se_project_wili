@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
+import { BUTTONS } from "../../utils/constants";
 
 function EditProfileModal({
   isOpen,
@@ -31,8 +32,8 @@ function EditProfileModal({
       isOpen={isOpen}
       onClose={onClose}
       onOverlayClose={onOverlayClose}
-      buttonText="Save"
-      secondaryButtonText="Cancel"
+      buttonText={BUTTONS.SAVE}
+      secondaryButtonText={BUTTONS.CANCEL}
       onSecondaryClick={onClose}
       onSubmit={handleSubmit}
     >
