@@ -43,9 +43,7 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
           className="item-modal__close"
           onClick={onClose}
           aria-label={BUTTONS.CLOSE}
-        >
-          {BUTTONS.CLOSE}
-        </button>
+        ></button>
 
         {/* Poster on the left */}
         <div className="item-modal__poster-wrapper">

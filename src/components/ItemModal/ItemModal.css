@@ -6,7 +6,6 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.3);
-
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -75,8 +74,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  overflow: hidden;
+  padding: 16px;
   position: relative;
 }
 
@@ -92,8 +90,9 @@
   flex-wrap: wrap;
   gap: 10px;
   overflow-y: auto;
-  max-height: 350px;
-  padding-right: 4px;
+  overflow-x: visible;
+  max-height: 400px;
+  padding: 6px;
 }
 
 .item-modal__tag {
