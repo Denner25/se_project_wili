@@ -1,3 +1,4 @@
+import "./EditProfileModal.css";
 import { useState, useEffect } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import { BUTTONS } from "../../utils/constants";
