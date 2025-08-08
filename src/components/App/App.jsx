@@ -9,6 +9,7 @@ import { Routes, Route } from "react-router-dom";
 import TopMoods from "../TopMoods/TopMoods";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 import EditProfileModal from "../EditProfileModal/EditProfileModal";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function App() {
   const [activeModal, setActiveModal] = useState("");
@@ -17,6 +18,7 @@ function App() {
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [profileName, setProfileName] = useState("My Name");
+  const [currentUser, setCurrentUser] = useState(null);
 
   const handleConfirmClick = (id) => {
     setPendingDeleteId(id);
@@ -63,65 +65,69 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <div className="app__content">
-        <Header
-          onItemClick={handleItemClick}
-          resetAutocomplete={resetAutocomplete}
-          profileName={profileName}
+    <CurrentUserContext.Provider value={currentUser}>
+      <div className="app">
+        <div className="app__content">
+          <Header
+            onItemClick={handleItemClick}
+            resetAutocomplete={resetAutocomplete}
+            profileName={profileName}
+          />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Main items={savedItems} onCardClick={handleItemClick} />
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <Profile
+                  items={savedItems}
+                  onCardClick={handleItemClick}
+                  onDeleteRequest={handleConfirmClick}
+                  onEditProfile={handleEditProfileClick}
+                  profileName={profileName}
+                />
+              }
+            />
+            <Route
+              path="/top-moods"
+              element={
+                <TopMoods
+                  savedItems={savedItems}
+                  onEditProfile={handleEditProfileClick}
+                  profileName={profileName}
+                />
+              }
+            />
+          </Routes>
+          <Footer />
+        </div>
+        <ItemModal
+          item={selectedItem}
+          isOpen={activeModal === "item"}
+          onOverlayClose={handleOverlayClose}
+          onClose={closeActiveModal}
+          onSave={handleSave}
+          onDeleteRequest={handleConfirmClick}
         />
-        <Routes>
-          <Route
-            path="/"
-            element={<Main items={savedItems} onCardClick={handleItemClick} />}
-          />
-          <Route
-            path="/profile"
-            element={
-              <Profile
-                items={savedItems}
-                onCardClick={handleItemClick}
-                onDeleteRequest={handleConfirmClick}
-                onEditProfile={handleEditProfileClick}
-                profileName={profileName}
-              />
-            }
-          />
-          <Route
-            path="/top-moods"
-            element={
-              <TopMoods
-                savedItems={savedItems}
-                onEditProfile={handleEditProfileClick}
-                profileName={profileName}
-              />
-            }
-          />
-        </Routes>
-        <Footer />
+        <ConfirmationModal
+          isOpen={activeModal === "confirmation"}
+          onClose={closeActiveModal}
+          onOverlayClose={handleOverlayClose}
+          onConfirm={handleConfirmDelete}
+        />
+        <EditProfileModal
+          isOpen={activeModal === "edit-profile"}
+          onClose={closeActiveModal}
+          onOverlayClose={handleOverlayClose}
+          currentName={profileName}
+          onSave={(newName) => setProfileName(newName)}
+        />
       </div>
-      <ItemModal
-        item={selectedItem}
-        isOpen={activeModal === "item"}
-        onOverlayClose={handleOverlayClose}
-        onClose={closeActiveModal}
-        onSave={handleSave}
-        onDeleteRequest={handleConfirmClick}
-      />
-      <ConfirmationModal
-        isOpen={activeModal === "confirmation"}
-        onClose={closeActiveModal}
-        onOverlayClose={handleOverlayClose}
-        onConfirm={handleConfirmDelete}
-      />
-      <EditProfileModal
-        isOpen={activeModal === "edit-profile"}
-        onClose={closeActiveModal}
-        onOverlayClose={handleOverlayClose}
-        currentName={profileName}
-        onSave={(newName) => setProfileName(newName)}
-      />
-    </div>
+    </CurrentUserContext.Provider>
   );
 }
 
