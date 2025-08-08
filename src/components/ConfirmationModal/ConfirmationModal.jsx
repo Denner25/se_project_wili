@@ -9,8 +9,11 @@ function ConfirmationModal({ isOpen, onClose, onOverlayClose, onConfirm }) {
       onClose={onClose}
       onOverlayClose={onOverlayClose}
       buttonText={BUTTONS.DELETE}
-      secondaryButtonText={BUTTONS.CANCEL}
-      onSecondaryClick={onClose} // custom handler optional
+      secondaryButton={
+        <button type="button" className="modal__secondary" onClick={onClose}>
+          {BUTTONS.CANCEL}
+        </button>
+      }
       onSubmit={(e) => {
         e.preventDefault();
         onConfirm();

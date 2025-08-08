@@ -10,6 +10,8 @@ import TopMoods from "../TopMoods/TopMoods";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 import EditProfileModal from "../EditProfileModal/EditProfileModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import LogInModal from "../LogInModal/LogInModal";
+import RegisterModal from "../RegisterModal/RegisterModal";
 
 function App() {
   const [activeModal, setActiveModal] = useState("");
@@ -31,9 +33,9 @@ function App() {
     closeActiveModal();
   };
 
-  const handleEditProfileClick = () => {
-    setActiveModal("edit-profile");
-  };
+  const handleEditProfileClick = () => setActiveModal("edit-profile");
+  const handleSignUpClick = () => setActiveModal("register");
+  const handleLogInClick = () => setActiveModal("log-in");
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -71,7 +73,9 @@ function App() {
           <Header
             onItemClick={handleItemClick}
             resetAutocomplete={resetAutocomplete}
-            profileName={profileName}
+            onSignUpClick={handleSignUpClick}
+            onLogInClick={handleLogInClick}
+            currentUser={currentUser}
           />
           <Routes>
             <Route
@@ -105,6 +109,20 @@ function App() {
           </Routes>
           <Footer />
         </div>
+        <RegisterModal
+          onClose={closeActiveModal}
+          onOverlayClose={handleOverlayClose}
+          // onSignUp={handleSignUp}
+          isOpen={activeModal === "register"}
+          onLogInClick={handleLogInClick}
+        />
+        <LogInModal
+          onClose={closeActiveModal}
+          onOverlayClose={handleOverlayClose}
+          // onLogIn={handleLogIn}
+          isOpen={activeModal === "log-in"}
+          onSignUpClick={handleSignUpClick}
+        />
         <ItemModal
           item={selectedItem}
           isOpen={activeModal === "item"}

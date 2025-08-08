@@ -9,8 +9,7 @@ function ModalWithForm({
   onClose,
   onOverlayClose,
   onSubmit,
-  secondaryButtonText,
-  onSecondaryClick,
+  secondaryButton,
 }) {
   return (
     <Modal
@@ -26,15 +25,7 @@ function ModalWithForm({
             {buttonText}
           </button>
 
-          {secondaryButtonText && (
-            <button
-              type="button"
-              className="modal__button"
-              onClick={onSecondaryClick || onClose}
-            >
-              {secondaryButtonText}
-            </button>
-          )}
+          {secondaryButton}
         </div>
       </form>
     </Modal>
