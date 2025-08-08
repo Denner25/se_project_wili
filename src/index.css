@@ -14,6 +14,8 @@ body {
   color: #ffb6c1;
   background-color: #fdfdfd;
   line-height: 1.5;
+  height: 100%;
+  margin: 0;
 }
 
 /* 3. Optional: Make links inherit color */

@@ -34,8 +34,11 @@ function EditProfileModal({
       onClose={onClose}
       onOverlayClose={onOverlayClose}
       buttonText={BUTTONS.SAVE}
-      secondaryButtonText={BUTTONS.CANCEL}
-      onSecondaryClick={onClose}
+      secondaryButton={
+        <button type="button" className="modal__secondary" onClick={onClose}>
+          {BUTTONS.CANCEL}
+        </button>
+      }
       onSubmit={handleSubmit}
     >
       <label className="modal__label">

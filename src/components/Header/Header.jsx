@@ -2,14 +2,12 @@ import "./Header.css";
 import Autocomplete from "../Autocomplete/Autocomplete";
 import avatar from "../../assets/avatar.png";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function Header({
   onItemClick,
   resetAutocomplete,
-  profileName,
   onSignUpClick,
   onLogInClick,
 }) {
@@ -34,14 +32,14 @@ function Header({
       <Autocomplete onSelect={onItemClick} query={query} setQuery={setQuery} />
 
       <div className="header__group">
-        {profileName ? (
+        {currentUser ? (
           <Link className="header__link" to="/profile">
-            <p className="header__username">{profileName}</p>
+            <p className="header__username">{currentUser.name}</p>
             {avatar ? (
               <img src={avatar} alt="User Avatar" className="header__avatar" />
             ) : (
               <div className="header__avatar-placeholder">
-                {profileName.charAt(0).toUpperCase()}
+                {currentUser.name?.charAt(0).toUpperCase()}
               </div>
             )}
           </Link>

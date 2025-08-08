@@ -9,6 +9,7 @@
   font: 50px "Montserrat", Arial, sans-serif;
   font-weight: 700;
   line-height: 0.6;
+  margin-right: 24px;
 }
 
 .header__group {
@@ -22,6 +23,7 @@
   color: inherit;
   display: flex;
   align-items: center;
+  font-weight: 700;
 }
 
 .header__btn {
