@@ -1,7 +1,8 @@
 .autocomplete {
   position: relative;
-  width: auto;
   margin: 0 24px 0 auto;
+  max-width: 290px;
+  width: 100%;
 }
 
 .autocomplete__input {
@@ -9,7 +10,8 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
-  width: 290px;
+  max-width: inherit;
+  width: 100%;
 }
 
 .loading-text {

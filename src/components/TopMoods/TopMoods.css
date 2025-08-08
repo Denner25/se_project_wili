@@ -1,6 +1,7 @@
 .top-moods {
   text-align: center;
   display: flex;
+  flex-grow: 1;
 }
 
 .top-moods h2 {
@@ -23,12 +24,19 @@
   width: 100%;
   max-width: 800px;
   min-height: 300px;
-  margin: 0; /* remove centering margins */
+  margin: 0;
   padding: 1rem 0 0 1rem; /* top & left padding to prevent overlap */
 }
 
 .top-moods__cloud svg {
   width: auto !important; /* let the cloud shrink-wrap */
   height: auto !important;
-  transform: translate(-10%, -10%) !important; /* optional: nudge into corner */
+  transform: translate(-10%, -10%) !important; /* nudge into corner */
+}
+
+@media screen and (max-width: 526px) {
+  .top-moods {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
