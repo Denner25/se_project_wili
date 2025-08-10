@@ -29,9 +29,7 @@ function App() {
   const [savedItems, setSavedItems] = useState([]);
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
-  const [profileName, setProfileName] = useState("My Name");
   const [currentUser, setCurrentUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,15 +38,19 @@ function App() {
       getCurrentUser(token)
         .then((user) => {
           setCurrentUser(user);
-          setProfileName(user.name || "My Name");
-          setIsLoggedIn(true);
         })
         .catch(() => {
-          setIsLoggedIn(false);
           setCurrentUser(null);
           localStorage.removeItem("jwt");
         });
       getItems(token)
+        .then((res) => {
+          setSavedItems(res.data);
+        })
+        .catch(console.error);
+    } else {
+      // Always fetch items for main page, even if logged out
+      getItems()
         .then((res) => {
           setSavedItems(res.data);
         })
@@ -126,22 +128,11 @@ function App() {
     }
   };
 
-  const handleAddItem = (itemData) => {
-    const token = localStorage.getItem("jwt");
-    addItem(itemData, token)
-      .then((res) => {
-        setSavedItems((prev) => [res.data, ...prev]);
-        closeActiveModal();
-      })
-      .catch(console.error);
-  };
-
   const handleProfileSave = (profileData) => {
     const token = localStorage.getItem("jwt");
     updateProfile(profileData, token)
       .then((updatedUser) => {
         setCurrentUser(updatedUser);
-        if (updatedUser.name) setProfileName(updatedUser.name);
         closeActiveModal();
       })
       .catch(console.error);
@@ -170,13 +161,23 @@ function App() {
   const handleLogIn = ({ email, password }) => {
     return login({ email, password }).then((res) => {
       localStorage.setItem("jwt", res.token);
-      setIsLoggedIn(true);
-      return checkToken(res.token).then((user) => {
-        setCurrentUser(user);
-        closeActiveModal();
-        navigate("/profile");
-      });
+      // Fetch user and items after login
+      return Promise.all([checkToken(res.token), getItems(res.token)]).then(
+        ([user, itemsRes]) => {
+          setCurrentUser(user);
+          setSavedItems(itemsRes.data);
+          closeActiveModal();
+          navigate("/profile");
+        }
+      );
     });
+  };
+
+  const handleLogOut = () => {
+    localStorage.removeItem("jwt");
+    setCurrentUser(null);
+    closeActiveModal();
+    navigate("/");
   };
 
   return (
@@ -205,7 +206,7 @@ function App() {
                   onCardClick={handleItemClick}
                   onDeleteRequest={handleConfirmClick}
                   onEditProfile={handleEditProfileClick}
-                  profileName={profileName}
+                  onLogOut={handleLogOut}
                 />
               }
             />
@@ -215,7 +216,6 @@ function App() {
                 <TopMoods
                   savedItems={savedItems}
                   onEditProfile={handleEditProfileClick}
-                  profileName={profileName}
                 />
               }
             />
@@ -254,7 +254,6 @@ function App() {
           isOpen={activeModal === "edit-profile"}
           onClose={closeActiveModal}
           onOverlayClose={handleOverlayClose}
-          currentName={profileName}
           onSave={handleProfileSave}
         />
       </div>

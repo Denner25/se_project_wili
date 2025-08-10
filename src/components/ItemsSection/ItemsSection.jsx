@@ -12,7 +12,7 @@ function ItemsSection({ items, onCardClick, onDeleteRequest }) {
           <div className="items-section__list">
             {items.map((item) => (
               <ItemCard
-                key={item._id || item.id}
+                key={item._id}
                 item={item}
                 onClick={() => onCardClick(item)}
                 onDeleteRequest={onDeleteRequest}
