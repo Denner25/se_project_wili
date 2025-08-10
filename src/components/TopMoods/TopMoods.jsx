@@ -18,7 +18,7 @@ function TopMoods({ savedItems, onEditProfile, profileName }) {
   const moodCounts = useMemo(() => {
     const counts = {};
     savedItems.forEach((item) => {
-      (item.moods || []).forEach((tag) => {
+      (item.tags || []).forEach((tag) => {
         counts[tag] = (counts[tag] || 0) + 1;
       });
     });

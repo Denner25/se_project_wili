@@ -4,15 +4,27 @@ import "./ItemModal.css";
 import { BUTTONS } from "../../utils/constants";
 
 function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
-  const [moodTags, setMoodTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
   useEffect(() => {
-    if (!item || !isOpen) return;
-    fetchKeywords(item.id, item.mediaType).then((keywords) => {
-      setMoodTags(keywords.map((k) => k.name));
+    if (!item || !isOpen) {
+      setAvailableTags([]);
+      setSelectedTags([]);
+      return;
+    }
+    // Use the original TMDB id and mediaType if present, else fallback
+    const tmdbId = item.itemId || item.tmdbId || item._id || item.id;
+    const mediaType = item.mediaType || item.originalMediaType;
+    if (!tmdbId || !mediaType) {
+      setAvailableTags([]);
+      setSelectedTags(item.tags || []);
+      return;
+    }
+    fetchKeywords(tmdbId, mediaType).then((keywords) => {
+      setAvailableTags(keywords.map((k) => k.name));
     });
-    setSelectedTags(item.moods || []);
+    setSelectedTags(item.tags || []);
   }, [item, isOpen]);
 
   const handleTagChange = (tag) => {
@@ -22,9 +34,9 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
   };
 
   const handleSave = () => {
-    onSave?.({ ...item, moods: selectedTags });
+    if (!item) return;
+    onSave?.({ ...item, tags: selectedTags });
     onClose();
-    setSelectedTags([]);
   };
 
   if (!item) return null;
@@ -38,14 +50,12 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
         className="item-modal"
         onClick={(e) => e.stopPropagation()} // prevent closing on modal click
       >
-        {/* Close button inside modal but visually outside */}
         <button
           className="item-modal__close"
           onClick={onClose}
           aria-label={BUTTONS.CLOSE}
         ></button>
 
-        {/* Poster on the left */}
         <div className="item-modal__poster-wrapper">
           {item.poster && (
             <img
@@ -56,26 +66,25 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
           )}
         </div>
 
-        {/* Right description */}
         <div className="item-modal__description">
           <p className="item-modal__subtitle">
             {item.mediaType === "movie" ? "Movie" : "TV Show"}
             {item.length ? ` • ${item.length}` : ""}
           </p>
-          {item.moods && item.moods.length > 0 && (
+
+          {item.tags && item.tags.length > 0 && (
             <button
               type="button"
               className="item-modal__delete"
-              onClick={() => {
-                onDeleteRequest?.(item.id);
-              }}
+              onClick={() => onDeleteRequest?.(item._id)}
             ></button>
           )}
+
           <div className="item-modal__tags">
-            {moodTags.length === 0 ? (
+            {availableTags.length === 0 ? (
               <span className="item-modal__no-tags">No tags found.</span>
             ) : (
-              moodTags.map((tag) => (
+              availableTags.map((tag) => (
                 <label
                   key={tag}
                   className={`item-modal__tag ${

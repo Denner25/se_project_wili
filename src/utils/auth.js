@@ -4,7 +4,7 @@ function handleResponse(res) {
   return res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
 }
 
-function register({ name, email, password }) {
+function signup({ name, email, password }) {
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -26,4 +26,4 @@ function checkToken(token) {
   }).then(handleResponse);
 }
 
-export { register, login, checkToken };
+export { signup, login, checkToken };

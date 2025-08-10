@@ -13,7 +13,6 @@ function RegisterModal({
   const { values, errors, isValid, handleChange, resetForm } = useFormValidator(
     {
       name: "",
-      avatar: "",
       email: "",
       password: "",
     }
@@ -90,19 +89,6 @@ function RegisterModal({
           onChange={handleChange}
         />
         <span className="modal__error">{errors.name}</span>
-      </label>
-      <label className="modal__label">
-        Avatar URL*
-        <input
-          type="url"
-          className="modal__input"
-          name="avatar"
-          placeholder="Avatar image URL"
-          required
-          value={values.avatar}
-          onChange={handleChange}
-        />
-        <span className="modal__error">{errors.avatar}</span>
       </label>
     </ModalWithForm>
   );

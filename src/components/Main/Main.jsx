@@ -14,7 +14,7 @@ function Main({ items, onCardClick }) {
           <div className="main__grid">
             {items.map((item) => (
               <ItemCard
-                key={item.id}
+                key={item._id}
                 item={item}
                 onClick={() => onCardClick(item)}
                 hideDelete={true}

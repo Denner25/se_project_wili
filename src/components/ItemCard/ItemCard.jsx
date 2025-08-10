@@ -1,7 +1,7 @@
 import "./ItemCard.css";
 
 function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
-  const showDelete = !hideDelete && item.moods && item.moods.length > 0;
+  const showDelete = !hideDelete && item.tags && item.tags.length > 0;
 
   return (
     <div className="item-card" onClick={onClick}>
@@ -27,8 +27,8 @@ function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
       <div className="item-card__info">
         <h4 className="item-card__title">{item.title}</h4>
         <p className="item-card__moods">
-          {item.moods && item.moods.length > 0
-            ? item.moods.join(", ")
+          {item.tags && item.tags.length > 0
+            ? item.tags.join(", ")
             : "No moods"}
         </p>
       </div>

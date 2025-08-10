@@ -10,7 +10,7 @@ function getItems(token) {
   }).then(handleResponse);
 }
 
-function createItem(data, token) {
+function addItem(data, token) {
   return fetch(`${BASE_URL}/items`, {
     method: "POST",
     headers: {
@@ -39,17 +39,6 @@ function updateItemTags(itemId, tags, token) {
   }).then(handleResponse);
 }
 
-function updateItem(itemId, data, token) {
-  return fetch(`${BASE_URL}/items/${itemId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  }).then(handleResponse);
-}
-
 function getCurrentUser(token) {
   return fetch(`${BASE_URL}/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -69,10 +58,9 @@ function updateProfile(data, token) {
 
 export {
   getItems,
-  createItem,
+  addItem,
   deleteItem,
   updateItemTags,
-  updateItem,
   getCurrentUser,
   updateProfile,
 };
