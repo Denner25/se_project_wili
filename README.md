@@ -1,3 +1,20 @@
 # WILI - Would I Like It?
 
-This will be the 16th and final project of the Software Engineering program at TripleTen as well as my first creative project. I would like to develop this application where, by using the TMDB API, I would allow users to search for their favorite movies and animes, and mark mood and genre descriptive boxes describing the specific aspects they like about their items, generating an engagement list that would appear in their profile and in the main section. The cards in the main section would display how many users marked each mood box, allowing for a deeper level of expression than just a list. Cards would be generated through engaging with the mood boxes rather than a like or favorite button. I probably will implement more components and elements but I wanted the focus to be the modd boxes at first.
+This is the 16th and final project of the Software Engineering program at TripleTen as well as my first creative project. It's an application where, by using the TMDB API, I allow users to search for their favorite movies and animes, and mark mood and genre descriptive boxes describing the specific aspects they like about their items, allowing for a deeper level of expression than just a list and generating a grid that appears in main and profile. Cards would are generated through engaging with the mood boxes rather than a like or favorite button.
+There is a "Your top moods" section where I utilized react's wordcloud library to create a fun display that highlights the user's most marked moods in proportional size, random colors and arrangement upon every visit or change.
+
+## GithHub Pages
+
+https://denner25.github.io/se_project_wili
+
+## Project features
+
+- Reusable functional components
+- React Router
+- JavaScript
+- API integration
+- Flexbox
+
+## Plan on improving the project
+
+- Dynamic posters based on popularity or latest user additions.

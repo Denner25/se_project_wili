@@ -1,0 +1,74 @@
+.item-card {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.item-card__delete {
+  background: url("../../assets/delete-button.svg");
+  background-size: contain;
+  border: none;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  transition: transform 0.2s, color 0.2s;
+  z-index: 10;
+  /* used z-index so that poster transition doesn't go over delete button */
+}
+
+.item-card__delete:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.item-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.item-card__poster-wrapper {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  /* used isolate to keep delete's z index from placing it over modals */
+}
+
+.item-card__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+.item-card:hover .item-card__poster {
+  transform: scale(1.05);
+}
+
+.item-card__info {
+  padding: 8px 0;
+}
+
+.item-card__title {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.item-card__moods {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
