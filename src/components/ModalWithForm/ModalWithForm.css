@@ -54,3 +54,8 @@
 .modal__secondary:hover {
   color: #f86780;
 }
+
+.modal__error {
+  color: red;
+  font-weight: 100;
+}

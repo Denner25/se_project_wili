@@ -128,9 +128,9 @@ function App() {
     }
   };
 
-  const handleProfileSave = (profileData) => {
+  const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
-    updateProfile(profileData, token)
+    updateProfile({ name: data.name }, token) // Only send the name property
       .then((updatedUser) => {
         setCurrentUser(updatedUser);
         closeActiveModal();
@@ -254,7 +254,7 @@ function App() {
           isOpen={activeModal === "edit-profile"}
           onClose={closeActiveModal}
           onOverlayClose={handleOverlayClose}
-          onSave={handleProfileSave}
+          onSubmit={handleProfileSubmit}
         />
       </div>
     </CurrentUserContext.Provider>

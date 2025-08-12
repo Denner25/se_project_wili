@@ -1,30 +1,32 @@
 import "./EditProfileModal.css";
-import { useState, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import { BUTTONS } from "../../utils/constants";
+import useFormValidator from "../../hooks/useFormValidator";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
-function EditProfileModal({
-  isOpen,
-  onClose,
-  onOverlayClose,
-  currentName,
-  onSave,
-}) {
-  const [name, setName] = useState(currentName || "");
+function EditProfileModal({ isOpen, onClose, onOverlayClose, onSubmit }) {
+  const currentUser = useContext(CurrentUserContext);
 
-  // Keep state in sync with prop when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setName(currentName || "");
+  const { values, errors, isValid, handleChange, resetForm } = useFormValidator(
+    {
+      name: "",
     }
-  }, [isOpen, currentName]);
+  );
+
+  useEffect(() => {
+    if (isOpen && currentUser) {
+      resetForm({
+        name: currentUser.name || "",
+      });
+    }
+  }, [isOpen, currentUser]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (name.trim()) {
-      onSave(name.trim());
+    if (isValid) {
+      onSubmit(values);
     }
-    onClose();
   };
 
   return (
@@ -45,12 +47,14 @@ function EditProfileModal({
         Name :
         <input
           type="text"
+          name="name"
           className="modal__input"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
           placeholder="Enter your name"
           required
+          value={values.name}
+          onChange={handleChange}
         />
+        <span className="modal__error">{errors.name}</span>
       </label>
     </ModalWithForm>
   );
