@@ -12,6 +12,8 @@ import EditProfileModal from "../EditProfileModal/EditProfileModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import LogInModal from "../LogInModal/LogInModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
+import AvatarModal from "../AvatarModal/AvatarModal";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import {
   getItems,
   addItem,
@@ -24,36 +26,42 @@ import {
 import { signup, login, checkToken } from "../../utils/auth";
 
 function App() {
-  const [activeModal, setActiveModal] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
+  const [subModal, setSubModal] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [savedItems, setSavedItems] = useState([]);
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (token) {
-      getCurrentUser(token)
+      checkToken(token)
         .then((user) => {
+          setIsLoggedIn(true);
           setCurrentUser(user);
+          return getItems(token);
+        })
+        .then((res) => {
+          setSavedItems(res.data);
         })
         .catch(() => {
+          setIsLoggedIn(false);
           setCurrentUser(null);
           localStorage.removeItem("jwt");
+          // fallback: fetch items without token
+          getItems()
+            .then((res) => setSavedItems(res.data))
+            .catch(console.error);
         });
-      getItems(token)
-        .then((res) => {
-          setSavedItems(res.data);
-        })
-        .catch(console.error);
     } else {
-      // Always fetch items for main page, even if logged out
+      setIsLoggedIn(false);
+      setCurrentUser(null);
       getItems()
-        .then((res) => {
-          setSavedItems(res.data);
-        })
+        .then((res) => setSavedItems(res.data))
         .catch(console.error);
     }
   }, []);
@@ -79,6 +87,8 @@ function App() {
   const handleEditProfileClick = () => setActiveModal("edit-profile");
   const handleSignUpClick = () => setActiveModal("register");
   const handleLogInClick = () => setActiveModal("log-in");
+  const handleEditAvatarClick = () => setSubModal("avatar");
+  const handleCloseAvatarModal = () => setSubModal(null);
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -145,8 +155,9 @@ function App() {
   };
 
   const handleOverlayClose = (e) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !subModal) {
       closeActiveModal();
+      setSubModal(null);
     }
   };
 
@@ -161,7 +172,7 @@ function App() {
   const handleLogIn = ({ email, password }) => {
     return login({ email, password }).then((res) => {
       localStorage.setItem("jwt", res.token);
-      // Fetch user and items after login
+      setIsLoggedIn(true);
       return Promise.all([checkToken(res.token), getItems(res.token)]).then(
         ([user, itemsRes]) => {
           setCurrentUser(user);
@@ -176,6 +187,7 @@ function App() {
   const handleLogOut = () => {
     localStorage.removeItem("jwt");
     setCurrentUser(null);
+    setIsLoggedIn(false);
     closeActiveModal();
     navigate("/");
   };
@@ -190,6 +202,7 @@ function App() {
             onSignUpClick={handleSignUpClick}
             onLogInClick={handleLogInClick}
             currentUser={currentUser}
+            isLoggedIn={isLoggedIn}
           />
           <Routes>
             <Route
@@ -201,13 +214,16 @@ function App() {
             <Route
               path="/profile"
               element={
-                <Profile
-                  items={savedItems}
-                  onCardClick={handleItemClick}
-                  onDeleteRequest={handleConfirmClick}
-                  onEditProfile={handleEditProfileClick}
-                  onLogOut={handleLogOut}
-                />
+                <ProtectedRoute isLoggedIn={isLoggedIn}>
+                  <Profile
+                    items={savedItems}
+                    onCardClick={handleItemClick}
+                    onDeleteRequest={handleConfirmClick}
+                    onEditProfile={handleEditProfileClick}
+                    onLogOut={handleLogOut}
+                    currentUser={currentUser}
+                  />
+                </ProtectedRoute>
               }
             />
             <Route
@@ -255,6 +271,16 @@ function App() {
           onClose={closeActiveModal}
           onOverlayClose={handleOverlayClose}
           onSubmit={handleProfileSubmit}
+          onOpenAvatarModal={handleEditAvatarClick}
+          avatarUrl={currentUser?.avatarUrl || ""}
+          isLoggedIn={isLoggedIn}
+        />
+        <AvatarModal
+          isOpen={subModal === "avatar"}
+          onClose={handleCloseAvatarModal}
+          isLoggedIn={isLoggedIn}
+          onOverlayClose={handleOverlayClose}
+          // ...other props
         />
       </div>
     </CurrentUserContext.Provider>

@@ -8,7 +8,11 @@ function Profile({
   onEditProfile,
   onDeleteRequest,
   onLogOut,
+  currentUser,
 }) {
+  if (!currentUser) {
+    return <div className="spinner">Loading...</div>;
+  }
   return (
     <div className="profile">
       <section className="profile__sidebar">

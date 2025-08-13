@@ -1,0 +1,18 @@
+.modal__avatar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal__avatar-option {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px;
+  transition: border-color 0.2s;
+}
+
+.modal__avatar-option_selected {
+  border-color: #f88397;
+}

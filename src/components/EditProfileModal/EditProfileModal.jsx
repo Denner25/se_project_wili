@@ -5,7 +5,14 @@ import { BUTTONS } from "../../utils/constants";
 import useFormValidator from "../../hooks/useFormValidator";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 
-function EditProfileModal({ isOpen, onClose, onOverlayClose, onSubmit }) {
+function EditProfileModal({
+  isOpen,
+  onClose,
+  onOverlayClose,
+  onSubmit,
+  avatarUrl,
+  onOpenAvatarModal,
+}) {
   const currentUser = useContext(CurrentUserContext);
 
   const { values, errors, isValid, handleChange, resetForm } = useFormValidator(
@@ -55,6 +62,21 @@ function EditProfileModal({ isOpen, onClose, onOverlayClose, onSubmit }) {
           onChange={handleChange}
         />
         <span className="modal__error">{errors.name}</span>
+      </label>
+      <label className="modal__label">
+        Avatar:
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <img
+            src={avatarUrl}
+            alt="Current Avatar"
+            width={64}
+            height={64}
+            style={{ borderRadius: "8px", border: "1px solid #ccc" }}
+          />
+          <button type="button" onClick={onOpenAvatarModal}>
+            Change Avatar
+          </button>
+        </div>
       </label>
     </ModalWithForm>
   );
