@@ -21,10 +21,16 @@ const seeds = [
   "shade",
   "tide",
 ];
-const style = "bottts"; // You can change to any DiceBear style
+const style = "bottts"; // DiceBear style
 
 function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
   const [selected, setSelected] = useState(seeds[0]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Pass the full avatar URL to App.js
+    onSave(`https://api.dicebear.com/7.x/${style}/svg?seed=${selected}`);
+  };
 
   return (
     <ModalWithForm
@@ -33,9 +39,7 @@ function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
       onOverlayClose={onOverlayClose}
       onClose={onClose}
       buttonText="Save"
-      onSubmit={() =>
-        onSave(`https://api.dicebear.com/7.x/${style}/svg?seed=${selected}`)
-      }
+      onSubmit={handleSubmit}
       secondaryButton={
         <button className="modal__secondary" type="button" onClick={onClose}>
           Cancel

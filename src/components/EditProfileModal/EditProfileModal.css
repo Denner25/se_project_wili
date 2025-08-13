@@ -4,3 +4,36 @@
   font-weight: bold;
   font-size: 0.9rem;
 }
+
+.modal__label_avatar {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  cursor: pointer;
+  width: fit-content;
+  gap: 15px;
+  align-items: center;
+}
+
+.modal__button_avatar-edit {
+  background: transparent url(../../assets/edit-icon.jpg) no-repeat center;
+  background-size: contain;
+  border: none;
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  cursor: pointer;
+  bottom: -5px;
+  right: -5px;
+}
+
+/* Avatar row styles */
+.modal__avatar-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.modal__avatar-img {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}

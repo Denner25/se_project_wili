@@ -1,15 +1,25 @@
 import "./SideBar.css";
-import avatar from "../../assets/avatar.png";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function SideBar({ onEditProfile, onLogOut }) {
   const currentUser = useContext(CurrentUserContext);
+
   return (
     <div className="sidebar">
       <div className="sidebar__profile">
-        <img className="sidebar__avatar" src={avatar} alt="User Avatar" />
+        {currentUser?.avatarUrl ? (
+          <img
+            className="sidebar__avatar"
+            src={currentUser.avatarUrl}
+            alt="User Avatar"
+          />
+        ) : (
+          <div className="sidebar__avatar-placeholder">
+            {currentUser?.name?.charAt(0).toUpperCase()}
+          </div>
+        )}
         <p className="sidebar__username">{currentUser?.name}</p>
       </div>
       <div className="sidebar__buttons">

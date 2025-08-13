@@ -34,6 +34,10 @@ function App() {
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // NEW: pending avatar the user picked in AvatarModal but hasn't saved yet
+  const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,11 +88,32 @@ function App() {
     setActiveModal("confirmation");
   };
 
-  const handleEditProfileClick = () => setActiveModal("edit-profile");
+  // OPEN/CLOSE: Edit Profile + Avatar
+  const handleEditProfileClick = () => {
+    // Initialize pending avatar to whatever is on the user right now
+    setPendingAvatarUrl(currentUser?.avatarUrl || "");
+    setActiveModal("edit-profile");
+  };
+
   const handleSignUpClick = () => setActiveModal("register");
   const handleLogInClick = () => setActiveModal("log-in");
   const handleEditAvatarClick = () => setSubModal("avatar");
   const handleCloseAvatarModal = () => setSubModal(null);
+
+  // Close just the edit-profile modal, and discard any pending avatar changes
+  const handleCloseEditProfile = () => {
+    setPendingAvatarUrl(""); // discard temp if user cancels
+    closeActiveModal();
+  };
+
+  // Overlay close for edit-profile: also discard temp
+  const handleEditProfileOverlayClose = (e) => {
+    if (e.target === e.currentTarget && !subModal) {
+      setPendingAvatarUrl(""); // discard temp if user clicks overlay
+      closeActiveModal();
+      setSubModal(null);
+    }
+  };
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -138,14 +163,31 @@ function App() {
     }
   };
 
+  // UPDATED: Profile update handler — includes pending avatar (delayed commit)
   const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
-    updateProfile({ name: data.name }, token) // Only send the name property
+
+    // Build payload safely: send name if provided, and avatarUrl using pending (or current)
+    const payload = {};
+    if (typeof data.name !== "undefined") payload.name = data.name;
+
+    // Use pending avatar if set; fall back to current user's avatar
+    payload.avatarUrl = pendingAvatarUrl || currentUser?.avatarUrl || "";
+
+    updateProfile(payload, token)
       .then((updatedUser) => {
         setCurrentUser(updatedUser);
+        setPendingAvatarUrl(""); // clear temp after successful save
         closeActiveModal();
       })
       .catch(console.error);
+  };
+
+  // UPDATED: Avatar "save" now only sets the temporary pending avatar; no API call yet
+  const handleAvatarSave = (avatarUrl) => {
+    setPendingAvatarUrl(avatarUrl);
+    handleCloseAvatarModal(); // close just the avatar picker submodal
+    // Do NOT call updateProfile here — we commit when Edit Profile Save is clicked
   };
 
   const closeActiveModal = () => {
@@ -238,6 +280,7 @@ function App() {
           </Routes>
           <Footer />
         </div>
+
         <RegisterModal
           onClose={closeActiveModal}
           onOverlayClose={handleOverlayClose}
@@ -266,21 +309,25 @@ function App() {
           onOverlayClose={handleOverlayClose}
           onConfirm={handleConfirmDelete}
         />
+
+        {/* EDIT PROFILE uses pending avatar and custom close handlers */}
         <EditProfileModal
           isOpen={activeModal === "edit-profile"}
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
+          onClose={handleCloseEditProfile} // clear pending if canceled
+          onOverlayClose={handleEditProfileOverlayClose} // clear pending on overlay
           onSubmit={handleProfileSubmit}
           onOpenAvatarModal={handleEditAvatarClick}
-          avatarUrl={currentUser?.avatarUrl || ""}
+          avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
           isLoggedIn={isLoggedIn}
         />
+
+        {/* AVATAR MODAL only sets pending avatar now */}
         <AvatarModal
           isOpen={subModal === "avatar"}
           onClose={handleCloseAvatarModal}
           isLoggedIn={isLoggedIn}
           onOverlayClose={handleOverlayClose}
-          // ...other props
+          onSave={handleAvatarSave} // no backend call here
         />
       </div>
     </CurrentUserContext.Provider>

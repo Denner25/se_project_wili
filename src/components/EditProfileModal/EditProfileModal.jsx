@@ -18,21 +18,26 @@ function EditProfileModal({
   const { values, errors, isValid, handleChange, resetForm } = useFormValidator(
     {
       name: "",
+      avatarUrl: "",
     }
   );
 
   useEffect(() => {
     if (isOpen && currentUser) {
+      // Reset form with current user's name
       resetForm({
         name: currentUser.name || "",
       });
     }
-  }, [isOpen, currentUser]);
+    // Only run when modal opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isValid) {
-      onSubmit(values);
+      // Send the form data including avatarUrl from App's pendingAvatarUrl
+      onSubmit({ ...values, avatarUrl });
     }
   };
 
@@ -50,6 +55,30 @@ function EditProfileModal({
       }
       onSubmit={handleSubmit}
     >
+      <label className="modal__label_avatar">
+        Avatar:
+        <div className="modal__avatar-row">
+          <img
+            src={avatarUrl}
+            alt="Current Avatar"
+            className="modal__avatar-img"
+            width={64}
+            height={64}
+          />
+          <input
+            type="hidden"
+            name="avatarUrl"
+            value={values.avatarUrl ?? ""}
+            required
+            readOnly
+          />
+          <button
+            className="modal__button_avatar-edit"
+            type="button"
+            onClick={onOpenAvatarModal}
+          ></button>
+        </div>
+      </label>
       <label className="modal__label">
         Name :
         <input
@@ -58,25 +87,10 @@ function EditProfileModal({
           className="modal__input"
           placeholder="Enter your name"
           required
-          value={values.name}
+          value={values.name ?? ""}
           onChange={handleChange}
         />
         <span className="modal__error">{errors.name}</span>
-      </label>
-      <label className="modal__label">
-        Avatar:
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <img
-            src={avatarUrl}
-            alt="Current Avatar"
-            width={64}
-            height={64}
-            style={{ borderRadius: "8px", border: "1px solid #ccc" }}
-          />
-          <button type="button" onClick={onOpenAvatarModal}>
-            Change Avatar
-          </button>
-        </div>
       </label>
     </ModalWithForm>
   );
