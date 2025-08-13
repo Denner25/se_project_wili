@@ -302,6 +302,8 @@ function App() {
           onClose={closeActiveModal}
           onSave={handleSave}
           onDeleteRequest={handleConfirmClick}
+          isLoggedIn={isLoggedIn}
+          onSignUpClick={handleSignUpClick}
         />
         <ConfirmationModal
           isOpen={activeModal === "confirmation"}

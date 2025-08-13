@@ -3,7 +3,15 @@ import { fetchKeywords } from "../../utils/tmdbApi";
 import "./ItemModal.css";
 import { BUTTONS } from "../../utils/constants";
 
-function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
+function ItemModal({
+  item,
+  isOpen,
+  onClose,
+  onSave,
+  onDeleteRequest,
+  isLoggedIn,
+  onSignUpClick,
+}) {
   const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
@@ -72,7 +80,7 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
             {item.length ? ` • ${item.length}` : ""}
           </p>
 
-          {item.tags && item.tags.length > 0 && (
+          {isLoggedIn && item.tags && item.tags.length > 0 && (
             <button
               type="button"
               className="item-modal__delete"
@@ -87,10 +95,10 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
               availableTags.map((tag) => (
                 <label
                   key={tag}
-                  className={`item-modal__tag ${
-                    selectedTags.includes(tag) ? "selected" : ""
-                  }`}
-                  onClick={() => handleTagChange(tag)}
+                  className={`item-modal__tag${
+                    isLoggedIn && selectedTags.includes(tag) ? " selected" : ""
+                  }${!isLoggedIn ? " disabled" : ""}`}
+                  onClick={isLoggedIn ? () => handleTagChange(tag) : undefined}
                 >
                   {tag}
                 </label>
@@ -98,13 +106,19 @@ function ItemModal({ item, isOpen, onClose, onSave, onDeleteRequest }) {
             )}
           </div>
 
-          <button
-            type="button"
-            className="item-modal__save-button"
-            onClick={handleSave}
-          >
-            {BUTTONS.SAVE}
-          </button>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              className="item-modal__button"
+              onClick={handleSave}
+            >
+              {BUTTONS.SAVE}
+            </button>
+          ) : (
+            <div className="item-modal__button" onClick={onSignUpClick}>
+              Sign up to mark your top moods!
+            </div>
+          )}
         </div>
       </div>
     </div>
