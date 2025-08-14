@@ -28,14 +28,14 @@ function deleteItem(itemId, token) {
   }).then(handleResponse);
 }
 
-function updateItemTags(itemId, tags, token) {
-  return fetch(`${BASE_URL}/items/${itemId}/tags`, {
+function updateItemMoods(itemId, moods, token) {
+  return fetch(`${BASE_URL}/items/${itemId}/moods`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ tags }),
+    body: JSON.stringify({ moods }),
   }).then(handleResponse);
 }
 
@@ -60,7 +60,7 @@ export {
   getItems,
   addItem,
   deleteItem,
-  updateItemTags,
+  updateItemMoods,
   getCurrentUser,
   updateProfile,
 };

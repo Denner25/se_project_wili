@@ -18,8 +18,7 @@ import {
   getItems,
   addItem,
   deleteItem,
-  updateItemTags,
-  getCurrentUser,
+  updateItemMoods,
   updateProfile,
 } from "../../utils/Api";
 
@@ -34,8 +33,6 @@ function App() {
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // NEW: pending avatar the user picked in AvatarModal but hasn't saved yet
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
 
   const navigate = useNavigate();
@@ -56,14 +53,11 @@ function App() {
           setIsLoggedIn(false);
           setCurrentUser(null);
           localStorage.removeItem("jwt");
-          // fallback: fetch items without token
           getItems()
             .then((res) => setSavedItems(res.data))
             .catch(console.error);
         });
     } else {
-      setIsLoggedIn(false);
-      setCurrentUser(null);
       getItems()
         .then((res) => setSavedItems(res.data))
         .catch(console.error);
@@ -88,9 +82,7 @@ function App() {
     setActiveModal("confirmation");
   };
 
-  // OPEN/CLOSE: Edit Profile + Avatar
   const handleEditProfileClick = () => {
-    // Initialize pending avatar to whatever is on the user right now
     setPendingAvatarUrl(currentUser?.avatarUrl || "");
     setActiveModal("edit-profile");
   };
@@ -100,16 +92,14 @@ function App() {
   const handleEditAvatarClick = () => setSubModal("avatar");
   const handleCloseAvatarModal = () => setSubModal(null);
 
-  // Close just the edit-profile modal, and discard any pending avatar changes
   const handleCloseEditProfile = () => {
-    setPendingAvatarUrl(""); // discard temp if user cancels
+    setPendingAvatarUrl("");
     closeActiveModal();
   };
 
-  // Overlay close for edit-profile: also discard temp
   const handleEditProfileOverlayClose = (e) => {
     if (e.target === e.currentTarget && !subModal) {
-      setPendingAvatarUrl(""); // discard temp if user clicks overlay
+      setPendingAvatarUrl("");
       closeActiveModal();
       setSubModal(null);
     }
@@ -120,9 +110,10 @@ function App() {
     setActiveModal("item");
   };
 
+  // --- NEW handleSave for moods ---
   const handleSave = (item) => {
     const token = localStorage.getItem("jwt");
-    if (!item.tags || item.tags.length === 0) {
+    if (!item.moods || item.moods.length === 0) {
       if (item._id) {
         deleteItem(item._id, token)
           .then(() => {
@@ -141,7 +132,7 @@ function App() {
         mediaType: item.mediaType,
         poster: item.poster,
         length: item.length,
-        tags: item.tags || [],
+        moods: item.moods || [],
       };
       addItem(itemToSend, token)
         .then((res) => {
@@ -151,7 +142,7 @@ function App() {
         })
         .catch(console.error);
     } else {
-      updateItemTags(item._id, item.tags || [], token)
+      updateItemMoods(item._id, item.moods || [], token)
         .then((res) => {
           setSavedItems((prev) =>
             prev.map((i) => (i._id === res.data._id ? res.data : i))
@@ -163,31 +154,24 @@ function App() {
     }
   };
 
-  // UPDATED: Profile update handler — includes pending avatar (delayed commit)
   const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
-
-    // Build payload safely: send name if provided, and avatarUrl using pending (or current)
     const payload = {};
     if (typeof data.name !== "undefined") payload.name = data.name;
-
-    // Use pending avatar if set; fall back to current user's avatar
     payload.avatarUrl = pendingAvatarUrl || currentUser?.avatarUrl || "";
 
     updateProfile(payload, token)
       .then((updatedUser) => {
         setCurrentUser(updatedUser);
-        setPendingAvatarUrl(""); // clear temp after successful save
+        setPendingAvatarUrl("");
         closeActiveModal();
       })
       .catch(console.error);
   };
 
-  // UPDATED: Avatar "save" now only sets the temporary pending avatar; no API call yet
   const handleAvatarSave = (avatarUrl) => {
     setPendingAvatarUrl(avatarUrl);
-    handleCloseAvatarModal(); // close just the avatar picker submodal
-    // Do NOT call updateProfile here — we commit when Edit Profile Save is clicked
+    handleCloseAvatarModal();
   };
 
   const closeActiveModal = () => {
@@ -205,9 +189,7 @@ function App() {
 
   const handleSignUp = ({ name, email, password }) => {
     signup({ name, email, password })
-      .then(() => {
-        handleLogIn({ email, password });
-      })
+      .then(() => handleLogIn({ email, password }))
       .catch(console.error);
   };
 
@@ -304,6 +286,7 @@ function App() {
           onDeleteRequest={handleConfirmClick}
           isLoggedIn={isLoggedIn}
           onSignUpClick={handleSignUpClick}
+          currentUser={currentUser}
         />
         <ConfirmationModal
           isOpen={activeModal === "confirmation"}
@@ -312,24 +295,22 @@ function App() {
           onConfirm={handleConfirmDelete}
         />
 
-        {/* EDIT PROFILE uses pending avatar and custom close handlers */}
         <EditProfileModal
           isOpen={activeModal === "edit-profile"}
-          onClose={handleCloseEditProfile} // clear pending if canceled
-          onOverlayClose={handleEditProfileOverlayClose} // clear pending on overlay
+          onClose={handleCloseEditProfile}
+          onOverlayClose={handleEditProfileOverlayClose}
           onSubmit={handleProfileSubmit}
           onOpenAvatarModal={handleEditAvatarClick}
           avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
           isLoggedIn={isLoggedIn}
         />
 
-        {/* AVATAR MODAL only sets pending avatar now */}
         <AvatarModal
           isOpen={subModal === "avatar"}
           onClose={handleCloseAvatarModal}
           isLoggedIn={isLoggedIn}
           onOverlayClose={handleOverlayClose}
-          onSave={handleAvatarSave} // no backend call here
+          onSave={handleAvatarSave}
         />
       </div>
     </CurrentUserContext.Provider>

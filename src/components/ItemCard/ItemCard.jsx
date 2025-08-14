@@ -27,8 +27,8 @@ function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
       <div className="item-card__info">
         <h4 className="item-card__title">{item.title}</h4>
         <p className="item-card__moods">
-          {item.tags && item.tags.length > 0
-            ? item.tags.join(", ")
+          {item.moods && item.moods.length > 0
+            ? item.moods.map((m) => m.name).join(", ")
             : "No moods"}
         </p>
       </div>

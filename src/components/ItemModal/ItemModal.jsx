@@ -11,39 +11,81 @@ function ItemModal({
   onDeleteRequest,
   isLoggedIn,
   onSignUpClick,
+  currentUser,
 }) {
-  const [availableTags, setAvailableTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [availableMoods, setAvailableMoods] = useState([]);
+  const [userMoods, setUserMoods] = useState([]); // moods selected by current user
 
   useEffect(() => {
     if (!item || !isOpen) {
-      setAvailableTags([]);
-      setSelectedTags([]);
+      setAvailableMoods([]);
+      setUserMoods([]);
       return;
     }
-    // Use the original TMDB id and mediaType if present, else fallback
+
     const tmdbId = item.itemId || item.tmdbId || item._id || item.id;
     const mediaType = item.mediaType || item.originalMediaType;
+
     if (!tmdbId || !mediaType) {
-      setAvailableTags([]);
-      setSelectedTags(item.tags || []);
+      setAvailableMoods([]);
+      setUserMoods(
+        item.moods
+          ?.filter((m) => m.users.includes(currentUser?._id))
+          .map((m) => m.name) || []
+      );
       return;
     }
-    fetchKeywords(tmdbId, mediaType).then((keywords) => {
-      setAvailableTags(keywords.map((k) => k.name));
-    });
-    setSelectedTags(item.tags || []);
-  }, [item, isOpen]);
 
-  const handleTagChange = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    fetchKeywords(tmdbId, mediaType).then((keywords) => {
+      setAvailableMoods(keywords.map((k) => k.name));
+    });
+
+    // Initialize userMoods from current user's selections
+    setUserMoods(
+      item.moods
+        ?.filter((m) => m.users.includes(currentUser?._id))
+        .map((m) => m.name) || []
+    );
+  }, [item, isOpen, currentUser]);
+
+  const handleMoodChange = (moodName) => {
+    setUserMoods((prev) =>
+      prev.includes(moodName)
+        ? prev.filter((m) => m !== moodName)
+        : [...prev, moodName]
     );
   };
 
   const handleSave = () => {
     if (!item) return;
-    onSave?.({ ...item, tags: selectedTags });
+
+    // Merge user selection into item.moods
+    const newMoods = [...(item.moods || [])];
+    availableMoods.forEach((mood) => {
+      const moodIndex = newMoods.findIndex((m) => m.name === mood);
+      if (userMoods.includes(mood)) {
+        // add current user to mood.users if not present
+        if (moodIndex >= 0) {
+          if (!newMoods[moodIndex].users.includes(currentUser._id)) {
+            newMoods[moodIndex].users.push(currentUser._id);
+          }
+        } else {
+          newMoods.push({ name: mood, users: [currentUser._id] });
+        }
+      } else {
+        // remove current user from mood.users
+        if (moodIndex >= 0) {
+          newMoods[moodIndex].users = newMoods[moodIndex].users.filter(
+            (u) => u !== currentUser._id
+          );
+        }
+      }
+    });
+
+    // Only keep moods that have at least one user
+    const filteredMoods = newMoods.filter((m) => m.users.length > 0);
+
+    onSave?.({ ...item, moods: filteredMoods });
     onClose();
   };
 
@@ -54,10 +96,7 @@ function ItemModal({
       className={`item-modal-overlay ${isOpen ? "open" : ""}`}
       onClick={onClose}
     >
-      <div
-        className="item-modal"
-        onClick={(e) => e.stopPropagation()} // prevent closing on modal click
-      >
+      <div className="item-modal" onClick={(e) => e.stopPropagation()}>
         <button
           className="item-modal__close"
           onClick={onClose}
@@ -80,7 +119,7 @@ function ItemModal({
             {item.length ? ` • ${item.length}` : ""}
           </p>
 
-          {isLoggedIn && item.tags && item.tags.length > 0 && (
+          {isLoggedIn && item.moods && item.moods.length > 0 && (
             <button
               type="button"
               className="item-modal__delete"
@@ -89,18 +128,20 @@ function ItemModal({
           )}
 
           <div className="item-modal__tags">
-            {availableTags.length === 0 ? (
-              <span className="item-modal__no-tags">No tags found.</span>
+            {availableMoods.length === 0 ? (
+              <span className="item-modal__no-tags">No moods found.</span>
             ) : (
-              availableTags.map((tag) => (
+              availableMoods.map((mood) => (
                 <label
-                  key={tag}
+                  key={mood}
                   className={`item-modal__tag${
-                    isLoggedIn && selectedTags.includes(tag) ? " selected" : ""
+                    isLoggedIn && userMoods.includes(mood) ? " selected" : ""
                   }${!isLoggedIn ? " disabled" : ""}`}
-                  onClick={isLoggedIn ? () => handleTagChange(tag) : undefined}
+                  onClick={
+                    isLoggedIn ? () => handleMoodChange(mood) : undefined
+                  }
                 >
-                  {tag}
+                  {mood}
                 </label>
               ))
             )}
