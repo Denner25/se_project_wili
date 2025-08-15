@@ -12,7 +12,7 @@ function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
             className="item-card__delete"
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteRequest?.(item.id);
+              onDeleteRequest?.(item._id);
             }}
           />
         )}

@@ -113,44 +113,49 @@ function App() {
   // --- NEW handleSave for moods ---
   const handleSave = (item) => {
     const token = localStorage.getItem("jwt");
+    if (!item) return;
+
+    // If no moods selected, delete item if it exists
     if (!item.moods || item.moods.length === 0) {
       if (item._id) {
         deleteItem(item._id, token)
-          .then(() => {
-            setSavedItems((prev) => prev.filter((i) => i._id !== item._id));
-            closeActiveModal();
-          })
-          .catch(console.error);
+          .then(() =>
+            setAllUsersMoods((prev) => prev.filter((i) => i._id !== item._id))
+          )
+          .catch((err) => console.error("Error deleting item:", err));
       }
       return;
     }
 
     if (!item._id) {
+      // New item
       const itemToSend = {
-        itemId: item.itemId || item.tmdbId || item.id,
+        _id: item._id || item.id,
         title: item.title,
         mediaType: item.mediaType,
         poster: item.poster,
         length: item.length,
-        moods: item.moods || [],
+        moods: item.moods, // object-style moods
       };
+
       addItem(itemToSend, token)
         .then((res) => {
-          setSavedItems((prev) => [...prev, res.data]);
+          setAllUsersMoods((prev) => [...prev, res.data]);
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
-        .catch(console.error);
+        .catch((err) => console.error("Error adding item:", err));
     } else {
-      updateItemMoods(item._id, item.moods || [], token)
+      // Existing item, update moods
+      updateItemMoods(item._id, item.moods, token)
         .then((res) => {
-          setSavedItems((prev) =>
+          setAllUsersMoods((prev) =>
             prev.map((i) => (i._id === res.data._id ? res.data : i))
           );
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
-        .catch(console.error);
+        .catch((err) => console.error("Error updating item:", err));
     }
   };
 

@@ -23,10 +23,10 @@ function ItemModal({
       return;
     }
 
-    const tmdbId = item.itemId || item.tmdbId || item._id || item.id;
+    const _id = item._id || item.id;
     const mediaType = item.mediaType || item.originalMediaType;
 
-    if (!tmdbId || !mediaType) {
+    if (!_id || !mediaType) {
       setAvailableMoods([]);
       setUserMoods(
         item.moods
@@ -36,7 +36,7 @@ function ItemModal({
       return;
     }
 
-    fetchKeywords(tmdbId, mediaType).then((keywords) => {
+    fetchKeywords(_id, mediaType).then((keywords) => {
       setAvailableMoods(keywords.map((k) => k.name));
     });
 
@@ -61,10 +61,12 @@ function ItemModal({
 
     // Merge user selection into item.moods
     const newMoods = [...(item.moods || [])];
+
     availableMoods.forEach((mood) => {
       const moodIndex = newMoods.findIndex((m) => m.name === mood);
+
       if (userMoods.includes(mood)) {
-        // add current user to mood.users if not present
+        // Add current user to mood.users if not present
         if (moodIndex >= 0) {
           if (!newMoods[moodIndex].users.includes(currentUser._id)) {
             newMoods[moodIndex].users.push(currentUser._id);
@@ -73,7 +75,7 @@ function ItemModal({
           newMoods.push({ name: mood, users: [currentUser._id] });
         }
       } else {
-        // remove current user from mood.users
+        // Remove current user from mood.users
         if (moodIndex >= 0) {
           newMoods[moodIndex].users = newMoods[moodIndex].users.filter(
             (u) => u !== currentUser._id
@@ -82,10 +84,15 @@ function ItemModal({
       }
     });
 
-    // Only keep moods that have at least one user
-    const filteredMoods = newMoods.filter((m) => m.users.length > 0);
+    // Check if item has any moods with at least one user
+    const hasSelectedMoods = newMoods.some((m) => m.users.length > 0);
 
-    onSave?.({ ...item, moods: filteredMoods });
+    if (hasSelectedMoods) {
+      onSave?.({ ...item, moods: newMoods });
+    } else {
+      onSave?.({ ...item, moods: [] }); // or handle deletion elsewhere
+    }
+
     onClose();
   };
 

@@ -11,6 +11,9 @@ function getItems(token) {
 }
 
 function addItem(data, token) {
+  // Add this line to see what data is being sent:
+  console.log("Data being sent to server:", data);
+
   return fetch(`${BASE_URL}/items`, {
     method: "POST",
     headers: {
@@ -21,15 +24,15 @@ function addItem(data, token) {
   }).then(handleResponse);
 }
 
-function deleteItem(itemId, token) {
-  return fetch(`${BASE_URL}/items/${itemId}`, {
+function deleteItem(_id, token) {
+  return fetch(`${BASE_URL}/items/${_id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   }).then(handleResponse);
 }
 
-function updateItemMoods(itemId, moods, token) {
-  return fetch(`${BASE_URL}/items/${itemId}/moods`, {
+function updateItemMoods(_id, moods, token) {
+  return fetch(`${BASE_URL}/items/${_id}/moods`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
