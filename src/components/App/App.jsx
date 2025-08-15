@@ -154,9 +154,7 @@ function App() {
       updateItemMoods(item._id, item.moods, token)
         .then((res) => {
           setAllUsersMoods((prev) =>
-            Array.isArray(prev)
-              ? prev.map((i) => (i._id === res.data._id ? res.data : i))
-              : [res.data]
+            prev.map((i) => (i._id === res.data._id ? res.data : i))
           );
           setResetAutocomplete((f) => !f);
           closeActiveModal();

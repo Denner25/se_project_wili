@@ -11,9 +11,6 @@ function getItems(token) {
 }
 
 function addItem(data, token) {
-  // Add this line to see what data is being sent:
-  console.log("Data being sent to server:", data);
-
   return fetch(`${BASE_URL}/items`, {
     method: "POST",
     headers: {
