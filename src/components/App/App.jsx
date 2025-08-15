@@ -34,6 +34,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
+  const [allUsersMoods, setAllUsersMoods] = useState([]);
 
   const navigate = useNavigate();
 
@@ -135,7 +136,10 @@ function App() {
         mediaType: item.mediaType,
         poster: item.poster,
         length: item.length,
-        moods: item.moods, // object-style moods
+        moods: item.moods.map((m) => ({
+          name: m.name,
+          users: m.users.map((u) => u.toString()), // cast strings to ObjectId
+        })),
       };
 
       addItem(itemToSend, token)
@@ -150,7 +154,9 @@ function App() {
       updateItemMoods(item._id, item.moods, token)
         .then((res) => {
           setAllUsersMoods((prev) =>
-            prev.map((i) => (i._id === res.data._id ? res.data : i))
+            Array.isArray(prev)
+              ? prev.map((i) => (i._id === res.data._id ? res.data : i))
+              : [res.data]
           );
           setResetAutocomplete((f) => !f);
           closeActiveModal();
