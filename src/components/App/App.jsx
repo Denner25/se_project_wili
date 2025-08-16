@@ -21,14 +21,12 @@ import {
   updateItemMoods,
   updateProfile,
 } from "../../utils/Api";
-
 import { signup, login, checkToken } from "../../utils/auth";
 
 function App() {
   const [activeModal, setActiveModal] = useState(null);
   const [subModal, setSubModal] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [savedItems, setSavedItems] = useState([]);
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -38,6 +36,7 @@ function App() {
 
   const navigate = useNavigate();
 
+  // Fetch all items (all users) on load
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (token) {
@@ -47,20 +46,18 @@ function App() {
           setCurrentUser(user);
           return getItems(token);
         })
-        .then((res) => {
-          setSavedItems(res.data);
-        })
+        .then((res) => setAllUsersMoods(res.data))
         .catch(() => {
           setIsLoggedIn(false);
           setCurrentUser(null);
           localStorage.removeItem("jwt");
           getItems()
-            .then((res) => setSavedItems(res.data))
+            .then((res) => setAllUsersMoods(res.data))
             .catch(console.error);
         });
     } else {
       getItems()
-        .then((res) => setSavedItems(res.data))
+        .then((res) => setAllUsersMoods(res.data))
         .catch(console.error);
     }
   }, []);
@@ -69,7 +66,7 @@ function App() {
     const token = localStorage.getItem("jwt");
     deleteItem(pendingDeleteId, token)
       .then(() => {
-        setSavedItems((prev) =>
+        setAllUsersMoods((prev) =>
           prev.filter((item) => item._id !== pendingDeleteId)
         );
         setPendingDeleteId(null);
@@ -111,25 +108,23 @@ function App() {
     setActiveModal("item");
   };
 
-  // --- NEW handleSave for moods ---
+  // Handle adding/updating moods
   const handleSave = (item) => {
     const token = localStorage.getItem("jwt");
     if (!item) return;
 
-    // If no moods selected, delete item if it exists
     if (!item.moods || item.moods.length === 0) {
       if (item._id) {
         deleteItem(item._id, token)
           .then(() =>
             setAllUsersMoods((prev) => prev.filter((i) => i._id !== item._id))
           )
-          .catch((err) => console.error("Error deleting item:", err));
+          .catch(console.error);
       }
       return;
     }
 
     if (!item._id) {
-      // New item
       const itemToSend = {
         _id: item._id || item.id,
         title: item.title,
@@ -138,7 +133,7 @@ function App() {
         length: item.length,
         moods: item.moods.map((m) => ({
           name: m.name,
-          users: m.users.map((u) => u.toString()), // cast strings to ObjectId
+          users: m.users.map((u) => u.toString()),
         })),
       };
 
@@ -148,9 +143,8 @@ function App() {
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
-        .catch((err) => console.error("Error adding item:", err));
+        .catch(console.error);
     } else {
-      // Existing item, update moods
       updateItemMoods(item._id, item.moods, token)
         .then((res) => {
           setAllUsersMoods((prev) =>
@@ -159,7 +153,7 @@ function App() {
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
-        .catch((err) => console.error("Error updating item:", err));
+        .catch(console.error);
     }
   };
 
@@ -209,7 +203,7 @@ function App() {
       return Promise.all([checkToken(res.token), getItems(res.token)]).then(
         ([user, itemsRes]) => {
           setCurrentUser(user);
-          setSavedItems(itemsRes.data);
+          setAllUsersMoods(itemsRes.data); // ✅ replace savedItems with allUsersMoods
           closeActiveModal();
           navigate("/profile");
         }
@@ -241,7 +235,11 @@ function App() {
             <Route
               path="/"
               element={
-                <Main items={savedItems} onCardClick={handleItemClick} />
+                <Main
+                  items={allUsersMoods}
+                  onCardClick={handleItemClick}
+                  allUsersMoods={allUsersMoods}
+                />
               }
             />
             <Route
@@ -249,7 +247,7 @@ function App() {
               element={
                 <ProtectedRoute isLoggedIn={isLoggedIn}>
                   <Profile
-                    items={savedItems}
+                    items={allUsersMoods}
                     onCardClick={handleItemClick}
                     onDeleteRequest={handleConfirmClick}
                     onEditProfile={handleEditProfileClick}
@@ -263,7 +261,7 @@ function App() {
               path="/top-moods"
               element={
                 <TopMoods
-                  savedItems={savedItems}
+                  savedItems={allUsersMoods}
                   onEditProfile={handleEditProfileClick}
                 />
               }
@@ -303,7 +301,6 @@ function App() {
           onOverlayClose={handleOverlayClose}
           onConfirm={handleConfirmDelete}
         />
-
         <EditProfileModal
           isOpen={activeModal === "edit-profile"}
           onClose={handleCloseEditProfile}
@@ -313,7 +310,6 @@ function App() {
           avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
           isLoggedIn={isLoggedIn}
         />
-
         <AvatarModal
           isOpen={subModal === "avatar"}
           onClose={handleCloseAvatarModal}

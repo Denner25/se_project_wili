@@ -5,7 +5,20 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function ItemsSection({ items, onCardClick, onDeleteRequest }) {
   const currentUser = useContext(CurrentUserContext);
-  const userItems = items.filter((item) => item.owner === currentUser?._id);
+
+  // ✅ Filter items to only include moods that belong to current user
+  const userItems = items
+    .map((item) => {
+      const userMoods = item.moods?.filter((mood) =>
+        mood.users?.includes(currentUser?._id)
+      );
+
+      if (userMoods && userMoods.length > 0) {
+        return { ...item, moods: userMoods };
+      }
+      return null;
+    })
+    .filter(Boolean); // remove nulls
 
   return (
     <div className="items-section">

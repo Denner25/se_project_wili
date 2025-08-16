@@ -1,7 +1,16 @@
 import "./ItemCard.css";
 
-function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
+function ItemCard({
+  item,
+  allUsersMoods,
+  onClick,
+  onDeleteRequest,
+  hideDelete,
+}) {
   const showDelete = !hideDelete && item.tags && item.tags.length > 0;
+
+  // ✅ Find the freshest version of this item from allUsersMoods
+  const cardMoods = allUsersMoods?.find((i) => i._id === item._id) || item;
 
   return (
     <div className="item-card" onClick={onClick}>
@@ -16,19 +25,19 @@ function ItemCard({ item, onClick, onDeleteRequest, hideDelete }) {
             }}
           />
         )}
-        {item.poster && (
+        {cardMoods.poster && (
           <img
-            src={item.poster.replace("/w92", "/w342")}
-            alt={item.title}
+            src={cardMoods.poster.replace("/w92", "/w342")}
+            alt={cardMoods.title}
             className="item-card__poster"
           />
         )}
       </div>
       <div className="item-card__info">
-        <h4 className="item-card__title">{item.title}</h4>
+        <h4 className="item-card__title">{cardMoods.title}</h4>
         <p className="item-card__moods">
-          {item.moods && item.moods.length > 0
-            ? item.moods.map((m) => m.name).join(", ")
+          {cardMoods.moods && cardMoods.moods.length > 0
+            ? cardMoods.moods.map((m) => m.name).join(", ")
             : "No moods"}
         </p>
       </div>
