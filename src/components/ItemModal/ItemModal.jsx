@@ -126,13 +126,15 @@ function ItemModal({
             {item.length ? ` • ${item.length}` : ""}
           </p>
 
-          {isLoggedIn && item.moods && item.moods.length > 0 && (
-            <button
-              type="button"
-              className="item-modal__delete"
-              onClick={() => onDeleteRequest?.(item._id)}
-            ></button>
-          )}
+          {isLoggedIn &&
+            item.moods &&
+            item.moods.some((m) => m.users.includes(currentUser?._id)) && (
+              <button
+                type="button"
+                className="item-modal__delete"
+                onClick={() => onDeleteRequest?.(item._id)}
+              ></button>
+            )}
 
           <div className="item-modal__tags">
             {availableMoods.length === 0 ? (
