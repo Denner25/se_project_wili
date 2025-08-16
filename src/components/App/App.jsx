@@ -18,28 +18,38 @@ import {
   getItems,
   addItem,
   deleteItem,
-  updateItemTags,
-  getCurrentUser,
+  updateItemMoods,
   updateProfile,
 } from "../../utils/Api";
-
 import { signup, login, checkToken } from "../../utils/auth";
 
 function App() {
+  const navigate = useNavigate();
   const [activeModal, setActiveModal] = useState(null);
   const [subModal, setSubModal] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [savedItems, setSavedItems] = useState([]);
   const [resetAutocomplete, setResetAutocomplete] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // NEW: pending avatar the user picked in AvatarModal but hasn't saved yet
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
+  const [allUsersMoods, setAllUsersMoods] = useState([]);
+  const [userMoods, setUserMoods] = useState([]); // all moods of current user
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (!allUsersMoods || !currentUser) return;
 
+    const moods = allUsersMoods.flatMap(
+      (item) =>
+        item.moods
+          ?.filter((m) => m.users.includes(currentUser._id))
+          .map((m) => m.name) || []
+    );
+
+    setUserMoods(moods);
+  }, [allUsersMoods, currentUser]);
+
+  // Fetch all items (all users) on load
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (token) {
@@ -49,38 +59,61 @@ function App() {
           setCurrentUser(user);
           return getItems(token);
         })
-        .then((res) => {
-          setSavedItems(res.data);
-        })
+        .then((res) => setAllUsersMoods(res.data))
         .catch(() => {
           setIsLoggedIn(false);
           setCurrentUser(null);
           localStorage.removeItem("jwt");
-          // fallback: fetch items without token
           getItems()
-            .then((res) => setSavedItems(res.data))
+            .then((res) => setAllUsersMoods(res.data))
             .catch(console.error);
         });
     } else {
-      setIsLoggedIn(false);
-      setCurrentUser(null);
       getItems()
-        .then((res) => setSavedItems(res.data))
+        .then((res) => setAllUsersMoods(res.data))
         .catch(console.error);
     }
   }, []);
 
   const handleConfirmDelete = () => {
     const token = localStorage.getItem("jwt");
-    deleteItem(pendingDeleteId, token)
-      .then(() => {
-        setSavedItems((prev) =>
-          prev.filter((item) => item._id !== pendingDeleteId)
-        );
-        setPendingDeleteId(null);
-        closeActiveModal();
-      })
-      .catch(console.error);
+
+    // Find the item in state
+    const item = allUsersMoods.find((i) => i._id === pendingDeleteId);
+    if (!item) return;
+
+    // Remove currentUser from all moods
+    const updatedMoods = item.moods.map((m) => ({
+      ...m,
+      users: m.users.filter((u) => u !== currentUser._id),
+    }));
+
+    // Filter out moods with no users
+    const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
+
+    if (filteredMoods.length === 0) {
+      // No users left: delete item from server
+      deleteItem(pendingDeleteId, token)
+        .then(() => {
+          setAllUsersMoods((prev) =>
+            prev.filter((i) => i._id !== pendingDeleteId)
+          );
+          setPendingDeleteId(null);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    } else {
+      // Users still remain: update moods on server
+      updateItemMoods(pendingDeleteId, filteredMoods, token)
+        .then((res) => {
+          setAllUsersMoods((prev) =>
+            prev.map((i) => (i._id === res.data._id ? res.data : i))
+          );
+          setPendingDeleteId(null);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    }
   };
 
   const handleConfirmClick = (id) => {
@@ -88,9 +121,7 @@ function App() {
     setActiveModal("confirmation");
   };
 
-  // OPEN/CLOSE: Edit Profile + Avatar
   const handleEditProfileClick = () => {
-    // Initialize pending avatar to whatever is on the user right now
     setPendingAvatarUrl(currentUser?.avatarUrl || "");
     setActiveModal("edit-profile");
   };
@@ -100,16 +131,14 @@ function App() {
   const handleEditAvatarClick = () => setSubModal("avatar");
   const handleCloseAvatarModal = () => setSubModal(null);
 
-  // Close just the edit-profile modal, and discard any pending avatar changes
   const handleCloseEditProfile = () => {
-    setPendingAvatarUrl(""); // discard temp if user cancels
+    setPendingAvatarUrl("");
     closeActiveModal();
   };
 
-  // Overlay close for edit-profile: also discard temp
   const handleEditProfileOverlayClose = (e) => {
     if (e.target === e.currentTarget && !subModal) {
-      setPendingAvatarUrl(""); // discard temp if user clicks overlay
+      setPendingAvatarUrl("");
       closeActiveModal();
       setSubModal(null);
     }
@@ -120,40 +149,51 @@ function App() {
     setActiveModal("item");
   };
 
-  const handleSave = (item) => {
+  // Handle adding/updating moods
+  const handleSave = (updatedItem) => {
     const token = localStorage.getItem("jwt");
-    if (!item.tags || item.tags.length === 0) {
-      if (item._id) {
-        deleteItem(item._id, token)
+    if (!updatedItem) return;
+
+    // 1️⃣ If no moods are left, delete item
+    if (!updatedItem.moods || updatedItem.moods.length === 0) {
+      if (updatedItem._id) {
+        deleteItem(updatedItem._id, token)
           .then(() => {
-            setSavedItems((prev) => prev.filter((i) => i._id !== item._id));
-            closeActiveModal();
+            setAllUsersMoods((prev) =>
+              prev.filter((i) => i._id !== updatedItem._id)
+            );
           })
           .catch(console.error);
       }
       return;
     }
 
-    if (!item._id) {
+    // 2️⃣ If item doesn't exist on server, create it
+    if (!updatedItem._id) {
       const itemToSend = {
-        itemId: item.itemId || item.tmdbId || item.id,
-        title: item.title,
-        mediaType: item.mediaType,
-        poster: item.poster,
-        length: item.length,
-        tags: item.tags || [],
+        _id: updatedItem._id || updatedItem.id,
+        title: updatedItem.title,
+        mediaType: updatedItem.mediaType,
+        poster: updatedItem.poster,
+        length: updatedItem.length,
+        moods: updatedItem.moods.map((m) => ({
+          name: m.name,
+          users: m.users.map((u) => u.toString()),
+        })),
       };
+
       addItem(itemToSend, token)
         .then((res) => {
-          setSavedItems((prev) => [...prev, res.data]);
+          setAllUsersMoods((prev) => [...prev, res.data]);
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
         .catch(console.error);
     } else {
-      updateItemTags(item._id, item.tags || [], token)
+      // 3️⃣ Otherwise, update moods on server
+      updateItemMoods(updatedItem._id, updatedItem.moods, token)
         .then((res) => {
-          setSavedItems((prev) =>
+          setAllUsersMoods((prev) =>
             prev.map((i) => (i._id === res.data._id ? res.data : i))
           );
           setResetAutocomplete((f) => !f);
@@ -163,31 +203,29 @@ function App() {
     }
   };
 
-  // UPDATED: Profile update handler — includes pending avatar (delayed commit)
+  /* - Introduced `itemUserMoods` to track current user's moods per item.
+    - Updated handleSave and delete handlers to remove only current user's ID from item.moods.
+    - Ensured items disappear from user's view only when their last mood is removed.
+    - Preserved other users' moods and item integrity. */
+
   const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
-
-    // Build payload safely: send name if provided, and avatarUrl using pending (or current)
     const payload = {};
     if (typeof data.name !== "undefined") payload.name = data.name;
-
-    // Use pending avatar if set; fall back to current user's avatar
     payload.avatarUrl = pendingAvatarUrl || currentUser?.avatarUrl || "";
 
     updateProfile(payload, token)
       .then((updatedUser) => {
         setCurrentUser(updatedUser);
-        setPendingAvatarUrl(""); // clear temp after successful save
+        setPendingAvatarUrl("");
         closeActiveModal();
       })
       .catch(console.error);
   };
 
-  // UPDATED: Avatar "save" now only sets the temporary pending avatar; no API call yet
   const handleAvatarSave = (avatarUrl) => {
     setPendingAvatarUrl(avatarUrl);
-    handleCloseAvatarModal(); // close just the avatar picker submodal
-    // Do NOT call updateProfile here — we commit when Edit Profile Save is clicked
+    handleCloseAvatarModal();
   };
 
   const closeActiveModal = () => {
@@ -205,9 +243,7 @@ function App() {
 
   const handleSignUp = ({ name, email, password }) => {
     signup({ name, email, password })
-      .then(() => {
-        handleLogIn({ email, password });
-      })
+      .then(() => handleLogIn({ email, password }))
       .catch(console.error);
   };
 
@@ -218,7 +254,7 @@ function App() {
       return Promise.all([checkToken(res.token), getItems(res.token)]).then(
         ([user, itemsRes]) => {
           setCurrentUser(user);
-          setSavedItems(itemsRes.data);
+          setAllUsersMoods(itemsRes.data); // ✅ replace savedItems with allUsersMoods
           closeActiveModal();
           navigate("/profile");
         }
@@ -250,7 +286,11 @@ function App() {
             <Route
               path="/"
               element={
-                <Main items={savedItems} onCardClick={handleItemClick} />
+                <Main
+                  items={allUsersMoods}
+                  onCardClick={handleItemClick}
+                  allUsersMoods={allUsersMoods}
+                />
               }
             />
             <Route
@@ -258,12 +298,13 @@ function App() {
               element={
                 <ProtectedRoute isLoggedIn={isLoggedIn}>
                   <Profile
-                    items={savedItems}
+                    items={allUsersMoods}
                     onCardClick={handleItemClick}
                     onDeleteRequest={handleConfirmClick}
                     onEditProfile={handleEditProfileClick}
                     onLogOut={handleLogOut}
                     currentUser={currentUser}
+                    userMoods={userMoods}
                   />
                 </ProtectedRoute>
               }
@@ -272,8 +313,8 @@ function App() {
               path="/top-moods"
               element={
                 <TopMoods
-                  savedItems={savedItems}
                   onEditProfile={handleEditProfileClick}
+                  userMoods={userMoods}
                 />
               }
             />
@@ -304,6 +345,7 @@ function App() {
           onDeleteRequest={handleConfirmClick}
           isLoggedIn={isLoggedIn}
           onSignUpClick={handleSignUpClick}
+          currentUser={currentUser}
         />
         <ConfirmationModal
           isOpen={activeModal === "confirmation"}
@@ -311,25 +353,21 @@ function App() {
           onOverlayClose={handleOverlayClose}
           onConfirm={handleConfirmDelete}
         />
-
-        {/* EDIT PROFILE uses pending avatar and custom close handlers */}
         <EditProfileModal
           isOpen={activeModal === "edit-profile"}
-          onClose={handleCloseEditProfile} // clear pending if canceled
-          onOverlayClose={handleEditProfileOverlayClose} // clear pending on overlay
+          onClose={handleCloseEditProfile}
+          onOverlayClose={handleEditProfileOverlayClose}
           onSubmit={handleProfileSubmit}
           onOpenAvatarModal={handleEditAvatarClick}
           avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
           isLoggedIn={isLoggedIn}
         />
-
-        {/* AVATAR MODAL only sets pending avatar now */}
         <AvatarModal
           isOpen={subModal === "avatar"}
           onClose={handleCloseAvatarModal}
           isLoggedIn={isLoggedIn}
           onOverlayClose={handleOverlayClose}
-          onSave={handleAvatarSave} // no backend call here
+          onSave={handleAvatarSave}
         />
       </div>
     </CurrentUserContext.Provider>

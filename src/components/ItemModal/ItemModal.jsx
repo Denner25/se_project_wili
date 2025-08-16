@@ -11,41 +11,84 @@ function ItemModal({
   onDeleteRequest,
   isLoggedIn,
   onSignUpClick,
+  currentUser,
 }) {
-  const [availableTags, setAvailableTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [availableMoods, setAvailableMoods] = useState([]);
+  const [itemUserMoods, setItemUserMoods] = useState([]); // current user's moods for this item
 
   useEffect(() => {
     if (!item || !isOpen) {
-      setAvailableTags([]);
-      setSelectedTags([]);
+      setAvailableMoods([]);
+      setItemUserMoods([]);
       return;
     }
-    // Use the original TMDB id and mediaType if present, else fallback
-    const tmdbId = item.itemId || item.tmdbId || item._id || item.id;
-    const mediaType = item.mediaType || item.originalMediaType;
-    if (!tmdbId || !mediaType) {
-      setAvailableTags([]);
-      setSelectedTags(item.tags || []);
-      return;
-    }
-    fetchKeywords(tmdbId, mediaType).then((keywords) => {
-      setAvailableTags(keywords.map((k) => k.name));
-    });
-    setSelectedTags(item.tags || []);
-  }, [item, isOpen]);
 
-  const handleTagChange = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    const _id = item._id || item.id;
+    const mediaType = item.mediaType || item.originalMediaType;
+
+    if (!_id || !mediaType) {
+      setAvailableMoods([]);
+      setItemUserMoods(
+        item.moods
+          ?.filter((m) => m.users.includes(currentUser?._id))
+          .map((m) => m.name) || []
+      );
+      return;
+    }
+
+    fetchKeywords(_id, mediaType).then((keywords) => {
+      setAvailableMoods(keywords.map((k) => k.name));
+    });
+
+    // Initialize itemUserMoods from current user's selections
+    setItemUserMoods(
+      item.moods
+        ?.filter((m) => m.users.includes(currentUser?._id))
+        .map((m) => m.name) || []
+    );
+  }, [item, isOpen, currentUser]);
+
+  const handleMoodChange = (moodName) => {
+    setItemUserMoods((prev) =>
+      prev.includes(moodName)
+        ? prev.filter((m) => m !== moodName)
+        : [...prev, moodName]
     );
   };
 
   const handleSave = () => {
     if (!item) return;
-    onSave?.({ ...item, tags: selectedTags });
+
+    const updatedMoods = (item.moods || []).map((m) => ({ ...m }));
+
+    // Remove current user from all moods first
+    updatedMoods.forEach((m) => {
+      m.users = m.users.filter((u) => u !== currentUser._id);
+    });
+
+    // Add current user back to selected moods
+    itemUserMoods.forEach((moodName) => {
+      const existingMood = updatedMoods.find((m) => m.name === moodName);
+      if (existingMood) {
+        if (!existingMood.users.includes(currentUser._id)) {
+          existingMood.users.push(currentUser._id);
+        }
+      } else {
+        updatedMoods.push({ name: moodName, users: [currentUser._id] });
+      }
+    });
+
+    // Remove moods with no users
+    const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
+
+    onSave?.({ ...item, moods: filteredMoods });
     onClose();
   };
+
+  /* - Introduced `itemUserMoods` to track current user's moods per item.
+    - Updated handleSave and delete handlers to remove only current user's ID from item.moods.
+    - Ensured items disappear from user's view only when their last mood is removed.
+    - Preserved other users' moods and item integrity. */
 
   if (!item) return null;
 
@@ -54,10 +97,7 @@ function ItemModal({
       className={`item-modal-overlay ${isOpen ? "open" : ""}`}
       onClick={onClose}
     >
-      <div
-        className="item-modal"
-        onClick={(e) => e.stopPropagation()} // prevent closing on modal click
-      >
+      <div className="item-modal" onClick={(e) => e.stopPropagation()}>
         <button
           className="item-modal__close"
           onClick={onClose}
@@ -80,27 +120,33 @@ function ItemModal({
             {item.length ? ` • ${item.length}` : ""}
           </p>
 
-          {isLoggedIn && item.tags && item.tags.length > 0 && (
-            <button
-              type="button"
-              className="item-modal__delete"
-              onClick={() => onDeleteRequest?.(item._id)}
-            ></button>
-          )}
+          {isLoggedIn &&
+            item.moods &&
+            item.moods.some((m) => m.users.includes(currentUser?._id)) && (
+              <button
+                type="button"
+                className="item-modal__delete"
+                onClick={() => onDeleteRequest?.(item._id)}
+              ></button>
+            )}
 
           <div className="item-modal__tags">
-            {availableTags.length === 0 ? (
-              <span className="item-modal__no-tags">No tags found.</span>
+            {availableMoods.length === 0 ? (
+              <span className="item-modal__no-tags">No moods found.</span>
             ) : (
-              availableTags.map((tag) => (
+              availableMoods.map((mood) => (
                 <label
-                  key={tag}
+                  key={mood}
                   className={`item-modal__tag${
-                    isLoggedIn && selectedTags.includes(tag) ? " selected" : ""
+                    isLoggedIn && itemUserMoods.includes(mood)
+                      ? " selected"
+                      : ""
                   }${!isLoggedIn ? " disabled" : ""}`}
-                  onClick={isLoggedIn ? () => handleTagChange(tag) : undefined}
+                  onClick={
+                    isLoggedIn ? () => handleMoodChange(mood) : undefined
+                  }
                 >
-                  {tag}
+                  {mood}
                 </label>
               ))
             )}

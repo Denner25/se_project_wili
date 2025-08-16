@@ -9,6 +9,7 @@ function Profile({
   onDeleteRequest,
   onLogOut,
   currentUser,
+  userMoods,
 }) {
   if (!currentUser) {
     return <div className="spinner">Loading...</div>;
@@ -23,6 +24,7 @@ function Profile({
           items={items}
           onCardClick={onCardClick}
           onDeleteRequest={onDeleteRequest}
+          userMoods={userMoods}
         />
       </section>
     </div>

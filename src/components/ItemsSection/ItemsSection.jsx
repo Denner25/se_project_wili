@@ -1,11 +1,20 @@
 import ItemCard from "../ItemCard/ItemCard";
 import "./ItemsSection.css";
-import { useContext } from "react";
-import CurrentUserContext from "../../contexts/CurrentUserContext";
 
-function ItemsSection({ items, onCardClick, onDeleteRequest }) {
-  const currentUser = useContext(CurrentUserContext);
-  const userItems = items.filter((item) => item.owner === currentUser?._id);
+function ItemsSection({ items, userMoods, onCardClick, onDeleteRequest }) {
+  // Filter items to only include moods belonging to current user
+  const userItems = items
+    .map((item) => {
+      const filteredMoods = item.moods?.filter((m) =>
+        m.users?.some((u) => userMoods.includes(m.name))
+      );
+
+      if (filteredMoods && filteredMoods.length > 0) {
+        return { ...item, moods: filteredMoods };
+      }
+      return null;
+    })
+    .filter(Boolean);
 
   return (
     <div className="items-section">

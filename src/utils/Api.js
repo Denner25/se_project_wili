@@ -21,21 +21,21 @@ function addItem(data, token) {
   }).then(handleResponse);
 }
 
-function deleteItem(itemId, token) {
-  return fetch(`${BASE_URL}/items/${itemId}`, {
+function deleteItem(_id, token) {
+  return fetch(`${BASE_URL}/items/${_id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   }).then(handleResponse);
 }
 
-function updateItemTags(itemId, tags, token) {
-  return fetch(`${BASE_URL}/items/${itemId}/tags`, {
+function updateItemMoods(_id, moods, token) {
+  return fetch(`${BASE_URL}/items/${_id}/moods`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ tags }),
+    body: JSON.stringify({ moods }),
   }).then(handleResponse);
 }
 
@@ -60,7 +60,7 @@ export {
   getItems,
   addItem,
   deleteItem,
-  updateItemTags,
+  updateItemMoods,
   getCurrentUser,
   updateProfile,
 };

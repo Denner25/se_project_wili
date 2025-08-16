@@ -3,7 +3,7 @@ import ReactWordcloud from "react-wordcloud";
 import "./TopMoods.css";
 import SideBar from "../SideBar/SideBar";
 
-function TopMoods({ currentUser, savedItems, onEditProfile }) {
+function TopMoods({ currentUser, userMoods, onEditProfile }) {
   const colors = [
     "#26c6da",
     "#29c331",
@@ -14,23 +14,19 @@ function TopMoods({ currentUser, savedItems, onEditProfile }) {
     "#ef5350",
   ];
 
-  // Count moods and take top 10
+  // Count top 10 moods
   const moodCounts = useMemo(() => {
     const counts = {};
-    savedItems.forEach((item) => {
-      (item.tags || []).forEach((tag) => {
-        counts[tag] = (counts[tag] || 0) + 1;
-      });
+    userMoods.forEach((mood) => {
+      counts[mood] = (counts[mood] || 0) + 1;
     });
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
-  }, [savedItems]);
+  }, [userMoods]);
 
-  // Shuffle helper to randomize colors
   const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
-  // Assign colors in shuffled order without skipping any
   const words = useMemo(() => {
     const shuffledColors = shuffleArray(colors);
     return moodCounts.map(([tag, count], i) => ({
@@ -40,15 +36,14 @@ function TopMoods({ currentUser, savedItems, onEditProfile }) {
     }));
   }, [moodCounts]);
 
-  // Wordcloud options
   const options = {
     colors: words.map((w) => w.color),
-    rotations: 0, // no rotation for readability
+    rotations: 0,
     fontFamily: "Poppins, sans-serif",
     fontWeight: "700",
-    fontSizes: [18, 70], // min and max font size
+    fontSizes: [18, 70],
     padding: 2,
-    deterministic: false, // random placement each render
+    deterministic: false,
   };
 
   return (
