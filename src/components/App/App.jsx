@@ -24,6 +24,7 @@ import {
 import { signup, login, checkToken } from "../../utils/auth";
 
 function App() {
+  const navigate = useNavigate();
   const [activeModal, setActiveModal] = useState(null);
   const [subModal, setSubModal] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -33,8 +34,20 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
   const [allUsersMoods, setAllUsersMoods] = useState([]);
+  const [userMoods, setUserMoods] = useState([]); // all moods of current user
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (!allUsersMoods || !currentUser) return;
+
+    const moods = allUsersMoods.flatMap(
+      (item) =>
+        item.moods
+          ?.filter((m) => m.users.includes(currentUser._id))
+          .map((m) => m.name) || []
+    );
+
+    setUserMoods(moods);
+  }, [allUsersMoods, currentUser]);
 
   // Fetch all items (all users) on load
   useEffect(() => {
@@ -291,6 +304,7 @@ function App() {
                     onEditProfile={handleEditProfileClick}
                     onLogOut={handleLogOut}
                     currentUser={currentUser}
+                    userMoods={userMoods}
                   />
                 </ProtectedRoute>
               }
@@ -299,8 +313,8 @@ function App() {
               path="/top-moods"
               element={
                 <TopMoods
-                  savedItems={allUsersMoods}
                   onEditProfile={handleEditProfileClick}
+                  userMoods={userMoods}
                 />
               }
             />
