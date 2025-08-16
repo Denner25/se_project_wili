@@ -14,12 +14,12 @@ function ItemModal({
   currentUser,
 }) {
   const [availableMoods, setAvailableMoods] = useState([]);
-  const [userMoods, setUserMoods] = useState([]); // moods selected by current user
+  const [itemUserMoods, setItemUserMoods] = useState([]); // current user's moods for this item
 
   useEffect(() => {
     if (!item || !isOpen) {
       setAvailableMoods([]);
-      setUserMoods([]);
+      setItemUserMoods([]);
       return;
     }
 
@@ -28,7 +28,7 @@ function ItemModal({
 
     if (!_id || !mediaType) {
       setAvailableMoods([]);
-      setUserMoods(
+      setItemUserMoods(
         item.moods
           ?.filter((m) => m.users.includes(currentUser?._id))
           .map((m) => m.name) || []
@@ -40,8 +40,8 @@ function ItemModal({
       setAvailableMoods(keywords.map((k) => k.name));
     });
 
-    // Initialize userMoods from current user's selections
-    setUserMoods(
+    // Initialize itemUserMoods from current user's selections
+    setItemUserMoods(
       item.moods
         ?.filter((m) => m.users.includes(currentUser?._id))
         .map((m) => m.name) || []
@@ -49,7 +49,7 @@ function ItemModal({
   }, [item, isOpen, currentUser]);
 
   const handleMoodChange = (moodName) => {
-    setUserMoods((prev) =>
+    setItemUserMoods((prev) =>
       prev.includes(moodName)
         ? prev.filter((m) => m !== moodName)
         : [...prev, moodName]
@@ -59,42 +59,36 @@ function ItemModal({
   const handleSave = () => {
     if (!item) return;
 
-    // Merge user selection into item.moods
-    const newMoods = [...(item.moods || [])];
+    const updatedMoods = (item.moods || []).map((m) => ({ ...m }));
 
-    availableMoods.forEach((mood) => {
-      const moodIndex = newMoods.findIndex((m) => m.name === mood);
+    // Remove current user from all moods first
+    updatedMoods.forEach((m) => {
+      m.users = m.users.filter((u) => u !== currentUser._id);
+    });
 
-      if (userMoods.includes(mood)) {
-        // Add current user to mood.users if not present
-        if (moodIndex >= 0) {
-          if (!newMoods[moodIndex].users.includes(currentUser._id)) {
-            newMoods[moodIndex].users.push(currentUser._id);
-          }
-        } else {
-          newMoods.push({ name: mood, users: [currentUser._id] });
+    // Add current user back to selected moods
+    itemUserMoods.forEach((moodName) => {
+      const existingMood = updatedMoods.find((m) => m.name === moodName);
+      if (existingMood) {
+        if (!existingMood.users.includes(currentUser._id)) {
+          existingMood.users.push(currentUser._id);
         }
       } else {
-        // Remove current user from mood.users
-        if (moodIndex >= 0) {
-          newMoods[moodIndex].users = newMoods[moodIndex].users.filter(
-            (u) => u !== currentUser._id
-          );
-        }
+        updatedMoods.push({ name: moodName, users: [currentUser._id] });
       }
     });
 
-    // Check if item has any moods with at least one user
-    const hasSelectedMoods = newMoods.some((m) => m.users.length > 0);
+    // Remove moods with no users
+    const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
 
-    if (hasSelectedMoods) {
-      onSave?.({ ...item, moods: newMoods });
-    } else {
-      onSave?.({ ...item, moods: [] }); // or handle deletion elsewhere
-    }
-
+    onSave?.({ ...item, moods: filteredMoods });
     onClose();
   };
+
+  /* - Introduced `itemUserMoods` to track current user's moods per item.
+    - Updated handleSave and delete handlers to remove only current user's ID from item.moods.
+    - Ensured items disappear from user's view only when their last mood is removed.
+    - Preserved other users' moods and item integrity. */
 
   if (!item) return null;
 
@@ -144,7 +138,9 @@ function ItemModal({
                 <label
                   key={mood}
                   className={`item-modal__tag${
-                    isLoggedIn && userMoods.includes(mood) ? " selected" : ""
+                    isLoggedIn && itemUserMoods.includes(mood)
+                      ? " selected"
+                      : ""
                   }${!isLoggedIn ? " disabled" : ""}`}
                   onClick={
                     isLoggedIn ? () => handleMoodChange(mood) : undefined

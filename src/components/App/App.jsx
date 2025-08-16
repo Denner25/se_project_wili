@@ -64,15 +64,43 @@ function App() {
 
   const handleConfirmDelete = () => {
     const token = localStorage.getItem("jwt");
-    deleteItem(pendingDeleteId, token)
-      .then(() => {
-        setAllUsersMoods((prev) =>
-          prev.filter((item) => item._id !== pendingDeleteId)
-        );
-        setPendingDeleteId(null);
-        closeActiveModal();
-      })
-      .catch(console.error);
+
+    // Find the item in state
+    const item = allUsersMoods.find((i) => i._id === pendingDeleteId);
+    if (!item) return;
+
+    // Remove currentUser from all moods
+    const updatedMoods = item.moods.map((m) => ({
+      ...m,
+      users: m.users.filter((u) => u !== currentUser._id),
+    }));
+
+    // Filter out moods with no users
+    const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
+
+    if (filteredMoods.length === 0) {
+      // No users left: delete item from server
+      deleteItem(pendingDeleteId, token)
+        .then(() => {
+          setAllUsersMoods((prev) =>
+            prev.filter((i) => i._id !== pendingDeleteId)
+          );
+          setPendingDeleteId(null);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    } else {
+      // Users still remain: update moods on server
+      updateItemMoods(pendingDeleteId, filteredMoods, token)
+        .then((res) => {
+          setAllUsersMoods((prev) =>
+            prev.map((i) => (i._id === res.data._id ? res.data : i))
+          );
+          setPendingDeleteId(null);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    }
   };
 
   const handleConfirmClick = (id) => {
@@ -109,29 +137,33 @@ function App() {
   };
 
   // Handle adding/updating moods
-  const handleSave = (item) => {
+  const handleSave = (updatedItem) => {
     const token = localStorage.getItem("jwt");
-    if (!item) return;
+    if (!updatedItem) return;
 
-    if (!item.moods || item.moods.length === 0) {
-      if (item._id) {
-        deleteItem(item._id, token)
-          .then(() =>
-            setAllUsersMoods((prev) => prev.filter((i) => i._id !== item._id))
-          )
+    // 1️⃣ If no moods are left, delete item
+    if (!updatedItem.moods || updatedItem.moods.length === 0) {
+      if (updatedItem._id) {
+        deleteItem(updatedItem._id, token)
+          .then(() => {
+            setAllUsersMoods((prev) =>
+              prev.filter((i) => i._id !== updatedItem._id)
+            );
+          })
           .catch(console.error);
       }
       return;
     }
 
-    if (!item._id) {
+    // 2️⃣ If item doesn't exist on server, create it
+    if (!updatedItem._id) {
       const itemToSend = {
-        _id: item._id || item.id,
-        title: item.title,
-        mediaType: item.mediaType,
-        poster: item.poster,
-        length: item.length,
-        moods: item.moods.map((m) => ({
+        _id: updatedItem._id || updatedItem.id,
+        title: updatedItem.title,
+        mediaType: updatedItem.mediaType,
+        poster: updatedItem.poster,
+        length: updatedItem.length,
+        moods: updatedItem.moods.map((m) => ({
           name: m.name,
           users: m.users.map((u) => u.toString()),
         })),
@@ -145,7 +177,8 @@ function App() {
         })
         .catch(console.error);
     } else {
-      updateItemMoods(item._id, item.moods, token)
+      // 3️⃣ Otherwise, update moods on server
+      updateItemMoods(updatedItem._id, updatedItem.moods, token)
         .then((res) => {
           setAllUsersMoods((prev) =>
             prev.map((i) => (i._id === res.data._id ? res.data : i))
@@ -156,6 +189,11 @@ function App() {
         .catch(console.error);
     }
   };
+
+  /* - Introduced `itemUserMoods` to track current user's moods per item.
+    - Updated handleSave and delete handlers to remove only current user's ID from item.moods.
+    - Ensured items disappear from user's view only when their last mood is removed.
+    - Preserved other users' moods and item integrity. */
 
   const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
