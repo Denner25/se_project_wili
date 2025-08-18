@@ -1,4 +1,7 @@
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://api.wili.nya.pub"
+    : "http://localhost:3001";
 
 function handleResponse(res) {
   return res.ok ? res.json() : res.json().then((err) => Promise.reject(err));

@@ -25,3 +25,4 @@ dist-ssr
 .ssh
 .nginx
 .env
+.vite

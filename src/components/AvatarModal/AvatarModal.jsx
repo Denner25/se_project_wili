@@ -2,8 +2,8 @@ import { useState } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import "./AvatarModal.css";
 
-// Neutral seeds for avatars
-const seeds = [
+// List of seed names for avatars
+export const seeds = [
   "pebble",
   "breeze",
   "ember",
@@ -21,15 +21,20 @@ const seeds = [
   "shade",
   "tide",
 ];
+
 const style = "bottts"; // DiceBear style
 
+// Helper to generate full avatar URL from seed
+export const getAvatarUrl = (seed) =>
+  `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+
 function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
-  const [selected, setSelected] = useState(seeds[0]);
+  const [selected, setSelected] = useState(seeds[0]); // default selection
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Pass the full avatar URL to App.js
-    onSave(`https://api.dicebear.com/7.x/${style}/svg?seed=${selected}`);
+    // Pass full avatar URL to parent
+    onSave(getAvatarUrl(selected));
   };
 
   return (
@@ -55,12 +60,7 @@ function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
             }`}
             onClick={() => setSelected(seed)}
           >
-            <img
-              src={`https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`}
-              alt={seed}
-              width={64}
-              height={64}
-            />
+            <img src={getAvatarUrl(seed)} alt={seed} width={64} height={64} />
           </div>
         ))}
       </div>

@@ -12,7 +12,7 @@ import EditProfileModal from "../EditProfileModal/EditProfileModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import LogInModal from "../LogInModal/LogInModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
-import AvatarModal from "../AvatarModal/AvatarModal";
+import AvatarModal, { seeds, getAvatarUrl } from "../AvatarModal/AvatarModal";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import {
   getItems,
@@ -24,7 +24,6 @@ import {
 import { signup, login, checkToken } from "../../utils/auth";
 
 function App() {
-  const navigate = useNavigate();
   const [activeModal, setActiveModal] = useState(null);
   const [subModal, setSubModal] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -35,6 +34,7 @@ function App() {
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [userMoods, setUserMoods] = useState([]); // all moods of current user
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!allUsersMoods || !currentUser) return;
@@ -212,7 +212,7 @@ function App() {
     const token = localStorage.getItem("jwt");
     const payload = {};
     if (typeof data.name !== "undefined") payload.name = data.name;
-    payload.avatarUrl = pendingAvatarUrl || currentUser?.avatarUrl || "";
+    payload.avatarUrl = data.avatarUrl;
 
     updateProfile(payload, token)
       .then((updatedUser) => {
@@ -242,8 +242,19 @@ function App() {
   };
 
   const handleSignUp = ({ name, email, password }) => {
+    // Pick a random avatar
+    const randomSeed = seeds[Math.floor(Math.random() * seeds.length)];
+    const defaultAvatarUrl = getAvatarUrl(randomSeed);
     signup({ name, email, password })
-      .then(() => handleLogIn({ email, password }))
+      .then(() =>
+        handleLogIn({ email, password }).then((user) => {
+          setCurrentUser({ ...user, avatarUrl: defaultAvatarUrl });
+          return handleProfileSubmit({
+            name,
+            avatarUrl: defaultAvatarUrl,
+          });
+        })
+      )
       .catch(console.error);
   };
 
