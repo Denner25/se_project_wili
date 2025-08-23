@@ -193,9 +193,12 @@ function App() {
       // 3️⃣ Otherwise, update moods on server
       updateItemMoods(updatedItem._id, updatedItem.moods, token)
         .then((res) => {
-          setAllUsersMoods((prev) =>
-            prev.map((i) => (i._id === res.data._id ? res.data : i))
-          );
+          setAllUsersMoods((prev) => {
+            const filteredItems = prev.filter((i) => i._id !== res.data._id);
+            // Prepend the updated item to the start
+            return [res.data, ...filteredItems];
+          });
+
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })

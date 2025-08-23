@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
+import { BUTTONS } from "../../utils/constants";
 import "./AvatarModal.css";
 
 // List of seed names for avatars
@@ -47,7 +48,7 @@ function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
       onSubmit={handleSubmit}
       secondaryButton={
         <button className="modal__secondary" type="button" onClick={onClose}>
-          Cancel
+          {BUTTONS.CANCEL}
         </button>
       }
     >
