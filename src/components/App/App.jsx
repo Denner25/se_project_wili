@@ -36,6 +36,7 @@ function App() {
   const [userMoods, setUserMoods] = useState([]); // all moods of current user
   const navigate = useNavigate();
 
+  // Keep userMoods in sync with allUsersMoods + currentUser
   useEffect(() => {
     if (!allUsersMoods || !currentUser) return;
 
@@ -52,6 +53,10 @@ function App() {
   // Fetch all items (all users) on load
   useEffect(() => {
     const token = localStorage.getItem("jwt");
+
+    const sortByUpdatedAt = (data) =>
+      data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
     if (token) {
       checkToken(token)
         .then((user) => {
@@ -59,18 +64,18 @@ function App() {
           setCurrentUser(user);
           return getItems(token);
         })
-        .then((res) => setAllUsersMoods(res.data))
+        .then((res) => setAllUsersMoods(sortByUpdatedAt(res.data)))
         .catch(() => {
           setIsLoggedIn(false);
           setCurrentUser(null);
           localStorage.removeItem("jwt");
           getItems()
-            .then((res) => setAllUsersMoods(res.data))
+            .then((res) => setAllUsersMoods(sortByUpdatedAt(res.data)))
             .catch(console.error);
         });
     } else {
       getItems()
-        .then((res) => setAllUsersMoods(res.data))
+        .then((res) => setAllUsersMoods(sortByUpdatedAt(res.data)))
         .catch(console.error);
     }
   }, []);
@@ -190,6 +195,18 @@ function App() {
         })
         .catch(console.error);
     } else {
+      // 3️⃣ Only update if moods actually changed
+      const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
+
+      const moodsChanged =
+        JSON.stringify(existingItem.moods) !==
+        JSON.stringify(updatedItem.moods);
+
+      if (!moodsChanged) {
+        // nothing changed → just close modal
+        closeActiveModal();
+        return;
+      }
       // 3️⃣ Otherwise, update moods on server
       updateItemMoods(updatedItem._id, updatedItem.moods, token)
         .then((res) => {
@@ -198,7 +215,6 @@ function App() {
             // Prepend the updated item to the start
             return [res.data, ...filteredItems];
           });
-
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
