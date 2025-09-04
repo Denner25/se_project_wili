@@ -3,7 +3,7 @@
   padding: 6px 16px;
   border: none;
   border-radius: 8px;
-  background: #ffb6c1;
+  background: #f88397;
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -11,15 +11,17 @@
 }
 
 .modal__input {
-  width: 100%;
-  border: 1px solid;
-  border-color: gray;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  max-width: 440px;
-  padding-top: 12px;
-  line-height: 1.4;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.modal__input:focus {
+  outline: none;
+  border-color: #f88397;
+  box-shadow: 0 0 3px rgba(255, 182, 193, 0.5);
 }
 
 .modal__form {
@@ -29,11 +31,31 @@
 }
 
 .modal__button:hover {
-  background: #ff99aa;
+  background: #f86780;
 }
 
 .modal__button-group {
   display: flex;
   justify-content: space-evenly;
   margin-top: 12px;
+}
+
+.modal__secondary {
+  max-width: 124px;
+  min-height: 36px;
+  border-radius: 6px;
+  border: none;
+  background-color: white;
+  color: #f88397;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal__secondary:hover {
+  color: #f86780;
+}
+
+.modal__error {
+  color: red;
+  font-weight: 100;
 }

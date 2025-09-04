@@ -118,6 +118,14 @@
   transform: scale(1.08);
 }
 
+.item-modal__tag.disabled {
+  cursor: default;
+}
+
+.item-modal__tag.disabled:hover {
+  transform: scale(1.05);
+}
+
 .item-modal__no-tags {
   color: #aaa;
   font-style: italic;
@@ -141,7 +149,7 @@
   cursor: pointer;
 }
 
-.item-modal__save-button {
+.item-modal__button {
   margin-top: auto;
   align-self: flex-end;
   padding: 6px 16px;
@@ -154,6 +162,6 @@
   transition: background 0.2s ease;
 }
 
-.item-modal__save-button:hover {
+.item-modal__button:hover {
   background: #ff99aa;
 }

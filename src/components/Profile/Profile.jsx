@@ -7,19 +7,24 @@ function Profile({
   onCardClick,
   onEditProfile,
   onDeleteRequest,
-  profileName,
+  onLogOut,
+  currentUser,
+  userMoods,
 }) {
+  if (!currentUser) {
+    return <div className="spinner">Loading...</div>;
+  }
   return (
     <div className="profile">
       <section className="profile__sidebar">
-        <SideBar onEditProfile={onEditProfile} profileName={profileName} />
+        <SideBar onEditProfile={onEditProfile} onLogOut={onLogOut} />
       </section>
       <section className="profile__items-section">
         <ItemsSection
           items={items}
           onCardClick={onCardClick}
           onDeleteRequest={onDeleteRequest}
-          profileName={profileName}
+          userMoods={userMoods}
         />
       </section>
     </div>

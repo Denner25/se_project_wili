@@ -2,7 +2,7 @@ import ItemCard from "../ItemCard/ItemCard";
 import "./Main.css";
 import wiliPoster from "../../assets/wili-poster.png";
 
-function Main({ items, onCardClick }) {
+function Main({ items, onCardClick, allUsersMoods }) {
   return (
     <div className="main">
       <img src={wiliPoster} alt="WILI Poster" className="main__poster" />
@@ -14,10 +14,11 @@ function Main({ items, onCardClick }) {
           <div className="main__grid">
             {items.map((item) => (
               <ItemCard
-                key={item.id}
+                key={item._id}
                 item={item}
                 onClick={() => onCardClick(item)}
                 hideDelete={true}
+                allUsersMoods={allUsersMoods}
               />
             ))}
           </div>
