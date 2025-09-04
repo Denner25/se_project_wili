@@ -7,6 +7,10 @@ There is a "Your top moods" section where I utilized react's wordcloud library t
 
 https://wili.nya.pub
 
+## Backend repository
+
+https://github.com/Denner25/se_project_wili_backend
+
 ## Project features
 
 - Reusable functional components

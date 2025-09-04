@@ -81,3 +81,8 @@ npm run dev
 npm run dev
 npm run dev
 npm run dev
+cd ../se_project_wili/backend
+cd ../se_project_wili_backend
+npm run dev
+pwd
+npm run dev

@@ -189,7 +189,7 @@ function App() {
 
       addItem(itemToSend, token)
         .then((res) => {
-          setAllUsersMoods((prev) => [...prev, res.data]);
+          setAllUsersMoods((prev) => [res.data, ...prev]);
           setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
