@@ -13,7 +13,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
   const debounceRef = useRef(null);
   const containerRef = useRef(null); // 🔹 reference for click-out detection
 
-  // 🔹 Close dropdown
   const closeDropdown = () => setSuggestions([]);
 
   // 🔹 Click outside to close dropdown
@@ -30,7 +29,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
     };
   }, []);
 
-  // 🔹 Format title with year
   function formatTitle(item) {
     const rawTitle =
       item.media_type === "movie"
@@ -154,7 +152,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
         placeholder="Search movies and animes..."
         className="autocomplete__input"
       />
-      {/* Show error message if error exists */}
       {error && <div className="autocomplete__error">{error}</div>}
       <Dropdown items={suggestions} onItemClick={handleSelect} />
       {loading && <div className="loading-text">Loading…</div>}
