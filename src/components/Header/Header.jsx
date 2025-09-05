@@ -25,7 +25,7 @@ function Header({
 
       <Autocomplete onSelect={onItemClick} query={query} setQuery={setQuery} />
 
-      <div className="header__group">
+      <nav className="header__group">
         {currentUser ? (
           <Link className="header__link" to="/profile">
             <p className="header__username">{currentUser.name}</p>
@@ -59,7 +59,7 @@ function Header({
             </button>
           </>
         )}
-      </div>
+      </nav>
     </header>
   );
 }

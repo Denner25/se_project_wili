@@ -8,7 +8,7 @@ function SideBar({ onEditProfile, onLogOut }) {
 
   return (
     <div className="sidebar">
-      <div className="sidebar__profile">
+      <Link className="sidebar__profile" to="/profile">
         {currentUser?.avatarUrl ? (
           <img
             className="sidebar__avatar"
@@ -21,7 +21,7 @@ function SideBar({ onEditProfile, onLogOut }) {
           </div>
         )}
         <p className="sidebar__username">{currentUser?.name}</p>
-      </div>
+      </Link>
       <div className="sidebar__buttons">
         <button className="sidebar__button" onClick={onEditProfile}>
           Edit profile
