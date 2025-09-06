@@ -55,6 +55,7 @@
   overflow: hidden; /* clips poster zoom only */
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
+  display: block;
 }
 
 .item-modal__poster {
@@ -93,6 +94,7 @@
   overflow-x: visible;
   max-height: 400px;
   padding: 6px;
+  margin-bottom: 10px;
 }
 
 .item-modal__tag {
@@ -164,4 +166,61 @@
 
 .item-modal__button:hover {
   background: #ff99aa;
+}
+
+.item-modal__tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.item-modal__tab {
+  position: relative;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  color: #ffb6c1;
+  transition: color 0.2s;
+}
+
+.item-modal__tab:hover {
+  color: #ff99aa;
+}
+
+.item-modal__tab.active {
+  color: #ff99aa;
+}
+
+.item-modal__tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: #ff99aa;
+  box-shadow: 0 0 8px #ff99aa;
+  border-radius: 2px;
+}
+
+@media screen and (max-width: 620px) {
+  .item-modal {
+    margin: 0 15px;
+    margin-top: 32px;
+  }
+
+  .item-modal__close {
+    top: -30px;
+    right: 0;
+  }
+
+  .item-modal__cloud {
+    width: 80vw;
+  }
+
+  .item-modal__poster-wrapper {
+    display: none; /* hide on mobile */
+  }
 }
