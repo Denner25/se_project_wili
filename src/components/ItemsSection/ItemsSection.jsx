@@ -1,10 +1,26 @@
 import ItemCard from "../ItemCard/ItemCard";
 import "./ItemsSection.css";
 
-function ItemsSection({ items, onCardClick, onDeleteRequest, currentUser }) {
-  const userItems = items.filter((item) =>
-    item.moods?.some((m) => m.users?.includes(currentUser._id))
-  );
+function ItemsSection({
+  items,
+  onCardClick,
+  onDeleteRequest,
+  currentUser,
+  showAllMoods,
+}) {
+  const userItems = items
+    .map((item) => {
+      const moods = item.moods || [];
+
+      const filteredMoods = showAllMoods
+        ? moods
+        : moods.filter((m) => m.users.includes(currentUser._id));
+
+      if (filteredMoods.length === 0) return null;
+
+      return { ...item, moods: filteredMoods };
+    })
+    .filter(Boolean);
 
   return (
     <div className="items-section">
@@ -18,6 +34,8 @@ function ItemsSection({ items, onCardClick, onDeleteRequest, currentUser }) {
               <ItemCard
                 key={item._id}
                 item={item}
+                currentUser={currentUser}
+                showAllMoods={showAllMoods}
                 onClick={() => onCardClick(item)}
                 onDeleteRequest={onDeleteRequest}
               />

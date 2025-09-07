@@ -150,7 +150,8 @@ function App() {
   };
 
   const handleItemClick = (item) => {
-    setSelectedItem(item);
+    const fullItem = allUsersMoods.find((i) => i._id === item._id);
+    setSelectedItem({ ...item, moods: fullItem?.moods || [] });
     setActiveModal("item");
   };
 
@@ -221,11 +222,6 @@ function App() {
         .catch(console.error);
     }
   };
-
-  /* - Introduced `itemUserMoods` to track current user's moods per item.
-    - Updated handleSave and delete handlers to remove only current user's ID from item.moods.
-    - Ensured items disappear from user's view only when their last mood is removed.
-    - Preserved other users' moods and item integrity. */
 
   const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
@@ -332,6 +328,7 @@ function App() {
                     onCardClick={handleItemClick}
                     onDeleteRequest={handleConfirmClick}
                     onEditProfile={handleEditProfileClick}
+                    allUsersMoods={allUsersMoods}
                     onLogOut={handleLogOut}
                     currentUser={currentUser}
                     userMoods={userMoods}

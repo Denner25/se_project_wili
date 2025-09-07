@@ -14,7 +14,7 @@ function ItemModal({
   onSignUpClick,
   currentUser,
 }) {
-  const [itemUserMoods, setItemUserMoods] = useState([]);
+  const [userMoods, setUserMoods] = useState([]);
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);
 
@@ -22,7 +22,7 @@ function ItemModal({
 
   useEffect(() => {
     if (!item || !isOpen) {
-      setItemUserMoods([]);
+      setUserMoods([]);
       setAllUsersMoods([]);
       setAvailableMoods([]);
       return;
@@ -41,7 +41,7 @@ function ItemModal({
     }
 
     // Set current user's moods
-    setItemUserMoods(
+    setUserMoods(
       item.moods
         ?.filter((m) => m.users.includes(currentUser?._id))
         .map((m) => m.name) || []
@@ -55,7 +55,7 @@ function ItemModal({
 
   // Toggle user's mood selection
   const handleMoodChange = (moodName) => {
-    setItemUserMoods((prev) =>
+    setUserMoods((prev) =>
       prev.includes(moodName)
         ? prev.filter((m) => m !== moodName)
         : [...prev, moodName]
@@ -74,7 +74,7 @@ function ItemModal({
     });
 
     // Add current user to selected moods
-    itemUserMoods.forEach((moodName) => {
+    userMoods.forEach((moodName) => {
       const existingMood = updatedMoods.find((m) => m.name === moodName);
       if (existingMood) {
         if (!existingMood.users.includes(currentUser._id)) {
@@ -161,9 +161,7 @@ function ItemModal({
                   <label
                     key={mood}
                     className={`item-modal__tag${
-                      isLoggedIn && itemUserMoods.includes(mood)
-                        ? " selected"
-                        : ""
+                      isLoggedIn && userMoods.includes(mood) ? " selected" : ""
                     }${!isLoggedIn ? " disabled" : ""}`}
                     onClick={
                       isLoggedIn ? () => handleMoodChange(mood) : undefined

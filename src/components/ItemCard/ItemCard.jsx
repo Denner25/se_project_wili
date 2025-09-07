@@ -2,15 +2,15 @@ import "./ItemCard.css";
 
 function ItemCard({
   item,
-  allUsersMoods,
   onClick,
   onDeleteRequest,
   hideDelete,
+  allUsersMoods,
 }) {
-  const showDelete = !hideDelete && item.tags && item.tags.length > 0;
+  const cardMoods =
+    allUsersMoods?.find((i) => i._id === item._id)?.moods || item.moods || [];
 
-  // ✅ Find the freshest version of this item from allUsersMoods
-  const cardMoods = allUsersMoods?.find((i) => i._id === item._id) || item;
+  const showDelete = !hideDelete && cardMoods.length > 0;
 
   return (
     <div className="item-card" onClick={onClick}>
@@ -25,19 +25,19 @@ function ItemCard({
             }}
           />
         )}
-        {cardMoods.poster && (
+        {item.poster && (
           <img
-            src={cardMoods.poster.replace("/w92", "/w342")}
-            alt={cardMoods.title}
+            src={item.poster.replace("/w92", "/w342")}
+            alt={item.title}
             className="item-card__poster"
           />
         )}
       </div>
       <div className="item-card__info">
-        <h4 className="item-card__title">{cardMoods.title}</h4>
+        <h4 className="item-card__title">{item.title}</h4>
         <p className="item-card__moods">
-          {cardMoods.moods && cardMoods.moods.length > 0
-            ? cardMoods.moods.map((m) => m.name).join(", ")
+          {cardMoods.length > 0
+            ? cardMoods.map((m) => m.name).join(", ")
             : "No moods"}
         </p>
       </div>
