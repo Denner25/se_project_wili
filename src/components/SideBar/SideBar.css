@@ -53,3 +53,13 @@
 .sidebar__link {
   text-align: start;
 }
+
+@media screen and (max-width: 620px) {
+  .sidebar {
+    margin-top: 0;
+  }
+
+  .sidebar__profile {
+    display: none;
+  }
+}

@@ -13,8 +13,6 @@
 .items-section__list {
   display: flex;
   flex-wrap: wrap;
-  padding: 0;
-  list-style-type: none;
   gap: 15px;
 }
 

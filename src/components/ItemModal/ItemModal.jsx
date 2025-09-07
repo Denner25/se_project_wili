@@ -14,41 +14,46 @@ function ItemModal({
   onSignUpClick,
   currentUser,
 }) {
-  const [availableMoods, setAvailableMoods] = useState([]);
   const [itemUserMoods, setItemUserMoods] = useState([]);
+  const [allUsersMoods, setAllUsersMoods] = useState([]);
+  const [availableMoods, setAvailableMoods] = useState([]);
+
   const [activeTab, setActiveTab] = useState("available"); // "available" | "allUsers"
 
   useEffect(() => {
     if (!item || !isOpen) {
-      setAvailableMoods([]);
       setItemUserMoods([]);
+      setAllUsersMoods([]);
+      setAvailableMoods([]);
       return;
     }
 
     const _id = item._id || item.id;
     const mediaType = item.mediaType || item.originalMediaType;
 
-    if (!_id || !mediaType) {
+    // Fetch external keywords if available
+    if (_id && mediaType) {
+      fetchKeywords(_id, mediaType).then((keywords) => {
+        setAvailableMoods(keywords.map((k) => k.name));
+      });
+    } else {
       setAvailableMoods([]);
-      setItemUserMoods(
-        item.moods
-          ?.filter((m) => m.users.includes(currentUser?._id))
-          .map((m) => m.name) || []
-      );
-      return;
     }
 
-    fetchKeywords(_id, mediaType).then((keywords) => {
-      setAvailableMoods(keywords.map((k) => k.name));
-    });
-
+    // Set current user's moods
     setItemUserMoods(
       item.moods
         ?.filter((m) => m.users.includes(currentUser?._id))
         .map((m) => m.name) || []
     );
+
+    // Set all users' moods (read-only for display)
+    setAllUsersMoods(
+      item.moods?.flatMap((m) => Array(m.users.length).fill(m.name)) || []
+    );
   }, [item, isOpen, currentUser]);
 
+  // Toggle user's mood selection
   const handleMoodChange = (moodName) => {
     setItemUserMoods((prev) =>
       prev.includes(moodName)
@@ -57,15 +62,18 @@ function ItemModal({
     );
   };
 
+  // Save updated moods for current user
   const handleSave = () => {
     if (!item) return;
 
     const updatedMoods = (item.moods || []).map((m) => ({ ...m }));
 
+    // Remove current user from all moods
     updatedMoods.forEach((m) => {
       m.users = m.users.filter((u) => u !== currentUser._id);
     });
 
+    // Add current user to selected moods
     itemUserMoods.forEach((moodName) => {
       const existingMood = updatedMoods.find((m) => m.name === moodName);
       if (existingMood) {
@@ -85,10 +93,6 @@ function ItemModal({
 
   if (!item) return null;
 
-  // Flatten moods for all users
-  const allUserMoods =
-    item.moods?.flatMap((m) => Array(m.users.length).fill(m.name)) || [];
-
   return (
     <div
       className={`item-modal-overlay ${isOpen ? "open" : ""}`}
@@ -99,7 +103,7 @@ function ItemModal({
           className="item-modal__close"
           onClick={onClose}
           aria-label={BUTTONS.CLOSE}
-        ></button>
+        />
 
         <div className="item-modal__poster-wrapper">
           {item.poster && (
@@ -124,7 +128,7 @@ function ItemModal({
                 type="button"
                 className="item-modal__delete"
                 onClick={() => onDeleteRequest?.(item._id)}
-              ></button>
+              />
             )}
 
           {/* Tabs */}
@@ -174,7 +178,7 @@ function ItemModal({
 
           {activeTab === "allUsers" && (
             <div className="item-modal__cloud">
-              <MoodsCloud moods={allUserMoods} />
+              <MoodsCloud moods={allUsersMoods} />
             </div>
           )}
 

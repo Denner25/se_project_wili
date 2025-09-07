@@ -25,6 +25,7 @@ function Profile({
           onCardClick={onCardClick}
           onDeleteRequest={onDeleteRequest}
           userMoods={userMoods}
+          currentUser={currentUser}
         />
       </section>
     </div>

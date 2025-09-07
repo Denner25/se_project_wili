@@ -78,4 +78,8 @@
     flex-direction: column;
     gap: 15px;
   }
+
+  .header__logo {
+    line-height: 1;
+  }
 }
