@@ -50,3 +50,14 @@
   font-family: "CabinetGrotesk", Arial, sans-serif;
   font-weight: 700;
 }
+
+@media screen and (max-width: 620px) {
+  .modal__content {
+    margin: 0 15px;
+  }
+
+  .modal__close {
+    top: -30px;
+    right: 0;
+  }
+}
