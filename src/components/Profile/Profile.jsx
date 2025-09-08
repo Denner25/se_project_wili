@@ -22,9 +22,11 @@ function Profile({
       <section className="profile__items-section">
         <ItemsSection
           items={items}
+          userMoods={userMoods}
+          currentUser={currentUser}
+          showAllMoods={false}
           onCardClick={onCardClick}
           onDeleteRequest={onDeleteRequest}
-          userMoods={userMoods}
         />
       </section>
     </div>

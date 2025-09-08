@@ -3,9 +3,9 @@
 }
 
 .main__grid {
-  display: flex;
-  gap: 23px;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(auto-fill, 180px);
 }
 
 .main__empty {
@@ -19,5 +19,21 @@
 }
 
 .main__poster {
+  display: block;
   width: 100%;
+}
+
+@media screen and (max-width: 620px) {
+  .main__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 equal columns */
+  }
+
+  .main__poster {
+    display: none; /* if needed */
+  }
+
+  .main__text {
+    margin: 0 0 20px 0;
+  }
 }

@@ -16,3 +16,10 @@
 .modal__avatar-option_selected {
   border-color: #f88397;
 }
+
+@media screen and (max-width: 620px) {
+  .modal__avatar-grid {
+    height: 45vh;
+    overflow: auto;
+  }
+}

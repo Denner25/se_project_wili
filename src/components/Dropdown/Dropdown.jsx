@@ -1,6 +1,10 @@
 import "./Dropdown.css";
+import { useContext } from "react";
+import MoodsContext from "../../contexts/MoodsContext";
 
 function Dropdown({ items, onItemClick }) {
+  const { allUsersMoods } = useContext(MoodsContext);
+
   if (!items.length) return null;
 
   return (
@@ -9,7 +13,9 @@ function Dropdown({ items, onItemClick }) {
         <li
           key={`${item.mediaType}-${item.id}`}
           className="dropdown__item"
-          onClick={() => onItemClick(item)}
+          onClick={() =>
+            onItemClick(allUsersMoods.find((i) => i._id === item._id) || item)
+          }
         >
           {item.poster && (
             <img

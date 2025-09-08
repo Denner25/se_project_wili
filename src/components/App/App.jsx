@@ -10,6 +10,7 @@ import TopMoods from "../TopMoods/TopMoods";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 import EditProfileModal from "../EditProfileModal/EditProfileModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import MoodsContext from "../../contexts/MoodsContext";
 import LogInModal from "../LogInModal/LogInModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
 import AvatarModal, { seeds, getAvatarUrl } from "../AvatarModal/AvatarModal";
@@ -150,7 +151,10 @@ function App() {
   };
 
   const handleItemClick = (item) => {
-    setSelectedItem(item);
+    const fullItem =
+      allUsersMoods.find((i) => i._id === item._id || i._id === item.id) ||
+      item;
+    setSelectedItem({ ...fullItem, _id: fullItem._id || item.id });
     setActiveModal("item");
   };
 
@@ -159,22 +163,29 @@ function App() {
     const token = localStorage.getItem("jwt");
     if (!updatedItem) return;
 
-    // 1️⃣ If no moods are left, delete item
-    if (!updatedItem.moods || updatedItem.moods.length === 0) {
-      if (updatedItem._id) {
-        deleteItem(updatedItem._id, token)
-          .then(() => {
-            setAllUsersMoods((prev) =>
-              prev.filter((i) => i._id !== updatedItem._id)
-            );
-          })
-          .catch(console.error);
-      }
-      return;
-    }
+    // For existing items: try to find it
+    const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
 
-    // 2️⃣ If item doesn't exist on server, create it
-    if (!updatedItem._id) {
+    if (existingItem) {
+      // Update moods for existing item
+      const moodsChanged =
+        JSON.stringify(existingItem.moods) !==
+        JSON.stringify(updatedItem.moods);
+      if (!moodsChanged) {
+        closeActiveModal();
+        return;
+      }
+      updateItemMoods(updatedItem._id, updatedItem.moods, token)
+        .then((res) => {
+          setAllUsersMoods((prev) => [
+            res.data,
+            ...prev.filter((i) => i._id !== res.data._id),
+          ]);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    } else {
+      // New item: send to server
       const itemToSend = {
         _id: updatedItem._id || updatedItem.id,
         title: updatedItem.title,
@@ -190,42 +201,11 @@ function App() {
       addItem(itemToSend, token)
         .then((res) => {
           setAllUsersMoods((prev) => [res.data, ...prev]);
-          setResetAutocomplete((f) => !f);
-          closeActiveModal();
-        })
-        .catch(console.error);
-    } else {
-      // 3️⃣ Only update if moods actually changed
-      const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
-
-      const moodsChanged =
-        JSON.stringify(existingItem.moods) !==
-        JSON.stringify(updatedItem.moods);
-
-      if (!moodsChanged) {
-        // nothing changed → just close modal
-        closeActiveModal();
-        return;
-      }
-      // 3️⃣ Otherwise, update moods on server
-      updateItemMoods(updatedItem._id, updatedItem.moods, token)
-        .then((res) => {
-          setAllUsersMoods((prev) => {
-            const filteredItems = prev.filter((i) => i._id !== res.data._id);
-            // Prepend the updated item to the start
-            return [res.data, ...filteredItems];
-          });
-          setResetAutocomplete((f) => !f);
           closeActiveModal();
         })
         .catch(console.error);
     }
   };
-
-  /* - Introduced `itemUserMoods` to track current user's moods per item.
-    - Updated handleSave and delete handlers to remove only current user's ID from item.moods.
-    - Ensured items disappear from user's view only when their last mood is removed.
-    - Preserved other users' moods and item integrity. */
 
   const handleProfileSubmit = (data) => {
     const token = localStorage.getItem("jwt");
@@ -301,106 +281,109 @@ function App() {
   };
 
   return (
-    <CurrentUserContext.Provider value={currentUser}>
-      <div className="app">
-        <div className="app__content">
-          <Header
-            onItemClick={handleItemClick}
-            resetAutocomplete={resetAutocomplete}
-            onSignUpClick={handleSignUpClick}
-            onLogInClick={handleLogInClick}
-            currentUser={currentUser}
-            isLoggedIn={isLoggedIn}
-          />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Main
-                  items={allUsersMoods}
-                  onCardClick={handleItemClick}
-                  allUsersMoods={allUsersMoods}
-                />
-              }
+    <MoodsContext.Provider value={{ allUsersMoods, userMoods }}>
+      <CurrentUserContext.Provider value={currentUser}>
+        <div className="app">
+          <div className="app__content">
+            <Header
+              onItemClick={handleItemClick}
+              resetAutocomplete={resetAutocomplete}
+              onSignUpClick={handleSignUpClick}
+              onLogInClick={handleLogInClick}
+              currentUser={currentUser}
+              isLoggedIn={isLoggedIn}
             />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute isLoggedIn={isLoggedIn}>
-                  <Profile
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Main
                     items={allUsersMoods}
                     onCardClick={handleItemClick}
-                    onDeleteRequest={handleConfirmClick}
+                    allUsersMoods={allUsersMoods}
+                  />
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn}>
+                    <Profile
+                      items={allUsersMoods}
+                      onCardClick={handleItemClick}
+                      onDeleteRequest={handleConfirmClick}
+                      onEditProfile={handleEditProfileClick}
+                      allUsersMoods={allUsersMoods}
+                      onLogOut={handleLogOut}
+                      currentUser={currentUser}
+                      userMoods={userMoods}
+                    />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/top-moods"
+                element={
+                  <TopMoods
                     onEditProfile={handleEditProfileClick}
-                    onLogOut={handleLogOut}
-                    currentUser={currentUser}
                     userMoods={userMoods}
                   />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/top-moods"
-              element={
-                <TopMoods
-                  onEditProfile={handleEditProfileClick}
-                  userMoods={userMoods}
-                />
-              }
-            />
-          </Routes>
-          <Footer />
-        </div>
+                }
+              />
+            </Routes>
+            <Footer />
+          </div>
 
-        <RegisterModal
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
-          isOpen={activeModal === "register"}
-          onLogInClick={handleLogInClick}
-          onSignUp={handleSignUp}
-        />
-        <LogInModal
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
-          isOpen={activeModal === "log-in"}
-          onSignUpClick={handleSignUpClick}
-          onLogIn={handleLogIn}
-        />
-        <ItemModal
-          item={selectedItem}
-          isOpen={activeModal === "item"}
-          onOverlayClose={handleOverlayClose}
-          onClose={closeActiveModal}
-          onSave={handleSave}
-          onDeleteRequest={handleConfirmClick}
-          isLoggedIn={isLoggedIn}
-          onSignUpClick={handleSignUpClick}
-          currentUser={currentUser}
-        />
-        <ConfirmationModal
-          isOpen={activeModal === "confirmation"}
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
-          onConfirm={handleConfirmDelete}
-        />
-        <EditProfileModal
-          isOpen={activeModal === "edit-profile"}
-          onClose={handleCloseEditProfile}
-          onOverlayClose={handleEditProfileOverlayClose}
-          onSubmit={handleProfileSubmit}
-          onOpenAvatarModal={handleEditAvatarClick}
-          avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
-          isLoggedIn={isLoggedIn}
-        />
-        <AvatarModal
-          isOpen={subModal === "avatar"}
-          onClose={handleCloseAvatarModal}
-          isLoggedIn={isLoggedIn}
-          onOverlayClose={handleOverlayClose}
-          onSave={handleAvatarSave}
-        />
-      </div>
-    </CurrentUserContext.Provider>
+          <RegisterModal
+            onClose={closeActiveModal}
+            onOverlayClose={handleOverlayClose}
+            isOpen={activeModal === "register"}
+            onLogInClick={handleLogInClick}
+            onSignUp={handleSignUp}
+          />
+          <LogInModal
+            onClose={closeActiveModal}
+            onOverlayClose={handleOverlayClose}
+            isOpen={activeModal === "log-in"}
+            onSignUpClick={handleSignUpClick}
+            onLogIn={handleLogIn}
+          />
+          <ItemModal
+            item={selectedItem}
+            isOpen={activeModal === "item"}
+            onOverlayClose={handleOverlayClose}
+            onClose={closeActiveModal}
+            onSave={handleSave}
+            onDeleteRequest={handleConfirmClick}
+            isLoggedIn={isLoggedIn}
+            onSignUpClick={handleSignUpClick}
+            currentUser={currentUser}
+          />
+          <ConfirmationModal
+            isOpen={activeModal === "confirmation"}
+            onClose={closeActiveModal}
+            onOverlayClose={handleOverlayClose}
+            onConfirm={handleConfirmDelete}
+          />
+          <EditProfileModal
+            isOpen={activeModal === "edit-profile"}
+            onClose={handleCloseEditProfile}
+            onOverlayClose={handleEditProfileOverlayClose}
+            onSubmit={handleProfileSubmit}
+            onOpenAvatarModal={handleEditAvatarClick}
+            avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
+            isLoggedIn={isLoggedIn}
+          />
+          <AvatarModal
+            isOpen={subModal === "avatar"}
+            onClose={handleCloseAvatarModal}
+            isLoggedIn={isLoggedIn}
+            onOverlayClose={handleOverlayClose}
+            onSave={handleAvatarSave}
+          />
+        </div>
+      </CurrentUserContext.Provider>
+    </MoodsContext.Provider>
   );
 }
 

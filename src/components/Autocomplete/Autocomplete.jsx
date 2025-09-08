@@ -65,9 +65,27 @@ function Autocomplete({ onSelect, query, setQuery }) {
     setLoading(true);
     setError(null);
 
-    searchMulti(text)
+    // Extract year if present at end of query (e.g., "Inception 2010")
+    const yearMatch = text.match(/(\d{4})$/);
+    const year = yearMatch ? yearMatch[1] : null;
+    const titleQuery = year ? text.replace(/\d{4}$/, "").trim() : text;
+
+    searchMulti(titleQuery)
       .then((data) => {
-        const baseResults = (data.results || [])
+        let results = data.results || [];
+
+        // If year exists, filter results
+        if (year) {
+          results = results.filter((item) => {
+            const releaseDate =
+              item.media_type === "movie"
+                ? item.release_date
+                : item.first_air_date;
+            return releaseDate?.startsWith(year);
+          });
+        }
+
+        const baseResults = results
           .filter(
             (item) =>
               (item.media_type === "movie" || item.media_type === "tv") &&
@@ -85,12 +103,10 @@ function Autocomplete({ onSelect, query, setQuery }) {
           }));
 
         setSuggestions(baseResults);
-        setError(null);
 
-        // Sequentially fetch details to get runtime/episodes
+        // Fetch details as before
         baseResults.forEach((item, index) => {
           const cacheKey = `${item.mediaType}-${item.id}`;
-
           if (detailCache[cacheKey]) {
             setSuggestions((prev) =>
               prev.map((s, idx) =>
@@ -139,9 +155,9 @@ function Autocomplete({ onSelect, query, setQuery }) {
     // Forward to App to open modal
     onSelect?.(item);
 
-    // Optional: close dropdown and fill input
+    // Optional: close dropdown and clear input
     setSuggestions([]);
-    setQuery(item.title);
+    setQuery("");
   };
 
   return (

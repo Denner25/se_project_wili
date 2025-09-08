@@ -26,3 +26,4 @@ dist-ssr
 .nginx
 .env
 .vite
+.viminfo

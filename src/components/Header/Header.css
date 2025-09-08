@@ -73,9 +73,13 @@
   }
 }
 
-@media screen and (max-width: 370px) {
+@media screen and (max-width: 520px) {
   .header {
     flex-direction: column;
     gap: 15px;
+  }
+
+  .header__logo {
+    line-height: 1;
   }
 }
