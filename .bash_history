@@ -86,3 +86,69 @@ cd ../se_project_wili_backend
 npm run dev
 pwd
 npm run dev
+cd ../../mern-ecommerce/frontend && npm run dev
+cd ~
+git add A
+git add -A
+git commit -m "work on prepending updated cards in main, add analytics tracker, add backend repo link to readme"
+git push
+git checkout main
+git merge stage-2-backend
+git merge --abort
+git checkout stage-2-backend
+git switch main
+git merge stage-2-backend
+npm run dev
+git merge --abort
+npm run dev
+git merge stage-2-backend
+git merge --abort
+git merge stage-2-backend
+npm run dev
+git merge --abort
+git merge stage-2-backend
+git merge --abort
+git merge stage-2-backend
+git checkout stage-2-backend
+git switch main
+git log
+git log --oneline
+git branch
+git branch -d mood-refactor
+git branch -d backend2
+git branch -d backend-backup
+git branch -d stage-2-backend
+git push origin --delete stage-2-backend
+git branch
+git push origin --delete stage-2-backend
+
+npm run dev
+git add -A
+git commit -m "add correct semantic tags, fix navigation"
+git push
+git branch stage-3-frontend-auth
+git branch
+git switch stage-3-frontend-auth
+git commit -m "create branch for pull request review"
+git push -u origin stage-3-frontend-auth
+git add -A
+git commit -m "create branch for pull request review"
+git commit -m "create branch for pull request review"
+git push -u origin stage-3-frontend-auth
+git checkout -b item-moods
+git switch main
+git branch -d item-moods
+git branch -D item-moods
+git checkout -b item-top-moods
+npm run dev
+npm run dev
+git add -A
+git commit -m "work on responsive design and making grids mobile friendly"
+git push
+git push --set-upstream origin item-top-moods
+npm run deploy
+npm run deploy
+npm run dev
+npm run deploy
+npm run dev
+npm run dev

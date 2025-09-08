@@ -10,6 +10,7 @@ import TopMoods from "../TopMoods/TopMoods";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 import EditProfileModal from "../EditProfileModal/EditProfileModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import MoodsContext from "../../contexts/MoodsContext";
 import LogInModal from "../LogInModal/LogInModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
 import AvatarModal, { seeds, getAvatarUrl } from "../AvatarModal/AvatarModal";
@@ -150,8 +151,10 @@ function App() {
   };
 
   const handleItemClick = (item) => {
-    const fullItem = allUsersMoods.find((i) => i._id === item._id);
-    setSelectedItem({ ...item, moods: fullItem?.moods || [] });
+    const fullItem =
+      allUsersMoods.find((i) => i._id === item._id || i._id === item.id) ||
+      item;
+    setSelectedItem({ ...fullItem, _id: fullItem._id || item.id });
     setActiveModal("item");
   };
 
@@ -174,53 +177,30 @@ function App() {
       return;
     }
 
-    // 2️⃣ If item doesn't exist on server, create it
-    if (!updatedItem._id) {
-      const itemToSend = {
-        _id: updatedItem._id || updatedItem.id,
-        title: updatedItem.title,
-        mediaType: updatedItem.mediaType,
-        poster: updatedItem.poster,
-        length: updatedItem.length,
-        moods: updatedItem.moods.map((m) => ({
-          name: m.name,
-          users: m.users.map((u) => u.toString()),
-        })),
-      };
-
-      addItem(itemToSend, token)
-        .then((res) => {
-          setAllUsersMoods((prev) => [res.data, ...prev]);
-          setResetAutocomplete((f) => !f);
-          closeActiveModal();
-        })
-        .catch(console.error);
-    } else {
-      // 3️⃣ Only update if moods actually changed
-      const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
-
-      const moodsChanged =
-        JSON.stringify(existingItem.moods) !==
-        JSON.stringify(updatedItem.moods);
-
-      if (!moodsChanged) {
-        // nothing changed → just close modal
-        closeActiveModal();
-        return;
-      }
-      // 3️⃣ Otherwise, update moods on server
-      updateItemMoods(updatedItem._id, updatedItem.moods, token)
-        .then((res) => {
-          setAllUsersMoods((prev) => {
-            const filteredItems = prev.filter((i) => i._id !== res.data._id);
-            // Prepend the updated item to the start
-            return [res.data, ...filteredItems];
-          });
-          setResetAutocomplete((f) => !f);
-          closeActiveModal();
-        })
-        .catch(console.error);
+    // 2️⃣ Update existing item
+    const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
+    if (!existingItem) {
+      console.error("Item not found in allUsersMoods:", updatedItem._id);
+      return;
     }
+
+    const moodsChanged =
+      JSON.stringify(existingItem.moods) !== JSON.stringify(updatedItem.moods);
+
+    if (!moodsChanged) {
+      closeActiveModal();
+      return;
+    }
+
+    updateItemMoods(updatedItem._id, updatedItem.moods, token)
+      .then((res) => {
+        setAllUsersMoods((prev) =>
+          prev.map((i) => (i._id === res.data._id ? res.data : i))
+        );
+        setResetAutocomplete((f) => !f);
+        closeActiveModal();
+      })
+      .catch(console.error);
   };
 
   const handleProfileSubmit = (data) => {
@@ -297,107 +277,109 @@ function App() {
   };
 
   return (
-    <CurrentUserContext.Provider value={currentUser}>
-      <div className="app">
-        <div className="app__content">
-          <Header
-            onItemClick={handleItemClick}
-            resetAutocomplete={resetAutocomplete}
-            onSignUpClick={handleSignUpClick}
-            onLogInClick={handleLogInClick}
-            currentUser={currentUser}
-            isLoggedIn={isLoggedIn}
-          />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Main
-                  items={allUsersMoods}
-                  onCardClick={handleItemClick}
-                  allUsersMoods={allUsersMoods}
-                />
-              }
+    <MoodsContext.Provider value={{ allUsersMoods, userMoods }}>
+      <CurrentUserContext.Provider value={currentUser}>
+        <div className="app">
+          <div className="app__content">
+            <Header
+              onItemClick={handleItemClick}
+              resetAutocomplete={resetAutocomplete}
+              onSignUpClick={handleSignUpClick}
+              onLogInClick={handleLogInClick}
+              currentUser={currentUser}
+              isLoggedIn={isLoggedIn}
             />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute isLoggedIn={isLoggedIn}>
-                  <Profile
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Main
                     items={allUsersMoods}
                     onCardClick={handleItemClick}
-                    onDeleteRequest={handleConfirmClick}
-                    onEditProfile={handleEditProfileClick}
                     allUsersMoods={allUsersMoods}
-                    onLogOut={handleLogOut}
-                    currentUser={currentUser}
+                  />
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn}>
+                    <Profile
+                      items={allUsersMoods}
+                      onCardClick={handleItemClick}
+                      onDeleteRequest={handleConfirmClick}
+                      onEditProfile={handleEditProfileClick}
+                      allUsersMoods={allUsersMoods}
+                      onLogOut={handleLogOut}
+                      currentUser={currentUser}
+                      userMoods={userMoods}
+                    />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/top-moods"
+                element={
+                  <TopMoods
+                    onEditProfile={handleEditProfileClick}
                     userMoods={userMoods}
                   />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/top-moods"
-              element={
-                <TopMoods
-                  onEditProfile={handleEditProfileClick}
-                  userMoods={userMoods}
-                />
-              }
-            />
-          </Routes>
-          <Footer />
-        </div>
+                }
+              />
+            </Routes>
+            <Footer />
+          </div>
 
-        <RegisterModal
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
-          isOpen={activeModal === "register"}
-          onLogInClick={handleLogInClick}
-          onSignUp={handleSignUp}
-        />
-        <LogInModal
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
-          isOpen={activeModal === "log-in"}
-          onSignUpClick={handleSignUpClick}
-          onLogIn={handleLogIn}
-        />
-        <ItemModal
-          item={selectedItem}
-          isOpen={activeModal === "item"}
-          onOverlayClose={handleOverlayClose}
-          onClose={closeActiveModal}
-          onSave={handleSave}
-          onDeleteRequest={handleConfirmClick}
-          isLoggedIn={isLoggedIn}
-          onSignUpClick={handleSignUpClick}
-          currentUser={currentUser}
-        />
-        <ConfirmationModal
-          isOpen={activeModal === "confirmation"}
-          onClose={closeActiveModal}
-          onOverlayClose={handleOverlayClose}
-          onConfirm={handleConfirmDelete}
-        />
-        <EditProfileModal
-          isOpen={activeModal === "edit-profile"}
-          onClose={handleCloseEditProfile}
-          onOverlayClose={handleEditProfileOverlayClose}
-          onSubmit={handleProfileSubmit}
-          onOpenAvatarModal={handleEditAvatarClick}
-          avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
-          isLoggedIn={isLoggedIn}
-        />
-        <AvatarModal
-          isOpen={subModal === "avatar"}
-          onClose={handleCloseAvatarModal}
-          isLoggedIn={isLoggedIn}
-          onOverlayClose={handleOverlayClose}
-          onSave={handleAvatarSave}
-        />
-      </div>
-    </CurrentUserContext.Provider>
+          <RegisterModal
+            onClose={closeActiveModal}
+            onOverlayClose={handleOverlayClose}
+            isOpen={activeModal === "register"}
+            onLogInClick={handleLogInClick}
+            onSignUp={handleSignUp}
+          />
+          <LogInModal
+            onClose={closeActiveModal}
+            onOverlayClose={handleOverlayClose}
+            isOpen={activeModal === "log-in"}
+            onSignUpClick={handleSignUpClick}
+            onLogIn={handleLogIn}
+          />
+          <ItemModal
+            item={selectedItem}
+            isOpen={activeModal === "item"}
+            onOverlayClose={handleOverlayClose}
+            onClose={closeActiveModal}
+            onSave={handleSave}
+            onDeleteRequest={handleConfirmClick}
+            isLoggedIn={isLoggedIn}
+            onSignUpClick={handleSignUpClick}
+            currentUser={currentUser}
+          />
+          <ConfirmationModal
+            isOpen={activeModal === "confirmation"}
+            onClose={closeActiveModal}
+            onOverlayClose={handleOverlayClose}
+            onConfirm={handleConfirmDelete}
+          />
+          <EditProfileModal
+            isOpen={activeModal === "edit-profile"}
+            onClose={handleCloseEditProfile}
+            onOverlayClose={handleEditProfileOverlayClose}
+            onSubmit={handleProfileSubmit}
+            onOpenAvatarModal={handleEditAvatarClick}
+            avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
+            isLoggedIn={isLoggedIn}
+          />
+          <AvatarModal
+            isOpen={subModal === "avatar"}
+            onClose={handleCloseAvatarModal}
+            isLoggedIn={isLoggedIn}
+            onOverlayClose={handleOverlayClose}
+            onSave={handleAvatarSave}
+          />
+        </div>
+      </CurrentUserContext.Provider>
+    </MoodsContext.Provider>
   );
 }
 
