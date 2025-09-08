@@ -290,7 +290,6 @@ function App() {
               resetAutocomplete={resetAutocomplete}
               onSignUpClick={handleSignUpClick}
               onLogInClick={handleLogInClick}
-              currentUser={currentUser}
               isLoggedIn={isLoggedIn}
             />
             <Routes>
@@ -315,7 +314,6 @@ function App() {
                       onEditProfile={handleEditProfileClick}
                       allUsersMoods={allUsersMoods}
                       onLogOut={handleLogOut}
-                      currentUser={currentUser}
                       userMoods={userMoods}
                     />
                   </ProtectedRoute>
@@ -357,7 +355,6 @@ function App() {
             onDeleteRequest={handleConfirmClick}
             isLoggedIn={isLoggedIn}
             onSignUpClick={handleSignUpClick}
-            currentUser={currentUser}
           />
           <ConfirmationModal
             isOpen={activeModal === "confirmation"}

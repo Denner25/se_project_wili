@@ -3,6 +3,8 @@ import { fetchKeywords } from "../../utils/tmdbApi";
 import "./ItemModal.css";
 import { BUTTONS } from "../../utils/constants";
 import MoodsCloud from "../MoodsCloud/MoodsCloud";
+import { useContext } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function ItemModal({
   item,
@@ -12,8 +14,8 @@ function ItemModal({
   onDeleteRequest,
   isLoggedIn,
   onSignUpClick,
-  currentUser,
 }) {
+  const currentUser = useContext(CurrentUserContext);
   const [userMoods, setUserMoods] = useState([]);
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);

@@ -1,6 +1,8 @@
 import ItemsSection from "../ItemsSection/ItemsSection";
 import SideBar from "../SideBar/SideBar";
 import "./Profile.css";
+import { useContext } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function Profile({
   items,
@@ -8,9 +10,9 @@ function Profile({
   onEditProfile,
   onDeleteRequest,
   onLogOut,
-  currentUser,
   userMoods,
 }) {
+  const currentUser = useContext(CurrentUserContext);
   if (!currentUser) {
     return <div className="spinner">Loading...</div>;
   }
@@ -23,7 +25,6 @@ function Profile({
         <ItemsSection
           items={items}
           userMoods={userMoods}
-          currentUser={currentUser}
           showAllMoods={false}
           onCardClick={onCardClick}
           onDeleteRequest={onDeleteRequest}

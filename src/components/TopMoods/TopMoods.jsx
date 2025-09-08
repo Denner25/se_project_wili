@@ -3,7 +3,7 @@ import ReactWordcloud from "react-wordcloud";
 import "./TopMoods.css";
 import SideBar from "../SideBar/SideBar";
 
-function TopMoods({ currentUser, userMoods, onEditProfile }) {
+function TopMoods({ userMoods, onEditProfile }) {
   const colors = [
     "#26c6da",
     "#29c331",
@@ -49,7 +49,7 @@ function TopMoods({ currentUser, userMoods, onEditProfile }) {
   return (
     <div className="top-moods">
       <section className="top-moods__sidebar">
-        <SideBar currentUser={currentUser} onEditProfile={onEditProfile} />
+        <SideBar onEditProfile={onEditProfile} />
       </section>
       <div className="top-moods__content">
         {words.length === 0 ? (
