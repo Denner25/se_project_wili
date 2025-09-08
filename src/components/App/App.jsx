@@ -163,44 +163,48 @@ function App() {
     const token = localStorage.getItem("jwt");
     if (!updatedItem) return;
 
-    // 1️⃣ If no moods are left, delete item
-    if (!updatedItem.moods || updatedItem.moods.length === 0) {
-      if (updatedItem._id) {
-        deleteItem(updatedItem._id, token)
-          .then(() => {
-            setAllUsersMoods((prev) =>
-              prev.filter((i) => i._id !== updatedItem._id)
-            );
-          })
-          .catch(console.error);
-      }
-      return;
-    }
-
-    // 2️⃣ Update existing item
+    // For existing items: try to find it
     const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
-    if (!existingItem) {
-      console.error("Item not found in allUsersMoods:", updatedItem._id);
-      return;
-    }
 
-    const moodsChanged =
-      JSON.stringify(existingItem.moods) !== JSON.stringify(updatedItem.moods);
-
-    if (!moodsChanged) {
-      closeActiveModal();
-      return;
-    }
-
-    updateItemMoods(updatedItem._id, updatedItem.moods, token)
-      .then((res) => {
-        setAllUsersMoods((prev) =>
-          prev.map((i) => (i._id === res.data._id ? res.data : i))
-        );
-        setResetAutocomplete((f) => !f);
+    if (existingItem) {
+      // Update moods for existing item
+      const moodsChanged =
+        JSON.stringify(existingItem.moods) !==
+        JSON.stringify(updatedItem.moods);
+      if (!moodsChanged) {
         closeActiveModal();
-      })
-      .catch(console.error);
+        return;
+      }
+      updateItemMoods(updatedItem._id, updatedItem.moods, token)
+        .then((res) => {
+          setAllUsersMoods((prev) => [
+            res.data,
+            ...prev.filter((i) => i._id !== res.data._id),
+          ]);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    } else {
+      // New item: send to server
+      const itemToSend = {
+        _id: updatedItem._id || updatedItem.id,
+        title: updatedItem.title,
+        mediaType: updatedItem.mediaType,
+        poster: updatedItem.poster,
+        length: updatedItem.length,
+        moods: updatedItem.moods.map((m) => ({
+          name: m.name,
+          users: m.users.map((u) => u.toString()),
+        })),
+      };
+
+      addItem(itemToSend, token)
+        .then((res) => {
+          setAllUsersMoods((prev) => [res.data, ...prev]);
+          closeActiveModal();
+        })
+        .catch(console.error);
+    }
   };
 
   const handleProfileSubmit = (data) => {
