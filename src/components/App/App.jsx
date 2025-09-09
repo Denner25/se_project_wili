@@ -312,9 +312,7 @@ function App() {
                       onCardClick={handleItemClick}
                       onDeleteRequest={handleConfirmClick}
                       onEditProfile={handleEditProfileClick}
-                      allUsersMoods={allUsersMoods}
                       onLogOut={handleLogOut}
-                      userMoods={userMoods}
                     />
                   </ProtectedRoute>
                 }

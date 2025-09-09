@@ -10,7 +10,6 @@ function Profile({
   onEditProfile,
   onDeleteRequest,
   onLogOut,
-  userMoods,
 }) {
   const currentUser = useContext(CurrentUserContext);
   if (!currentUser) {
@@ -24,7 +23,6 @@ function Profile({
       <section className="profile__items-section">
         <ItemsSection
           items={items}
-          userMoods={userMoods}
           showAllMoods={false}
           onCardClick={onCardClick}
           onDeleteRequest={onDeleteRequest}
