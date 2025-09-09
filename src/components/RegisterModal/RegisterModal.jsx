@@ -3,13 +3,7 @@ import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import { useEffect } from "react";
 import useFormValidator from "../../hooks/useFormValidator";
 
-function RegisterModal({
-  onClose,
-  onOverlayClose,
-  onSignUp,
-  isOpen,
-  onLogInClick,
-}) {
+function RegisterModal({ onClose, onSignUp, isOpen, onLogInClick }) {
   const { values, errors, isValid, handleChange, resetForm } = useFormValidator(
     {
       name: "",
@@ -35,7 +29,6 @@ function RegisterModal({
       buttonText="Sign Up"
       onClose={onClose}
       isOpen={isOpen}
-      onOverlayClose={onOverlayClose}
       onSubmit={handleSubmit}
       isValid={isValid}
       secondaryButton={

@@ -1,11 +1,8 @@
 import "./Modal.css";
 
-function Modal({ isOpen, onClose, onOverlayClose, title, children }) {
+function Modal({ isOpen, onClose, title, children }) {
   return (
-    <div
-      className={`modal${isOpen ? " modal_opened" : ""}`}
-      onClick={onOverlayClose}
-    >
+    <div className={`modal${isOpen ? " modal_opened" : ""}`}>
       <div className="modal__content" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}

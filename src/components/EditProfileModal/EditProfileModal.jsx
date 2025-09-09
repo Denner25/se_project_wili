@@ -8,7 +8,6 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 function EditProfileModal({
   isOpen,
   onClose,
-  onOverlayClose,
   onSubmit,
   avatarUrl,
   onOpenAvatarModal,
@@ -46,7 +45,6 @@ function EditProfileModal({
       title="Edit Profile"
       isOpen={isOpen}
       onClose={onClose}
-      onOverlayClose={onOverlayClose}
       buttonText={BUTTONS.SAVE}
       secondaryButton={
         <button type="button" className="modal__secondary" onClick={onClose}>

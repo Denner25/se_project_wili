@@ -142,14 +142,6 @@ function App() {
     closeActiveModal();
   };
 
-  const handleEditProfileOverlayClose = (e) => {
-    if (e.target === e.currentTarget && !subModal) {
-      setPendingAvatarUrl("");
-      closeActiveModal();
-      setSubModal(null);
-    }
-  };
-
   const handleItemClick = (item) => {
     const fullItem =
       allUsersMoods.find((i) => i._id === item._id || i._id === item.id) ||
@@ -231,13 +223,6 @@ function App() {
     setActiveModal("");
     setSelectedItem(null);
     setPendingDeleteId(null);
-  };
-
-  const handleOverlayClose = (e) => {
-    if (e.target === e.currentTarget && !subModal) {
-      closeActiveModal();
-      setSubModal(null);
-    }
   };
 
   const handleSignUp = ({ name, email, password }) => {
@@ -332,14 +317,12 @@ function App() {
 
           <RegisterModal
             onClose={closeActiveModal}
-            onOverlayClose={handleOverlayClose}
             isOpen={activeModal === "register"}
             onLogInClick={handleLogInClick}
             onSignUp={handleSignUp}
           />
           <LogInModal
             onClose={closeActiveModal}
-            onOverlayClose={handleOverlayClose}
             isOpen={activeModal === "log-in"}
             onSignUpClick={handleSignUpClick}
             onLogIn={handleLogIn}
@@ -347,7 +330,6 @@ function App() {
           <ItemModal
             item={selectedItem}
             isOpen={activeModal === "item"}
-            onOverlayClose={handleOverlayClose}
             onClose={closeActiveModal}
             onSave={handleSave}
             onDeleteRequest={handleConfirmClick}
@@ -357,13 +339,11 @@ function App() {
           <ConfirmationModal
             isOpen={activeModal === "confirmation"}
             onClose={closeActiveModal}
-            onOverlayClose={handleOverlayClose}
             onConfirm={handleConfirmDelete}
           />
           <EditProfileModal
             isOpen={activeModal === "edit-profile"}
             onClose={handleCloseEditProfile}
-            onOverlayClose={handleEditProfileOverlayClose}
             onSubmit={handleProfileSubmit}
             onOpenAvatarModal={handleEditAvatarClick}
             avatarUrl={pendingAvatarUrl || currentUser?.avatarUrl || ""}
@@ -373,7 +353,6 @@ function App() {
             isOpen={subModal === "avatar"}
             onClose={handleCloseAvatarModal}
             isLoggedIn={isLoggedIn}
-            onOverlayClose={handleOverlayClose}
             onSave={handleAvatarSave}
           />
         </div>
