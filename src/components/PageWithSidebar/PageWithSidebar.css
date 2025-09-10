@@ -1,0 +1,24 @@
+.page-with-sidebar {
+  display: flex;
+  flex-grow: 1;
+}
+
+/* sidebar section */
+.page-with-sidebar__sidebar {
+  flex-shrink: 0;
+}
+
+/* content section */
+.page-with-sidebar__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* mobile layout */
+@media screen and (max-width: 526px) {
+  .page-with-sidebar {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
