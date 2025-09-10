@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import ReactWordcloud from "react-wordcloud";
+import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
 import "./TopMoods.css";
-import SideBar from "../SideBar/SideBar";
 
-function TopMoods({ userMoods, onEditProfile }) {
+function TopMoods({ userMoods, onEditProfile, onLogOut }) {
   const colors = [
     "#26c6da",
     "#29c331",
@@ -14,7 +14,6 @@ function TopMoods({ userMoods, onEditProfile }) {
     "#ef5350",
   ];
 
-  // Count top 10 moods
   const moodCounts = useMemo(() => {
     const counts = {};
     userMoods.forEach((mood) => {
@@ -47,23 +46,18 @@ function TopMoods({ userMoods, onEditProfile }) {
   };
 
   return (
-    <div className="top-moods">
-      <section className="top-moods__sidebar">
-        <SideBar onEditProfile={onEditProfile} />
-      </section>
-      <div className="top-moods__content">
-        {words.length === 0 ? (
-          <p className="top-moods__empty">No moods tracked yet.</p>
-        ) : (
-          <>
-            <h2>Your Top Moods:</h2>
-            <div className="top-moods__cloud">
-              <ReactWordcloud words={words} options={options} />
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+    <PageWithSidebar onEditProfile={onEditProfile} onLogOut={onLogOut}>
+      {words.length === 0 ? (
+        <p className="top-moods__empty">No moods tracked yet.</p>
+      ) : (
+        <>
+          <h2>Your Top Moods:</h2>
+          <div className="top-moods__cloud">
+            <ReactWordcloud words={words} options={options} />
+          </div>
+        </>
+      )}
+    </PageWithSidebar>
   );
 }
 
