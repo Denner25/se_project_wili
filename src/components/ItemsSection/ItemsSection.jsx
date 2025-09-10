@@ -1,13 +1,10 @@
 import ItemCard from "../ItemCard/ItemCard";
 import "./ItemsSection.css";
+import { useContext } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
-function ItemsSection({
-  items,
-  onCardClick,
-  onDeleteRequest,
-  currentUser,
-  showAllMoods,
-}) {
+function ItemsSection({ items, onCardClick, onDeleteRequest, showAllMoods }) {
+  const currentUser = useContext(CurrentUserContext);
   const userItems = items
     .map((item) => {
       const moods = item.moods || [];
@@ -34,7 +31,6 @@ function ItemsSection({
               <ItemCard
                 key={item._id}
                 item={item}
-                currentUser={currentUser}
                 showAllMoods={showAllMoods}
                 onClick={() => onCardClick(item)}
                 onDeleteRequest={onDeleteRequest}

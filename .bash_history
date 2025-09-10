@@ -152,3 +152,88 @@ npm run dev
 npm run deploy
 npm run dev
 npm run dev
+cd ../../mern-ecommerce
+cd frontend && npm run dev
+cd ~
+git add -A
+git commit -m "debug responsive dimensions and personalization"
+git push
+git checkout main
+git pull
+git merge item-top-moods
+git branch -d item-top-moods
+git push origin --delete item-top-moods
+git branch]
+git branch
+npm run deploy
+git switch stage-3-frontend-auth
+git checkout main
+git add -A
+git commit -m "filter user cardMoods in profile cards"
+git push
+npm run dev
+cd../../
+cd ../../
+cd mern e-commerce
+cd mern-e-commerce
+cd mern-ecommerce/backend && npm run dev
+cd mern-ecommerce/backend && npm run dev
+npm run dev
+npm run dev
+npm run dev
+cd ~
+pwd
+cd ../se_project_wili_backend
+npm run dev
+git checkout main
+git merge stage-2-backend
+git branch
+git branch -d stage-2-backend
+git push origin --delete stage-2-backend
+npm run dev
+git add -A
+git commit -m "fix readme"
+git push
+git push
+git pull
+git push
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+cd ../../
+cd mern-ecommerce/backend
+npm run dev
+cd ~
+git add -A
+git commit -m "implement moods context to avoid prop drilling toward dropdown component"
+git push
+git add -A
+git commit -m "make modal size consistent and improve mobile experience"
+npm run deploy
+npm run deploy
+git add -A
+git commit -m "reinstate addItem in handleSave to fix new items not adding"
+git push
+git add -A
+git commit -m "adjust search to accept year"
+git push
+npm run deploy
+git branch
+git switch stage-3-frontend-auth
+git switch main
+git switch stage-3-frontend-auth
+git merge main
+git push
+git add -A
+git commit -m "remove currentUser props and use context instead"
+git push
+git add -A
+git commit -m "remove allUserMoods props where possible and use context instead"
+git push
+git add -A
+git commit -m "implement useModalClose hook for overlay click and esc close"
+git push

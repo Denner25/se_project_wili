@@ -1,11 +1,9 @@
+import { handleResponse } from "./Api";
+
 const baseUrl =
   process.env.NODE_ENV === "production"
     ? "https://api.wili.nya.pub"
     : "http://localhost:3001";
-
-function handleResponse(res) {
-  return res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
-}
 
 function signup({ name, email, password }) {
   return fetch(`${baseUrl}/signup`, {

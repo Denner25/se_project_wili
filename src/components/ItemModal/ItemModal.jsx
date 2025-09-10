@@ -3,6 +3,9 @@ import { fetchKeywords } from "../../utils/tmdbApi";
 import "./ItemModal.css";
 import { BUTTONS } from "../../utils/constants";
 import MoodsCloud from "../MoodsCloud/MoodsCloud";
+import { useContext } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
+import useModalClose from "../../hooks/useModalClose";
 
 function ItemModal({
   item,
@@ -12,13 +15,15 @@ function ItemModal({
   onDeleteRequest,
   isLoggedIn,
   onSignUpClick,
-  currentUser,
 }) {
+  const currentUser = useContext(CurrentUserContext);
   const [userMoods, setUserMoods] = useState([]);
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);
 
   const [activeTab, setActiveTab] = useState("available"); // "available" | "allUsers"
+
+  useModalClose(isOpen, onClose);
 
   useEffect(() => {
     if (!item || !isOpen) {

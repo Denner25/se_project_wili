@@ -29,7 +29,7 @@ const style = "bottts"; // DiceBear style
 export const getAvatarUrl = (seed) =>
   `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
 
-function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
+function AvatarModal({ isOpen, onClose, onSave }) {
   const [selected, setSelected] = useState(seeds[0]); // default selection
 
   const handleSubmit = (e) => {
@@ -42,7 +42,6 @@ function AvatarModal({ isOpen, onClose, onSave, onOverlayClose }) {
     <ModalWithForm
       title="Pick Your Avatar:"
       isOpen={isOpen}
-      onOverlayClose={onOverlayClose}
       onClose={onClose}
       buttonText="Save"
       onSubmit={handleSubmit}

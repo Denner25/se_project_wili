@@ -1,5 +1,7 @@
 import ItemsSection from "../ItemsSection/ItemsSection";
-import SideBar from "../SideBar/SideBar";
+import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
+import { useContext } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import "./Profile.css";
 
 function Profile({
@@ -8,28 +10,22 @@ function Profile({
   onEditProfile,
   onDeleteRequest,
   onLogOut,
-  currentUser,
-  userMoods,
 }) {
+  const currentUser = useContext(CurrentUserContext);
+
   if (!currentUser) {
     return <div className="spinner">Loading...</div>;
   }
+
   return (
-    <div className="profile">
-      <section className="profile__sidebar">
-        <SideBar onEditProfile={onEditProfile} onLogOut={onLogOut} />
-      </section>
-      <section className="profile__items-section">
-        <ItemsSection
-          items={items}
-          userMoods={userMoods}
-          currentUser={currentUser}
-          showAllMoods={false}
-          onCardClick={onCardClick}
-          onDeleteRequest={onDeleteRequest}
-        />
-      </section>
-    </div>
+    <PageWithSidebar onEditProfile={onEditProfile} onLogOut={onLogOut}>
+      <ItemsSection
+        items={items}
+        showAllMoods={false}
+        onCardClick={onCardClick}
+        onDeleteRequest={onDeleteRequest}
+      />
+    </PageWithSidebar>
   );
 }
 
