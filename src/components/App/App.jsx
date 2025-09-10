@@ -1,20 +1,22 @@
-import "./App.css";
-import Header from "../Header/Header";
-import ItemModal from "../ItemModal/ItemModal";
 import { useState, useEffect } from "react";
-import Main from "../Main/Main";
-import Footer from "../Footer/Footer";
-import Profile from "../Profile/Profile";
 import { Routes, Route, useNavigate } from "react-router-dom";
+
+import Layout from "../Layout/Layout";
+import Main from "../Main/Main";
+import Profile from "../Profile/Profile";
 import TopMoods from "../TopMoods/TopMoods";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+
+import ItemModal from "../ItemModal/ItemModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 import EditProfileModal from "../EditProfileModal/EditProfileModal";
-import CurrentUserContext from "../../contexts/CurrentUserContext";
-import MoodsContext from "../../contexts/MoodsContext";
 import LogInModal from "../LogInModal/LogInModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
 import AvatarModal, { seeds, getAvatarUrl } from "../AvatarModal/AvatarModal";
-import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+
+import CurrentUserContext from "../../contexts/CurrentUserContext";
+import MoodsContext from "../../contexts/MoodsContext";
+
 import {
   getItems,
   addItem,
@@ -34,10 +36,11 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState("");
   const [allUsersMoods, setAllUsersMoods] = useState([]);
-  const [userMoods, setUserMoods] = useState([]); // all moods of current user
+  const [userMoods, setUserMoods] = useState([]);
+
   const navigate = useNavigate();
 
-  // Keep userMoods in sync with allUsersMoods + currentUser
+  // Keep userMoods in sync
   useEffect(() => {
     if (!allUsersMoods || !currentUser) return;
 
@@ -47,14 +50,12 @@ function App() {
           ?.filter((m) => m.users.includes(currentUser._id))
           .map((m) => m.name) || []
     );
-
     setUserMoods(moods);
   }, [allUsersMoods, currentUser]);
 
-  // Fetch all items (all users) on load
+  // Fetch items on load
   useEffect(() => {
     const token = localStorage.getItem("jwt");
-
     const sortByUpdatedAt = (data) =>
       data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
@@ -81,24 +82,19 @@ function App() {
     }
   }, []);
 
+  // Handlers
   const handleConfirmDelete = () => {
     const token = localStorage.getItem("jwt");
-
-    // Find the item in state
     const item = allUsersMoods.find((i) => i._id === pendingDeleteId);
     if (!item) return;
 
-    // Remove currentUser from all moods
     const updatedMoods = item.moods.map((m) => ({
       ...m,
       users: m.users.filter((u) => u !== currentUser._id),
     }));
-
-    // Filter out moods with no users
     const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
 
     if (filteredMoods.length === 0) {
-      // No users left: delete item from server
       deleteItem(pendingDeleteId, token)
         .then(() => {
           setAllUsersMoods((prev) =>
@@ -109,7 +105,6 @@ function App() {
         })
         .catch(console.error);
     } else {
-      // Users still remain: update moods on server
       updateItemMoods(pendingDeleteId, filteredMoods, token)
         .then((res) => {
           setAllUsersMoods((prev) =>
@@ -150,16 +145,13 @@ function App() {
     setActiveModal("item");
   };
 
-  // Handle adding/updating moods
   const handleSave = (updatedItem) => {
     const token = localStorage.getItem("jwt");
     if (!updatedItem) return;
 
-    // For existing items: try to find it
     const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
 
     if (existingItem) {
-      // Update moods for existing item
       const moodsChanged =
         JSON.stringify(existingItem.moods) !==
         JSON.stringify(updatedItem.moods);
@@ -177,7 +169,6 @@ function App() {
         })
         .catch(console.error);
     } else {
-      // New item: send to server
       const itemToSend = {
         _id: updatedItem._id || updatedItem.id,
         title: updatedItem.title,
@@ -189,7 +180,6 @@ function App() {
           users: m.users.map((u) => u.toString()),
         })),
       };
-
       addItem(itemToSend, token)
         .then((res) => {
           setAllUsersMoods((prev) => [res.data, ...prev]);
@@ -226,7 +216,6 @@ function App() {
   };
 
   const handleSignUp = ({ name, email, password }) => {
-    // Pick a random avatar
     const randomSeed = seeds[Math.floor(Math.random() * seeds.length)];
     const defaultAvatarUrl = getAvatarUrl(randomSeed);
     signup({ name, email, password })
@@ -249,7 +238,7 @@ function App() {
       return Promise.all([checkToken(res.token), getItems(res.token)]).then(
         ([user, itemsRes]) => {
           setCurrentUser(user);
-          setAllUsersMoods(itemsRes.data); // ✅ replace savedItems with allUsersMoods
+          setAllUsersMoods(itemsRes.data);
           closeActiveModal();
           navigate("/profile");
         }
@@ -268,16 +257,19 @@ function App() {
   return (
     <MoodsContext.Provider value={{ allUsersMoods, userMoods }}>
       <CurrentUserContext.Provider value={currentUser}>
-        <div className="app">
-          <div className="app__content">
-            <Header
-              onItemClick={handleItemClick}
-              resetAutocomplete={resetAutocomplete}
-              onSignUpClick={handleSignUpClick}
-              onLogInClick={handleLogInClick}
-              isLoggedIn={isLoggedIn}
-            />
-            <Routes>
+        <>
+          <Routes>
+            <Route
+              element={
+                <Layout
+                  onItemClick={handleItemClick}
+                  resetAutocomplete={resetAutocomplete}
+                  onSignUpClick={handleSignUpClick}
+                  onLogInClick={handleLogInClick}
+                  isLoggedIn={isLoggedIn}
+                />
+              }
+            >
               <Route
                 path="/"
                 element={
@@ -311,10 +303,10 @@ function App() {
                   />
                 }
               />
-            </Routes>
-            <Footer />
-          </div>
+            </Route>
+          </Routes>
 
+          {/* Modals */}
           <RegisterModal
             onClose={closeActiveModal}
             isOpen={activeModal === "register"}
@@ -355,7 +347,7 @@ function App() {
             isLoggedIn={isLoggedIn}
             onSave={handleAvatarSave}
           />
-        </div>
+        </>
       </CurrentUserContext.Provider>
     </MoodsContext.Provider>
   );

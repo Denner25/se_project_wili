@@ -14,17 +14,11 @@ function fetchWithCatch(url, fallbackValue, errorMessage) {
     });
 }
 
-// 🔹 Search multi with optional year
-function searchMulti(query, year = null) {
-  let url = `${BASE_URL}/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(
+// 🔹 Search multi
+function searchMulti(query) {
+  const url = `${BASE_URL}/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(
     query
   )}`;
-
-  // TMDB supports filtering by year for movies and first_air_date_year for TV
-  if (year) {
-    url += `&year=${year}&first_air_date_year=${year}`;
-  }
-
   return fetchWithCatch(
     url,
     { results: [] },
