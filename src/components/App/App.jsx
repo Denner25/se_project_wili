@@ -4,6 +4,7 @@ import Layout from "../Layout/Layout";
 import Main from "../Main/Main";
 import Profile from "../Profile/Profile";
 import TopMoods from "../TopMoods/TopMoods";
+import Support from "../Support/Support";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 
 import ItemModal from "../ItemModal/ItemModal";
@@ -102,6 +103,7 @@ function App() {
                   />
                 }
               />
+              <Route path="/support" element={<Support />} />
             </Route>
           </Routes>
 

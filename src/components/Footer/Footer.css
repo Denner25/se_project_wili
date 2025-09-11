@@ -4,9 +4,14 @@
   font-size: 16px;
   font-weight: 500;
   color: #ffb6c1;
+  padding: 85px 0 24px 0;
 }
 
-.footer__copyright {
-  padding: 85px 0 24px 0;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
+.footer__column-one {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer__link:hover {
+  font-weight: 700;
 }

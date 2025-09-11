@@ -1,0 +1,7 @@
+.support {
+  flex-grow: 1;
+}
+
+.support__answer {
+  margin-bottom: 20px;
+}
