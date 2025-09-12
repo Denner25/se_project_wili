@@ -15,7 +15,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.7.1",
-    "react-wordcloud": "^1.2.7"
+    "react-slick": "^0.31.0",
+    "react-wordcloud": "^1.2.7",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

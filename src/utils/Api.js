@@ -59,6 +59,10 @@ function updateProfile(data, token) {
   }).then(handleResponse);
 }
 
+function getLatestItems() {
+  return fetch(`${BASE_URL}/items/latest`, {}).then(handleResponse);
+}
+
 export {
   getItems,
   addItem,
@@ -67,4 +71,5 @@ export {
   getCurrentUser,
   updateProfile,
   handleResponse,
+  getLatestItems,
 };

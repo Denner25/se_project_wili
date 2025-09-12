@@ -16,6 +16,7 @@
 .modal_opened {
   visibility: visible;
   opacity: 1;
+  z-index: 5;
 }
 
 .modal__close {
@@ -49,6 +50,7 @@
   position: relative;
   font-family: "CabinetGrotesk", Arial, sans-serif;
   font-weight: 700;
+  z-index: 5;
 }
 
 @media screen and (max-width: 620px) {
