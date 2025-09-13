@@ -1,5 +1,4 @@
-/* Overlay with fade animation */
-.item-modal-overlay {
+.item-modal {
   position: fixed;
   inset: 0;
   display: flex;
@@ -10,31 +9,32 @@
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 5;
 }
 
-.item-modal-overlay.open {
+.item-modal_open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  z-index: 5;
 }
 
-/* Modal container */
-.item-modal {
+.item-modal__content {
   width: 700px;
   height: 520px;
   display: flex;
   background: white;
   border-radius: 10px;
-  position: relative; /* so close button is positioned against this */
+  position: relative;
   transform: scale(0.97);
   transition: transform 0.3s ease;
+  z-index: 5;
 }
 
 .item-modal-overlay.open .item-modal {
   transform: scale(1);
 }
 
-/* Close button appears outside visually */
 .item-modal__close {
   position: absolute;
   top: -20px;

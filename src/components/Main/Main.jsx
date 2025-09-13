@@ -1,10 +1,12 @@
 import ItemCard from "../ItemCard/ItemCard";
 import "./Main.css";
+import Spotlights from "../Spotlights/Spotlights";
 // import wiliPoster from "../../assets/wili-poster.png";
 
 function Main({ items, onCardClick, allUsersMoods }) {
   return (
     <main className="main">
+      <Spotlights />
       {/* <img src={wiliPoster} alt="WILI Poster" className="main__poster" /> */}
       {items.length === 0 ? (
         <p className="main__empty">No items saved yet.</p>

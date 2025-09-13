@@ -20,21 +20,30 @@ function ItemModal({
   const [userMoods, setUserMoods] = useState([]);
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);
-
   const [activeTab, setActiveTab] = useState("available"); // "available" | "allUsers"
+
+  // This state keeps the item mounted for transitions
+  const [currentItem, setCurrentItem] = useState(item);
 
   useModalClose(isOpen, onClose);
 
+  // Update currentItem when modal opens
   useEffect(() => {
-    if (!item || !isOpen) {
+    if (isOpen && item) {
+      setCurrentItem(item);
+    }
+  }, [isOpen, item]);
+
+  useEffect(() => {
+    if (!currentItem || !isOpen) {
       setUserMoods([]);
       setAllUsersMoods([]);
       setAvailableMoods([]);
       return;
     }
 
-    const _id = item._id || item.id;
-    const mediaType = item.mediaType || item.originalMediaType;
+    const _id = currentItem._id || currentItem.id;
+    const mediaType = currentItem.mediaType || currentItem.originalMediaType;
 
     // Fetch external keywords if available
     if (_id && mediaType) {
@@ -47,16 +56,17 @@ function ItemModal({
 
     // Set current user's moods
     setUserMoods(
-      item.moods
+      currentItem.moods
         ?.filter((m) => m.users.includes(currentUser?._id))
         .map((m) => m.name) || []
     );
 
     // Set all users' moods (read-only for display)
     setAllUsersMoods(
-      item.moods?.flatMap((m) => Array(m.users.length).fill(m.name)) || []
+      currentItem.moods?.flatMap((m) => Array(m.users.length).fill(m.name)) ||
+        []
     );
-  }, [item, isOpen, currentUser]);
+  }, [currentItem, isOpen, currentUser]);
 
   // Toggle user's mood selection
   const handleMoodChange = (moodName) => {
@@ -69,16 +79,14 @@ function ItemModal({
 
   // Save updated moods for current user
   const handleSave = () => {
-    if (!item) return;
+    if (!currentItem) return;
 
-    const updatedMoods = (item.moods || []).map((m) => ({ ...m }));
+    const updatedMoods = (currentItem.moods || []).map((m) => ({ ...m }));
 
-    // Remove current user from all moods
     updatedMoods.forEach((m) => {
       m.users = m.users.filter((u) => u !== currentUser._id);
     });
 
-    // Add current user to selected moods
     userMoods.forEach((moodName) => {
       const existingMood = updatedMoods.find((m) => m.name === moodName);
       if (existingMood) {
@@ -92,18 +100,33 @@ function ItemModal({
 
     const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
 
-    onSave?.({ ...item, moods: filteredMoods });
+    onSave?.({ ...currentItem, moods: filteredMoods });
     onClose();
   };
 
-  if (!item) return null;
+  // If there's no currentItem, render empty modal container for transition
+  if (!currentItem) {
+    return (
+      <div
+        className={`item-modal${isOpen ? " item-modal_open" : ""}`}
+        onClick={onClose}
+      >
+        <div
+          className="item-modal__content"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* empty content */}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
-      className={`item-modal-overlay ${isOpen ? "open" : ""}`}
+      className={`item-modal${isOpen ? " item-modal_open" : ""}`}
       onClick={onClose}
     >
-      <div className="item-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="item-modal__content" onClick={(e) => e.stopPropagation()}>
         <button
           className="item-modal__close"
           onClick={onClose}
@@ -111,10 +134,10 @@ function ItemModal({
         />
 
         <div className="item-modal__poster-wrapper">
-          {item.poster && (
+          {currentItem.poster && (
             <img
-              src={item.poster.replace("/w92", "/w500")}
-              alt={item.title}
+              src={currentItem.poster.replace("/w92", "/w500")}
+              alt={currentItem.title}
               className="item-modal__poster"
             />
           )}
@@ -122,17 +145,19 @@ function ItemModal({
 
         <div className="item-modal__description">
           <p className="item-modal__subtitle">
-            {item.mediaType === "movie" ? "Movie" : "TV Show"}
-            {item.length ? ` • ${item.length}` : ""}
+            {currentItem.mediaType === "movie" ? "Movie" : "TV Show"}
+            {currentItem.length ? ` • ${currentItem.length}` : ""}
           </p>
 
           {isLoggedIn &&
-            item.moods &&
-            item.moods.some((m) => m.users.includes(currentUser?._id)) && (
+            currentItem.moods &&
+            currentItem.moods.some((m) =>
+              m.users.includes(currentUser?._id)
+            ) && (
               <button
                 type="button"
                 className="item-modal__delete"
-                onClick={() => onDeleteRequest?.(item._id)}
+                onClick={() => onDeleteRequest?.(currentItem._id)}
               />
             )}
 

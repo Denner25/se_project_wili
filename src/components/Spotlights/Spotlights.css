@@ -13,10 +13,19 @@
   justify-content: center;
 }
 
+.spotlight-title {
+  font-size: 24px;
+}
+
+.spotlight__description-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .spotlight-content {
   display: flex;
   align-items: center;
-  width: 80vw; /* big poster width */
+  width: 100vw; /* big poster width */
   max-width: 1200px;
   margin: 0;
   gap: 2rem;
@@ -39,8 +48,8 @@
 
 /* Poster */
 .spotlight-poster {
-  width: 900px; /* big poster on right */
-  height: 300px;
+  width: 65vw; /* big poster on right */
+  height: 400px;
   /* border-radius: 1.5rem; */
   background-size: cover;
   background-position: center;

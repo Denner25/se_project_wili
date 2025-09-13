@@ -32,9 +32,12 @@ export default function Spotlights() {
         {items.map((item) => (
           <div key={item._id} className="spotlight-slide">
             <div className="spotlight-content">
-              <div className="spotlight-description">
-                <h2>{item.title}</h2>
-                <p>{item.mediaType === "movie" ? "Movie" : "TV Show"}</p>
+              <div className="spotlight__description-container">
+                <h1 className="spotlight-title">Latest user additions:</h1>
+                <div className="spotlight-description">
+                  <h2>{item.title}</h2>
+                  <p>{item.mediaType === "movie" ? "Movie" : "TV Show"}</p>
+                </div>
               </div>
               <div
                 className="spotlight-poster"

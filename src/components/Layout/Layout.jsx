@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-import Spotlights from "../Spotlights/Spotlights";
 import "./Layout.css";
 
 function Layout({
@@ -21,7 +20,6 @@ function Layout({
           onLogInClick={onLogInClick}
           isLoggedIn={isLoggedIn}
         />
-        <Spotlights />
         <Outlet />
         <Footer />
       </div>
