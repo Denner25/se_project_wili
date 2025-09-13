@@ -75,8 +75,8 @@
     linear-gradient(
       180deg,
       rgba(2, 2, 47, 0.8) 0%,
-      rgba(2, 2, 47, 0) 10%,
-      rgba(2, 2, 47, 0) 90%,
+      rgba(2, 2, 47, 0) 20%,
+      rgba(2, 2, 47, 0) 80%,
       rgba(2, 2, 47, 0.8) 100%
     );
 }
@@ -114,6 +114,7 @@
 @media screen and (max-width: 480px) {
   .spotlight-poster {
     height: 300px;
+    margin-right: 120px;
   }
   .spotlight-description h2 {
     font-size: 1.5rem;

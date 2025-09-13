@@ -24,6 +24,21 @@ export default function Spotlights() {
     centerMode: true,
     centerPadding: "0",
     variableWidth: false,
+    autoplay: false,
+    autoplaySpeed: 4000,
+    responsive: [
+      {
+        breakpoint: 480, // <= 480px (phones)
+        settings: {
+          centerMode: true,
+          centerPadding: "4px",
+          slidesToShow: 1,
+          variableWidth: false,
+          arrows: false,
+          adaptiveHeight: true, // keep height flexible on tiny screens
+        },
+      },
+    ],
   };
 
   return (
