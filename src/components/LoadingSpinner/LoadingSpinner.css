@@ -1,0 +1,55 @@
+/* Center the spinner in the full screen */
+.spinner-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: rgb(2, 2, 47); /* same as bg-gray-900 or adjust to taste */
+}
+
+.spinner-container {
+  position: relative;
+}
+
+/* Static base circle */
+.spinner-base {
+  width: 5rem; /* 20 Tailwind units = 80px */
+  height: 5rem;
+  border: 2px solid #ffb6c1; /* lighter ring */
+  border-radius: 50%;
+}
+
+/* Animated rotating ring */
+.spinner-anim {
+  width: 5rem;
+  height: 5rem;
+  border: 2px solid transparent; /* transparent except top */
+  border-top: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: spin 1s linear infinite;
+}
+
+/* Hide the accessible text visually */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Keyframes for rotation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

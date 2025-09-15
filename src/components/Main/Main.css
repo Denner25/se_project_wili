@@ -2,6 +2,11 @@
   flex-grow: 1;
 }
 
+.main__container {
+  margin: 0 auto;
+  max-width: 1155px;
+}
+
 .main__grid {
   display: grid;
   gap: 15px;

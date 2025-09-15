@@ -4,11 +4,14 @@ import { checkToken } from "../utils/auth";
 export default function useAuth() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Bootstrap user from localStorage token
   useEffect(() => {
     const token = localStorage.getItem("jwt");
-    if (!token) return;
+    if (!token) {
+      setIsLoaded(true);
+      return;
+    }
 
     checkToken(token)
       .then((user) => {
@@ -19,7 +22,8 @@ export default function useAuth() {
         localStorage.removeItem("jwt");
         setCurrentUser(null);
         setIsLoggedIn(false);
-      });
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   return {
@@ -27,5 +31,6 @@ export default function useAuth() {
     setCurrentUser,
     isLoggedIn,
     setIsLoggedIn,
+    isLoaded,
   };
 }

@@ -1,19 +1,9 @@
 import Slider from "react-slick";
-import { useEffect, useState } from "react";
-import { getLatestItems } from "../../utils/Api";
 import "./Spotlights.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-export default function Spotlights() {
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    getLatestItems()
-      .then((data) => setItems(data))
-      .catch((err) => console.error(err));
-  }, []);
-
+export default function Spotlights({ latestItems }) {
   const settings = {
     dots: false,
     infinite: true,
@@ -24,18 +14,18 @@ export default function Spotlights() {
     centerMode: true,
     centerPadding: "0",
     variableWidth: false,
-    autoplay: false,
+    autoplay: true,
     autoplaySpeed: 4000,
     responsive: [
       {
-        breakpoint: 480, // <= 480px (phones)
+        breakpoint: 480,
         settings: {
           centerMode: true,
           centerPadding: "4px",
           slidesToShow: 1,
           variableWidth: false,
           arrows: false,
-          adaptiveHeight: true, // keep height flexible on tiny screens
+          adaptiveHeight: true,
         },
       },
     ],
@@ -44,7 +34,7 @@ export default function Spotlights() {
   return (
     <section className="spotlights">
       <Slider {...settings}>
-        {items.map((item) => (
+        {latestItems.map((item) => (
           <div key={item._id} className="spotlight-slide">
             <div className="spotlight-content">
               <div className="spotlight__description-container">
