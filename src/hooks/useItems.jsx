@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { getItems, getLatestItems } from "../utils/Api";
+import {
+  getItems,
+  addItem,
+  getLatestItems,
+  updateItemMoods,
+  deleteItem,
+  updateProfile,
+} from "../utils/Api";
 
 export default function useItems() {
   const [allUsersMoods, setAllUsersMoods] = useState([]);
@@ -29,5 +36,9 @@ export default function useItems() {
     latestItems,
     setLatestItems,
     isLoaded,
+    updateItemMoods,
+    addItem,
+    deleteItem,
+    updateProfile,
   };
 }
