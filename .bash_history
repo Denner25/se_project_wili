@@ -237,3 +237,75 @@ git push
 git add -A
 git commit -m "implement useModalClose hook for overlay click and esc close"
 git push
+npm run deploy
+ssh dennertallyson@34.53.95.190
+ssh dennertallyson@34.53.95.190
+git add -A
+git commit -m "restore removed api helper imports into useItems hook"
+git push
+git pull
+cd ../se_project_backend
+cd ../../se_project_backend
+pwd
+cd ../se_project_wili_backend
+npm run dev
+npm run dev
+npm run dev
+git branch
+git add -A
+git add -A
+$ git commit -m "add loading spinner and framer motion transition to layout routes"
+git commit -m "add loading spinner and framer motion transition to layout routes"
+git push
+git log
+git switch spotlight-posters
+git log
+git switch stage-3-frontend-auth
+git log
+git switch main
+git branch
+git branch -d spotlight-posters
+git branch -d stage-3-frontend-auth
+git branch -d stage-3-frontend-auth
+git branch -d stage-3-frontend-auth
+git branch -d stage-3-frontend-auth
+git switch stage-3-frontend-auth
+git log
+git branch -D stage-3-frontend-auth
+git switch main
+git branch -D stage-3-frontend-auth
+git push origin --delete stage-3-frontend-auth
+npm run deploy
+cd ../../mern-ecommerce/frontend
+npm run dev
+git pull
+npm run dev
+git log
+git reset --merge ORIG_HEAD
+git reset --hard HEAD@{1}
+npm run dev
+npm run dev
+npm run dev
+cd ../../se_project_wili_backend && npm run dev
+cd ../../se_project_wili_backend
+cd ../
+~
+cd ../se_project_wili_backend && npm run dev
+ls
+~
+cd ~
+cd ../se_project_wili_backend && npm run dev
+cd ../../mern-ecommerce/backend
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+cd ~
+npm run dev
+cd ../
+cd backend
+npm run dev
+git add -A
+git commit -m "comment out crash test"
+git push

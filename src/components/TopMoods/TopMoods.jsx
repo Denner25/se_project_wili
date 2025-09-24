@@ -51,7 +51,7 @@ function TopMoods({ userMoods, onEditProfile, onLogOut }) {
         <p className="top-moods__empty">No moods tracked yet.</p>
       ) : (
         <>
-          <h2 className="top-moods__title">Your Top Moods:</h2>
+          <h1 className="top-moods__title">Your Top Moods:</h1>
           <div className="top-moods__cloud">
             <ReactWordcloud words={words} options={options} />
           </div>

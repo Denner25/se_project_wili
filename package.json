@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "deploy": "npm run build && scp -r ./dist/* dennertallyson@wili.nya.pub:/home/dennertallyson/final-project-frontend"
+    "deploy": "npm run build && scp -r ./dist/* dennertallyson@wili.nya.pub:/home/dennertallyson/wili-frontend"
   },
   "dependencies": {
     "d3": "^7.9.0",

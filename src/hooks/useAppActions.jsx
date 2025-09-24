@@ -24,6 +24,7 @@ export default function useAppActions({
     updateItemMoods,
     deleteItem,
     updateProfile,
+    getItems, // added to use directly
   } = items;
 
   // --------- Destructuring modals object ---------
@@ -63,18 +64,30 @@ export default function useAppActions({
       return login({ email, password }).then((res) => {
         localStorage.setItem("jwt", res.token);
         setIsLoggedIn(true);
-        return Promise.all([
-          checkToken(res.token),
-          items.getItems?.(res.token),
-        ]).then(([user, itemsRes]) => {
+
+        return checkToken(res.token).then((user) => {
           setCurrentUser(user);
-          setAllUsersMoods(itemsRes?.data || []);
+
+          // --- Fetch items immediately after login ---
+          getItems?.(res.token)
+            .then((itemsRes) => {
+              setAllUsersMoods(itemsRes?.data || []);
+            })
+            .catch(console.error);
+
           closeModal();
           navigate("/profile");
         });
       });
     },
-    [setIsLoggedIn, setCurrentUser, setAllUsersMoods, closeModal, navigate]
+    [
+      setIsLoggedIn,
+      setCurrentUser,
+      setAllUsersMoods,
+      closeModal,
+      navigate,
+      getItems,
+    ]
   );
 
   const handleSignUp = useCallback(
