@@ -43,7 +43,9 @@ function App() {
 
   const isAppLoaded = auth.isLoaded && items.isLoaded;
 
-  if (!isAppLoaded) return <LoadingSpinner />;
+  if (!isAppLoaded || auth.isLoggingOut) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <MoodsContext.Provider

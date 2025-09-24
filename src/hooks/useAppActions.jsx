@@ -107,11 +107,21 @@ export default function useAppActions({
   );
 
   const handleLogOut = useCallback(() => {
-    localStorage.removeItem("jwt");
-    setCurrentUser(null);
-    setIsLoggedIn(false);
-    navigate("/");
-  }, [setCurrentUser, setIsLoggedIn, navigate]);
+    auth.setIsLoggingOut(true); // show spinner immediately
+    navigate("/"); // route change starts
+
+    // check periodically until items finish loading, then clear auth
+    const interval = setInterval(() => {
+      if (items.isLoaded) {
+        clearInterval(interval);
+
+        localStorage.removeItem("jwt");
+        auth.setCurrentUser(null);
+        auth.setIsLoggedIn(false);
+        auth.setIsLoggingOut(false);
+      }
+    }, 10); // small interval
+  }, [auth, items, navigate]);
 
   // ---------- Items workflows ----------
   const handleSave = useCallback(

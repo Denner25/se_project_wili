@@ -5,6 +5,7 @@ export default function useAuth() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
@@ -32,5 +33,7 @@ export default function useAuth() {
     isLoggedIn,
     setIsLoggedIn,
     isLoaded,
+    isLoggingOut,
+    setIsLoggingOut,
   };
 }
