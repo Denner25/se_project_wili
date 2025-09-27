@@ -1,17 +1,21 @@
 import ItemCard from "../ItemCard/ItemCard";
 import "./ItemsSection.css";
-import { useContext } from "react";
-import CurrentUserContext from "../../contexts/CurrentUserContext";
 
-function ItemsSection({ items, onCardClick, onDeleteRequest, showAllMoods }) {
-  const currentUser = useContext(CurrentUserContext);
+function ItemsSection({
+  items,
+  onCardClick,
+  onDeleteRequest,
+  showAllMoods,
+  profileUser, // user whose profile is displayed
+  isOwner, // true if current user is viewing their own profile
+}) {
   const userItems = items
     .map((item) => {
       const moods = item.moods || [];
 
       const filteredMoods = showAllMoods
         ? moods
-        : moods.filter((m) => m.users.includes(currentUser._id));
+        : moods.filter((m) => m.users.includes(profileUser._id));
 
       if (filteredMoods.length === 0) return null;
 
@@ -25,7 +29,9 @@ function ItemsSection({ items, onCardClick, onDeleteRequest, showAllMoods }) {
         <p className="items-section__empty">No items yet.</p>
       ) : (
         <>
-          <p className="items-section__text">Your movies and animes:</p>
+          <p className="items-section__text">
+            {`${isOwner ? "Your" : `${profileUser.name}'s`} movies and animes:`}
+          </p>
           <div className="items-section__list">
             {userItems.map((item) => (
               <ItemCard

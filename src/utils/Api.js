@@ -63,6 +63,13 @@ function getLatestItems() {
   return fetch(`${BASE_URL}/items/latest`, {}).then(handleResponse);
 }
 
+export function getUserById(userId, token) {
+  const url = userId ? `${BASE_URL}/users/${userId}` : `${BASE_URL}/users/me`;
+  return fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }).then(handleResponse);
+}
+
 export {
   getItems,
   addItem,

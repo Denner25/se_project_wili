@@ -24,6 +24,7 @@ import useAuth from "../../hooks/useAuth";
 import useItems from "../../hooks/useItems";
 import useModal from "../../hooks/useModal";
 import useAppActions from "../../hooks/useAppActions";
+import useUser from "../../hooks/useUser";
 
 function App() {
   const auth = useAuth();
@@ -83,7 +84,7 @@ function App() {
                 }
               />
               <Route
-                path="/profile"
+                path="/profile/:userId?"
                 element={
                   <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
                     <Profile
@@ -102,11 +103,12 @@ function App() {
                 }
               />
               <Route
-                path="/top-moods"
+                path="/top-moods/:userId?"
                 element={
                   <TopMoods
                     userMoods={actions.userMoods}
                     onEditProfile={() => modals.openModal("edit-profile")}
+                    onLogOut={actions.handleLogOut}
                   />
                 }
               />
