@@ -63,8 +63,34 @@ function getLatestItems() {
   return fetch(`${BASE_URL}/items/latest`, {}).then(handleResponse);
 }
 
-export function getUserById(userId, token) {
+function getUserById(userId, token) {
   const url = userId ? `${BASE_URL}/users/${userId}` : `${BASE_URL}/users/me`;
+  return fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }).then(handleResponse);
+}
+
+// function searchUsers(query) {
+//   if (!query || !query.trim()) return Promise.resolve([]);
+//   const token = localStorage.getItem("jwt"); // optional if endpoint is protected
+//   return fetch(`${BASE_URL}/users?query=${encodeURIComponent(query)}`, {
+//     headers: token ? { Authorization: `Bearer ${token}` } : {},
+//   })
+//     .then(handleResponse)
+//     .then((users) =>
+//       users.map((u) => ({
+//         ...u,
+//         type: "user", // ✅ mark as user so Dropdown knows where to navigate
+//         avatar: u.avatarUrl, // ✅ normalize field name for Dropdown
+//       }))
+//     );
+// }
+
+function getUsers(query, token) {
+  const url = query
+    ? `${BASE_URL}/users?query=${encodeURIComponent(query)}`
+    : `${BASE_URL}/users`;
+
   return fetch(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   }).then(handleResponse);
@@ -79,4 +105,7 @@ export {
   updateProfile,
   handleResponse,
   getLatestItems,
+  getUserById,
+  // searchUsers,
+  getUsers,
 };

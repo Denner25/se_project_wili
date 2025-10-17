@@ -1,32 +1,35 @@
 import { useState, useRef, useEffect } from "react";
 import { searchMulti, getDetails } from "../../utils/tmdbApi";
+import { getUsers } from "../../utils/Api"; // Updated import
 import Dropdown from "../Dropdown/Dropdown";
 import { IMAGE_BASE_URL_W92, ERROR_MESSAGES } from "../../utils/constants";
 import "./Autocomplete.css";
 
 const detailCache = {};
 
-function Autocomplete({ onSelect, query, setQuery }) {
+function Autocomplete({ onSelect, query, setQuery, token }) {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // 🔹 Filter state
+  const [filterType, setFilterType] = useState("media"); // media/users
+  const [showFilter, setShowFilter] = useState(false);
+
   const debounceRef = useRef(null);
-  const containerRef = useRef(null); // 🔹 reference for click-out detection
+  const containerRef = useRef(null); // click-out detection
 
   const closeDropdown = () => setSuggestions([]);
 
-  // 🔹 Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         closeDropdown();
+        setShowFilter(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   function formatTitle(item) {
@@ -42,7 +45,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
     return year ? `${rawTitle} (${year})` : rawTitle;
   }
 
-  // 🔹 On input change, trigger debounce
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -51,10 +53,9 @@ function Autocomplete({ onSelect, query, setQuery }) {
 
     debounceRef.current = setTimeout(() => {
       fetchSuggestions(value);
-    }, 600); // 0.6s debounce
+    }, 600); // debounce
   };
 
-  // 🔹 Fetch suggestions from TMDB (using .then)
   const fetchSuggestions = (text) => {
     if (!text.trim()) {
       setSuggestions([]);
@@ -65,7 +66,25 @@ function Autocomplete({ onSelect, query, setQuery }) {
     setLoading(true);
     setError(null);
 
-    // Extract year if present at end of query (e.g., "Inception 2010")
+    if (filterType === "users") {
+      getUsers(text, token) // Token can be null
+        .then((users) => {
+          setSuggestions(
+            users.slice(0, 5).map((u) => ({
+              id: u._id,
+              title: u.name,
+              avatar: u.avatarUrl,
+              mediaType: "user",
+              length: null,
+            }))
+          );
+        })
+        .catch(() => setError(ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED))
+        .finally(() => setLoading(false));
+      return;
+    }
+
+    // TMDB logic remains unchanged
     const yearMatch = text.match(/(\d{4})$/);
     const year = yearMatch ? yearMatch[1] : null;
     const titleQuery = year ? text.replace(/\d{4}$/, "").trim() : text;
@@ -74,7 +93,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
       .then((data) => {
         let results = data.results || [];
 
-        // If year exists, filter results
         if (year) {
           results = results.filter((item) => {
             const releaseDate =
@@ -104,7 +122,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
 
         setSuggestions(baseResults);
 
-        // Fetch details as before
         baseResults.forEach((item, index) => {
           const cacheKey = `${item.mediaType}-${item.id}`;
           if (detailCache[cacheKey]) {
@@ -137,37 +154,59 @@ function Autocomplete({ onSelect, query, setQuery }) {
                 )
               );
             })
-            .catch((err) => {
-              console.error("Detail fetch error:", err);
-              setError(ERROR_MESSAGES.FETCH_DETAILS_FAILED);
-            });
+            .catch(() => setError(ERROR_MESSAGES.FETCH_DETAILS_FAILED));
         });
       })
-      .catch((err) => {
-        console.error("Search error:", err);
-        setError(ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED);
-      })
+      .catch(() => setError(ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED))
       .finally(() => setLoading(false));
   };
 
-  // 🔹 Handle selection
   const handleSelect = (item) => {
-    // Forward to App to open modal
     onSelect?.(item);
-
-    // Optional: close dropdown and clear input
     setSuggestions([]);
     setQuery("");
   };
 
   return (
     <div className="autocomplete" ref={containerRef}>
-      <input
-        value={query}
-        onChange={handleChange}
-        placeholder="Search movies and animes..."
-        className="autocomplete__input"
-      />
+      <div className="autocomplete__input-wrapper">
+        <input
+          value={query}
+          onChange={handleChange}
+          placeholder="Search movies and animes..."
+          className="autocomplete__input"
+        />
+        <button
+          type="button"
+          className="autocomplete__filter-button"
+          onClick={() => setShowFilter((prev) => !prev)}
+        >
+          ⚙
+        </button>
+        {showFilter && (
+          <div className="autocomplete__filter-dropdown">
+            <label>
+              <input
+                type="radio"
+                value="media"
+                checked={filterType === "media"}
+                onChange={() => setFilterType("media")}
+              />
+              Media
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="users"
+                checked={filterType === "users"}
+                onChange={() => setFilterType("users")}
+              />
+              Users
+            </label>
+          </div>
+        )}
+      </div>
+
       {error && <div className="autocomplete__error">{error}</div>}
       <Dropdown items={suggestions} onItemClick={handleSelect} />
       {loading && <div className="loading-text">Loading…</div>}
