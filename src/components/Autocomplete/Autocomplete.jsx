@@ -1,16 +1,24 @@
-// components/Autocomplete/Autocomplete.jsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Dropdown from "../Dropdown/Dropdown";
 import { useAutocomplete } from "../../hooks/useAutocomplete";
 import "./Autocomplete.css";
 
-function Autocomplete({ onSelect, query, setQuery }) {
+function Autocomplete({ onSelect, query, setQuery, token }) {
   const containerRef = useRef(null);
+  const navigate = useNavigate();
+
+  const [filterType, setFilterType] = useState("media");
+  const [showFilter, setShowFilter] = useState(false);
 
   const { suggestions, loading, error, handleChange, closeDropdown } =
-    useAutocomplete(query, setQuery);
+    useAutocomplete({
+      query,
+      setQuery,
+      filterType,
+      token,
+    });
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -23,7 +31,11 @@ function Autocomplete({ onSelect, query, setQuery }) {
   }, [closeDropdown]);
 
   const handleSelect = (item) => {
-    onSelect?.(item);
+    if (item.mediaType === "user") {
+      navigate(`/profile/${item.id}`);
+    } else {
+      onSelect?.(item);
+    }
     setQuery("");
     closeDropdown();
   };
@@ -34,22 +46,22 @@ function Autocomplete({ onSelect, query, setQuery }) {
         <input
           value={query}
           onChange={handleChange}
-          placeholder="Search movies and animes..."
+          placeholder="Search movies, animes, or users..."
           className="autocomplete__input"
         />
         <button
           type="button"
           className="autocomplete__filter-button"
-          onClick={() => setShowFilter((prev) => !prev)}
+          onClick={() => setShowFilter((p) => !p)}
         >
           ⚙
         </button>
+
         {showFilter && (
           <div className="autocomplete__filter-dropdown">
             <label>
               <input
                 type="radio"
-                value="media"
                 checked={filterType === "media"}
                 onChange={() => setFilterType("media")}
               />
@@ -58,7 +70,6 @@ function Autocomplete({ onSelect, query, setQuery }) {
             <label>
               <input
                 type="radio"
-                value="users"
                 checked={filterType === "users"}
                 onChange={() => setFilterType("users")}
               />

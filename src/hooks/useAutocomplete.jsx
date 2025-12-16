@@ -1,11 +1,11 @@
-// hooks/useAutocomplete.js
 import { useState, useRef } from "react";
 import { searchMulti, getDetails } from "../utils/tmdbApi";
+import { getUsers } from "../utils/Api";
 import { IMAGE_BASE_URL_W92, ERROR_MESSAGES } from "../utils/constants";
 
 const detailCache = {};
 
-export function useAutocomplete(query, setQuery) {
+export function useAutocomplete({ query, setQuery, filterType, token }) {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -13,7 +13,6 @@ export function useAutocomplete(query, setQuery) {
 
   const closeDropdown = () => setSuggestions([]);
 
-  // 🔹 Localized helper (kept private)
   const formatTitle = (item) => {
     const rawTitle =
       item.media_type === "movie"
@@ -27,7 +26,6 @@ export function useAutocomplete(query, setQuery) {
     return year ? `${rawTitle} (${year})` : rawTitle;
   };
 
-  // 🔹 Fetch and process TMDB suggestions
   const fetchSuggestions = async (text) => {
     if (!text.trim()) {
       setSuggestions([]);
@@ -39,6 +37,21 @@ export function useAutocomplete(query, setQuery) {
     setError(null);
 
     try {
+      // 👤 USER SEARCH
+      if (filterType === "users") {
+        const users = await getUsers(text, token);
+        setSuggestions(
+          users.slice(0, 5).map((u) => ({
+            id: u._id,
+            title: u.name,
+            avatar: u.avatarUrl,
+            mediaType: "user",
+          }))
+        );
+        return;
+      }
+
+      // 🎬 MEDIA SEARCH (TMDB)
       const yearMatch = text.match(/(\d{4})$/);
       const year = yearMatch ? yearMatch[1] : null;
       const titleQuery = year ? text.replace(/\d{4}$/, "").trim() : text;
@@ -75,7 +88,6 @@ export function useAutocomplete(query, setQuery) {
 
       setSuggestions(baseResults);
 
-      // 🔹 Fetch extra details (runtime/episodes)
       baseResults.forEach(async (item, index) => {
         const cacheKey = `${item.mediaType}-${item.id}`;
         if (detailCache[cacheKey]) {
@@ -87,28 +99,24 @@ export function useAutocomplete(query, setQuery) {
           return;
         }
 
-        try {
-          const detail = await getDetails(item.id, item.mediaType);
-          let lengthInfo = null;
+        const detail = await getDetails(item.id, item.mediaType);
+        let lengthInfo = null;
 
-          if (item.mediaType === "movie") {
-            lengthInfo = detail.runtime ? `${detail.runtime} min` : null;
-          } else {
-            const episodes = detail.number_of_episodes;
-            const runtime = detail.episode_run_time?.[0];
-            if (episodes && runtime)
-              lengthInfo = `${episodes} ep • ${runtime} min`;
-            else if (episodes) lengthInfo = `${episodes} episodes`;
-          }
-
-          detailCache[cacheKey] = lengthInfo;
-
-          setSuggestions((prev) =>
-            prev.map((s, i) => (i === index ? { ...s, length: lengthInfo } : s))
-          );
-        } catch {
-          setError(ERROR_MESSAGES.FETCH_DETAILS_FAILED);
+        if (item.mediaType === "movie") {
+          lengthInfo = detail.runtime ? `${detail.runtime} min` : null;
+        } else {
+          const episodes = detail.number_of_episodes;
+          const runtime = detail.episode_run_time?.[0];
+          if (episodes && runtime)
+            lengthInfo = `${episodes} ep • ${runtime} min`;
+          else if (episodes) lengthInfo = `${episodes} episodes`;
         }
+
+        detailCache[cacheKey] = lengthInfo;
+
+        setSuggestions((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, length: lengthInfo } : s))
+        );
       });
     } catch {
       setError(ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED);
@@ -117,7 +125,6 @@ export function useAutocomplete(query, setQuery) {
     }
   };
 
-  // 🔹 Debounced input handling
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value);

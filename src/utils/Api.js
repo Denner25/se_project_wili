@@ -86,14 +86,12 @@ function getUserById(userId, token) {
 //     );
 // }
 
-function getUsers(query, token) {
+function getUsers(query) {
   const url = query
-    ? `${BASE_URL}/users?query=${encodeURIComponent(query)}`
+    ? `${BASE_URL}/users?q=${encodeURIComponent(query)}`
     : `${BASE_URL}/users`;
 
-  return fetch(url, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  }).then(handleResponse);
+  return fetch(url).then(handleResponse);
 }
 
 export {
