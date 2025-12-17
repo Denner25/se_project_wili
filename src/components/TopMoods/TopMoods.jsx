@@ -1,29 +1,29 @@
-import { useMemo, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useMemo } from "react";
 import ReactWordcloud from "react-wordcloud";
-
-import CurrentUserContext from "../../contexts/CurrentUserContext";
 import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
-import useUser from "../../hooks/useUser";
+import useTargetUser from "../../hooks/useTargetUser";
 
 import "./TopMoods.css";
 
-function TopMoods({ userMoods, onEditProfile, onLogOut }) {
-  const currentUser = useContext(CurrentUserContext);
-  const { userId } = useParams();
-  const targetId = userId || currentUser?._id;
+function TopMoods({ actions, onEditProfile, onLogOut }) {
+  const { profileUser, isOwner, loading, targetId } = useTargetUser();
 
-  // always call the hook; if parent already passed profileUser, fetched value may be unused
-  const { profileUser, loading } = useUser(targetId);
+  // Get moods for target user via actions hook
+  const targetUserMoods = useMemo(
+    () => actions.getUserMoods(targetId),
+    [actions, targetId]
+  );
 
   const moodCounts = useMemo(() => {
     const counts = {};
-    userMoods.forEach((m) => (counts[m] = (counts[m] || 0) + 1));
+    targetUserMoods.forEach((m) => {
+      counts[m] = (counts[m] || 0) + 1;
+    });
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
-  }, [userMoods]);
+  }, [targetUserMoods]);
 
   const words = useMemo(() => {
     const palette = [
@@ -53,9 +53,7 @@ function TopMoods({ userMoods, onEditProfile, onLogOut }) {
     deterministic: false,
   };
 
-  if ((loading && !profileUser) || !profileUser) return <LoadingSpinner />;
-
-  const isOwner = currentUser?._id === profileUser._id;
+  if (loading || !profileUser) return <LoadingSpinner />;
 
   return (
     <PageWithSidebar

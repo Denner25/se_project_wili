@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import useUser from "../../hooks/useUser";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import useTargetUser from "../../hooks/useTargetUser";
 import "./Profile.css";
 
 function Profile({
@@ -14,12 +15,7 @@ function Profile({
   onDeleteRequest,
   onLogOut,
 }) {
-  const { userId } = useParams();
-  const currentUser = useContext(CurrentUserContext);
-
-  const targetId = userId || currentUser?._id;
-  const { profileUser, loading } = useUser(targetId);
-  const isOwner = profileUser?._id === currentUser?._id;
+  const { profileUser, isOwner, loading } = useTargetUser();
 
   if (loading || !profileUser) return <LoadingSpinner />;
 

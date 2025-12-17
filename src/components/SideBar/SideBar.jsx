@@ -6,7 +6,7 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
 
   return (
     <div className="sidebar">
-      <Link className="sidebar__profile" to={`/users/${profileUser._id}`}>
+      <Link className="sidebar__profile" to={`/profile/${profileUser._id}`}>
         <img
           className="sidebar__avatar"
           src={profileUser.avatarUrl}
@@ -15,21 +15,30 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
         <p className="sidebar__username">{profileUser.name}</p>
       </Link>
 
-      {isOwner && (
-        <div className="sidebar__buttons">
-          <button className="sidebar__button" onClick={onEditProfile}>
-            Edit profile
+      <div className="sidebar__buttons">
+        {/* Always visible */}
+        <Link
+          className="sidebar__link"
+          to={isOwner ? "/top-moods" : `/top-moods/${profileUser._id}`}
+        >
+          <button className="sidebar__button">
+            {isOwner ? "Your Top Moods" : `${profileUser.name}'s Top Moods`}
           </button>
-          <Link className="sidebar__link" to="/top-moods">
-            <button className="sidebar__button">
-              {`${isOwner ? "Your" : `${profileUser.name}'s`} Top Moods`}
+        </Link>
+
+        {/* Owner-only */}
+        {isOwner && (
+          <>
+            <button className="sidebar__button" onClick={onEditProfile}>
+              Edit profile
             </button>
-          </Link>
-          <button className="sidebar__button" onClick={onLogOut}>
-            Log out
-          </button>
-        </div>
-      )}
+
+            <button className="sidebar__button" onClick={onLogOut}>
+              Log out
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

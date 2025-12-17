@@ -41,6 +41,20 @@ export default function useAppActions({
     );
   }, [allUsersMoods, currentUser]); // dependency array for useMemo
 
+  // ---------- New function: get any user's moods ----------
+  const getUserMoods = useCallback(
+    (userId) => {
+      if (!allUsersMoods) return [];
+      return allUsersMoods.flatMap(
+        (item) =>
+          item.moods
+            ?.filter((m) => m.users.includes(userId))
+            .map((m) => m.name) || []
+      );
+    },
+    [allUsersMoods]
+  );
+
   // ---------- Profile workflows ----------
   const handleProfileSubmit = useCallback(
     (data) => {
@@ -220,5 +234,6 @@ export default function useAppActions({
     handleSave,
     handleConfirmDelete,
     handleProfileSubmit,
+    getUserMoods,
   };
 }
