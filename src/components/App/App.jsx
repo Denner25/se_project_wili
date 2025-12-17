@@ -24,7 +24,6 @@ import useAuth from "../../hooks/useAuth";
 import useItems from "../../hooks/useItems";
 import useModal from "../../hooks/useModal";
 import useAppActions from "../../hooks/useAppActions";
-import useUser from "../../hooks/useUser";
 
 function App() {
   const auth = useAuth();
@@ -84,7 +83,18 @@ function App() {
                 }
               />
               <Route
-                path="/profile/:userId?"
+                path="/profile/:userId"
+                element={
+                  <Profile
+                    items={items.allUsersMoods}
+                    onCardClick={(item) =>
+                      modals.setSelectedItem(item) || modals.openModal("item")
+                    }
+                  />
+                }
+              />
+              <Route
+                path="/profile"
                 element={
                   <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
                     <Profile

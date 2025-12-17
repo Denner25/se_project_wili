@@ -1,9 +1,5 @@
 import ItemsSection from "../ItemsSection/ItemsSection";
 import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
-import { useContext } from "react";
-import { useParams } from "react-router-dom";
-import CurrentUserContext from "../../contexts/CurrentUserContext";
-import useUser from "../../hooks/useUser";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import useTargetUser from "../../hooks/useTargetUser";
 import "./Profile.css";
