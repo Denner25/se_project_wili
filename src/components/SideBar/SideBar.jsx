@@ -19,6 +19,13 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
         {/* Always visible */}
         <Link
           className="sidebar__link"
+          to={isOwner ? "/wili-ai" : `/wili-ai/${profileUser._id}`}
+        >
+          <button className="sidebar__button">Would I like it?</button>
+        </Link>
+
+        <Link
+          className="sidebar__link"
           to={isOwner ? "/top-moods" : `/top-moods/${profileUser._id}`}
         >
           <button className="sidebar__button">

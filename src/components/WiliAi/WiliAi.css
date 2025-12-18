@@ -1,0 +1,33 @@
+.wili-ai__title {
+  font-size: 20px;
+  margin: 35px 0 16px 0;
+  font-weight: 700;
+  text-align: start;
+}
+
+.wili-ai__prompt {
+  font-weight: 700;
+}
+
+.wili-ai__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+}
+
+.wili-ai__button {
+  align-self: flex-start;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f88397;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.wili-ai__button:hover {
+  background: #f86780;
+}

@@ -5,6 +5,7 @@ import Layout from "../Layout/Layout";
 import Main from "../Main/Main";
 import Profile from "../Profile/Profile";
 import TopMoods from "../TopMoods/TopMoods";
+import WiliAi from "../WiliAi/WiliAi";
 import Support from "../Support/Support";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 
@@ -116,6 +117,17 @@ function App() {
                 path="/top-moods/:userId?"
                 element={
                   <TopMoods
+                    userMoods={actions.userMoods}
+                    onEditProfile={() => modals.openModal("edit-profile")}
+                    onLogOut={actions.handleLogOut}
+                    actions={actions}
+                  />
+                }
+              />
+              <Route
+                path="/wili-ai/:userId?"
+                element={
+                  <WiliAi
                     userMoods={actions.userMoods}
                     onEditProfile={() => modals.openModal("edit-profile")}
                     onLogOut={actions.handleLogOut}

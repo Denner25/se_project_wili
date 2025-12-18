@@ -4,7 +4,13 @@ import Dropdown from "../Dropdown/Dropdown";
 import { useAutocomplete } from "../../hooks/useAutocomplete";
 import "./Autocomplete.css";
 
-function Autocomplete({ onSelect, query, setQuery, token }) {
+function Autocomplete({
+  onSelect,
+  query,
+  setQuery,
+  token,
+  onlyMedia = false, // single Boolean prop controlling both placeholder and filter
+}) {
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
@@ -46,36 +52,45 @@ function Autocomplete({ onSelect, query, setQuery, token }) {
         <input
           value={query}
           onChange={handleChange}
-          placeholder="Search movies, animes, or users..."
+          placeholder={
+            onlyMedia
+              ? "Search movies or animes..."
+              : "Search movies, animes, or users..."
+          }
           className="autocomplete__input"
         />
-        <button
-          type="button"
-          className="autocomplete__filter-button"
-          onClick={() => setShowFilter((p) => !p)}
-        >
-          ⚙
-        </button>
 
-        {showFilter && (
-          <div className="autocomplete__filter-dropdown">
-            <label>
-              <input
-                type="radio"
-                checked={filterType === "media"}
-                onChange={() => setFilterType("media")}
-              />
-              Media
-            </label>
-            <label>
-              <input
-                type="radio"
-                checked={filterType === "users"}
-                onChange={() => setFilterType("users")}
-              />
-              Users
-            </label>
-          </div>
+        {!onlyMedia && (
+          <>
+            <button
+              type="button"
+              className="autocomplete__filter-button"
+              onClick={() => setShowFilter((p) => !p)}
+            >
+              ⚙
+            </button>
+
+            {showFilter && (
+              <div className="autocomplete__filter-dropdown">
+                <label>
+                  <input
+                    type="radio"
+                    checked={filterType === "media"}
+                    onChange={() => setFilterType("media")}
+                  />
+                  Media
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    checked={filterType === "users"}
+                    onChange={() => setFilterType("users")}
+                  />
+                  Users
+                </label>
+              </div>
+            )}
+          </>
         )}
       </div>
 
