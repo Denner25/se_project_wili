@@ -77,6 +77,7 @@ function Autocomplete({
                     type="radio"
                     checked={filterType === "media"}
                     onChange={() => setFilterType("media")}
+                    className="autocomplete__radio-input"
                   />
                   Media
                 </label>
@@ -85,6 +86,7 @@ function Autocomplete({
                     type="radio"
                     checked={filterType === "users"}
                     onChange={() => setFilterType("users")}
+                    className="autocomplete__radio-input"
                   />
                   Users
                 </label>

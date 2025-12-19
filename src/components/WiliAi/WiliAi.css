@@ -7,6 +7,7 @@
 
 .wili-ai__prompt {
   font-weight: 700;
+  margin-bottom: 15px;
 }
 
 .wili-ai__content {
@@ -14,6 +15,11 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 140px;
+}
+
+.wili-ai__results {
+  margin: 15px 0;
+  max-width: 800px;
 }
 
 .wili-ai__button {

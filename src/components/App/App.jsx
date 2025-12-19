@@ -132,6 +132,7 @@ function App() {
                     onEditProfile={() => modals.openModal("edit-profile")}
                     onLogOut={actions.handleLogOut}
                     actions={actions}
+                    items={items.allUsersMoods}
                   />
                 }
               />

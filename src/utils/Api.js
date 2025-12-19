@@ -70,28 +70,22 @@ function getUserById(userId, token) {
   }).then(handleResponse);
 }
 
-// function searchUsers(query) {
-//   if (!query || !query.trim()) return Promise.resolve([]);
-//   const token = localStorage.getItem("jwt"); // optional if endpoint is protected
-//   return fetch(`${BASE_URL}/users?query=${encodeURIComponent(query)}`, {
-//     headers: token ? { Authorization: `Bearer ${token}` } : {},
-//   })
-//     .then(handleResponse)
-//     .then((users) =>
-//       users.map((u) => ({
-//         ...u,
-//         type: "user", // ✅ mark as user so Dropdown knows where to navigate
-//         avatar: u.avatarUrl, // ✅ normalize field name for Dropdown
-//       }))
-//     );
-// }
-
 function getUsers(query) {
   const url = query
     ? `${BASE_URL}/users?q=${encodeURIComponent(query)}`
     : `${BASE_URL}/users`;
 
   return fetch(url).then(handleResponse);
+}
+
+function getWiliResponse({ userLikes, candidate }) {
+  return fetch(`${BASE_URL}/wili`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ userLikes, candidate }),
+  }).then(handleResponse);
 }
 
 export {
@@ -104,6 +98,6 @@ export {
   handleResponse,
   getLatestItems,
   getUserById,
-  // searchUsers,
   getUsers,
+  getWiliResponse,
 };
