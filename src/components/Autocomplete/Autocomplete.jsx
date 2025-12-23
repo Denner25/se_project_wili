@@ -10,6 +10,8 @@ function Autocomplete({
   setQuery,
   token,
   onlyMedia = false, // single Boolean prop controlling both placeholder and filter
+  lockSelectedValue = false,
+  selectedItem,
 }) {
   const containerRef = useRef(null);
   const navigate = useNavigate();
@@ -39,10 +41,14 @@ function Autocomplete({
   const handleSelect = (item) => {
     if (item.mediaType === "user") {
       navigate(`/profile/${item.id}`);
-    } else {
-      onSelect?.(item);
+      return;
     }
-    setQuery("");
+    onSelect?.(item);
+    if (lockSelectedValue) {
+      setQuery(item.title); // keep title in input
+    } else {
+      setQuery(""); // existing behavior
+    }
     closeDropdown();
   };
 
@@ -51,13 +57,22 @@ function Autocomplete({
       <div className="autocomplete__input-wrapper">
         <input
           value={query}
-          onChange={handleChange}
+          onChange={(e) => {
+            if (lockSelectedValue) {
+              onSelect?.(null); // 👈 ONLY in WiliAi mode
+            }
+            handleChange(e);
+          }}
           placeholder={
             onlyMedia
               ? "Search movies or animes..."
               : "Search movies, animes, or users..."
           }
-          className="autocomplete__input"
+          className={`autocomplete__input ${
+            lockSelectedValue && selectedItem
+              ? "autocomplete__input--selected"
+              : ""
+          }`}
         />
 
         {!onlyMedia && (

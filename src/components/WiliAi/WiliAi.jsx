@@ -95,6 +95,8 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
           query={query}
           setQuery={setQuery}
           onSelect={setSelectedItem}
+          selectedItem={selectedItem}
+          lockSelectedValue
         />
 
         {error && <p className="wili-ai__error">{error}</p>}

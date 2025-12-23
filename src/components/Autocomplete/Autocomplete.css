@@ -66,3 +66,11 @@
 .autocomplete__radio-input {
   margin-right: 5px;
 }
+
+.autocomplete__input--selected {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.1rem;
+  color: #f88397;
+}
