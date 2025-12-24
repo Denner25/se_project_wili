@@ -6,6 +6,7 @@ import Autocomplete from "../Autocomplete/Autocomplete";
 
 import useTargetUser from "../../hooks/useTargetUser";
 import { getWiliResponse } from "../../utils/Api";
+import getFirstName from "../../utils/getFirstName";
 
 import "./WiliAi.css";
 
@@ -17,6 +18,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
   const [wiliResult, setWiliResult] = useState([]);
   const [loadingResponse, setLoadingResponse] = useState(false);
   const [error, setError] = useState("");
+  const targetFirstName = getFirstName(profileUser?.name);
 
   useEffect(() => {
     setQuery("");
@@ -61,6 +63,8 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
       const data = await getWiliResponse({
         userLikes,
         candidate: selectedItem,
+        isOwner,
+        targetName: targetFirstName,
       });
 
       setWiliResult(data);
@@ -85,9 +89,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
         <p className="wili-ai__prompt">
           {isOwner
             ? "Ask Wili if you would like this suggestion:"
-            : `Ask Wili if ${
-                profileUser?.name || "this user"
-              } would like your suggestion:`}
+            : `Ask Wili if ${targetFirstName} would like your suggestion:`}
         </p>
 
         <Autocomplete
@@ -101,11 +103,11 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
 
         {error && <p className="wili-ai__error">{error}</p>}
 
-        <ul className="wili-ai__results">
+        <div className="wili-ai__results">
           {wiliResult.map((item, i) => (
-            <li key={i}>{item}</li>
+            <p key={i}>{item}</p>
           ))}
-        </ul>
+        </div>
 
         <button
           className="wili-ai__button"

@@ -1,0 +1,6 @@
+function getFirstName(fullName) {
+  if (!fullName || typeof fullName !== "string") return "";
+  return fullName.trim().split(/\s+/)[0];
+}
+
+export default getFirstName;

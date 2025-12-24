@@ -1,7 +1,9 @@
 import "./SideBar.css";
 import { Link } from "react-router-dom";
+import getFirstName from "../../utils/getFirstName";
 
 function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
+  const targetFirstName = getFirstName(profileUser?.name);
   if (!profileUser) return null;
 
   return (
@@ -29,7 +31,7 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
           to={isOwner ? "/top-moods" : `/top-moods/${profileUser._id}`}
         >
           <button className="sidebar__button">
-            {isOwner ? "Your Top Moods" : `${profileUser.name}'s Top Moods`}
+            {isOwner ? "Your Top Moods" : `${targetFirstName}'s Top Moods`}
           </button>
         </Link>
 

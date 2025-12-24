@@ -158,7 +158,7 @@
   padding: 6px 16px;
   border: none;
   border-radius: 8px;
-  background: #ffb6c1;
+  background: #f88397;
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -166,7 +166,7 @@
 }
 
 .item-modal__button:hover {
-  background: #ff99aa;
+  background: #f86780;
 }
 
 .item-modal__tabs {

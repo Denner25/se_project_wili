@@ -78,13 +78,23 @@ function getUsers(query) {
   return fetch(url).then(handleResponse);
 }
 
-function getWiliResponse({ userLikes, candidate }) {
+function getWiliResponse({
+  userLikes,
+  candidate,
+  isOwner,
+  targetName: targetFirstName,
+}) {
   return fetch(`${BASE_URL}/wili`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userLikes, candidate }),
+    body: JSON.stringify({
+      userLikes,
+      candidate,
+      isOwner,
+      targetName: targetFirstName,
+    }),
   }).then(handleResponse);
 }
 
