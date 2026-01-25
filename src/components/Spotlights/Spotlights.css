@@ -65,7 +65,8 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
+  background:
+    linear-gradient(
       90deg,
       rgba(2, 2, 47, 0.8) 0%,
       rgba(2, 2, 47, 0) 20%,
@@ -85,13 +86,24 @@
 .slick-slide {
   opacity: 0.6;
   transform: scale(0.95);
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
 }
 
 .slick-center {
   opacity: 1;
   transform: scale(1);
   z-index: 2;
+}
+
+.spotlights .slick-prev {
+  padding-left: 15px;
+  z-index: 10;
+}
+.spotlights .slick-next {
+  padding-right: 35px;
+  z-index: 10;
 }
 
 /* Responsive */
@@ -116,8 +128,13 @@
     height: 300px;
     margin-right: 120px;
   }
+  .spotlight-title {
+    text-align: center;
+  }
   .spotlight-description h2 {
     font-size: 1.5rem;
+    padding: 0 15px;
+    overflow: hidden;
   }
   .spotlight-description p {
     font-size: 1rem;

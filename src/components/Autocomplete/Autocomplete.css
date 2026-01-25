@@ -74,3 +74,9 @@
   margin-bottom: 0.1rem;
   color: #fc5571;
 }
+
+@media screen and (max-width: 620px) {
+  .autocomplete {
+    margin: 0;
+  }
+}

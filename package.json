@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "deploy": "npm run build && scp -r ./dist/* dennertallyson@wili.nya.pub:/home/dennertallyson/wili-frontend"
+    "deploy": "npm run build && ssh -i \"C:/Users/Denner Cardoso/Documents/TripleTen/Sprint 16/wili.pem\" ec2-user@3.132.21.192 'rm -rf /home/ec2-user/frontend/*' && scp -i \"C:/Users/Denner Cardoso/Documents/TripleTen/Sprint 16/wili.pem\" -r dist/* ec2-user@3.132.21.192:/home/ec2-user/frontend/ && ssh -i \"C:/Users/Denner Cardoso/Documents/TripleTen/Sprint 16/wili.pem\" ec2-user@3.132.21.192 'sudo systemctl reload nginx'"
   },
   "dependencies": {
     "d3": "^7.9.0",
