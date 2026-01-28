@@ -14,7 +14,7 @@ export default function Spotlights({ latestItems }) {
     centerMode: true,
     centerPadding: "0",
     variableWidth: false,
-    autoplay: false,
+    autoplay: true,
     autoplaySpeed: 4000,
     responsive: [
       {

@@ -1,4 +1,6 @@
 import ItemCard from "../ItemCard/ItemCard";
+import Pagination from "../Pagination/Pagination";
+import usePagination from "../../hooks/usePagination";
 import "./ItemsSection.css";
 
 function ItemsSection({
@@ -23,6 +25,11 @@ function ItemsSection({
     })
     .filter(Boolean);
 
+  const { currentItems, currentPage, totalPages, goToPage } = usePagination(
+    userItems,
+    20,
+  );
+
   return (
     <div className="items-section">
       {userItems.length === 0 ? (
@@ -32,8 +39,9 @@ function ItemsSection({
           <p className="items-section__text">
             {`${isOwner ? "Your" : `${profileUser.name}'s`} movies and animes:`}
           </p>
+
           <div className="items-section__list">
-            {userItems.map((item) => (
+            {currentItems.map((item) => (
               <ItemCard
                 key={item._id}
                 item={item}
@@ -43,6 +51,14 @@ function ItemsSection({
               />
             ))}
           </div>
+
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageSelect={goToPage}
+            />
+          )}
         </>
       )}
     </div>
