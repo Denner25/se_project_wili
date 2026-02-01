@@ -1,6 +1,7 @@
 import ItemCard from "../ItemCard/ItemCard";
 import Pagination from "../Pagination/Pagination";
 import usePagination from "../../hooks/usePagination";
+import { useRef } from "react";
 import "./ItemsSection.css";
 
 function ItemsSection({
@@ -25,13 +26,21 @@ function ItemsSection({
     })
     .filter(Boolean);
 
+  const topRef = useRef(null);
   const { currentItems, currentPage, totalPages, goToPage } = usePagination(
     userItems,
     20,
   );
 
+  const handlePageSelect = (newPage) => {
+    goToPage(newPage); // updates the currentPage
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="items-section">
+    <div className="items-section" ref={topRef}>
       {userItems.length === 0 ? (
         <p className="items-section__empty">No items yet.</p>
       ) : (
@@ -56,7 +65,7 @@ function ItemsSection({
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageSelect={goToPage}
+              onPageSelect={handlePageSelect}
             />
           )}
         </>

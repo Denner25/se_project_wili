@@ -25,16 +25,15 @@ function Pagination({ currentPage, totalPages, onPageSelect }) {
 
   return (
     <div className="pagination">
-      <button onClick={() => onPageSelect(1)} disabled={currentPage === 1}>
-        «
-      </button>
-      <button
-        onClick={() => onPageSelect(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        ‹
-      </button>
+      {/* First & Prev buttons */}
+      {currentPage > 1 && (
+        <>
+          <button onClick={() => onPageSelect(1)}>«</button>
+          <button onClick={() => onPageSelect(currentPage - 1)}>‹</button>
+        </>
+      )}
 
+      {/* Numbered buttons */}
       {pages.map((page) => (
         <button
           key={page}
@@ -45,18 +44,13 @@ function Pagination({ currentPage, totalPages, onPageSelect }) {
         </button>
       ))}
 
-      <button
-        onClick={() => onPageSelect(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        ›
-      </button>
-      <button
-        onClick={() => onPageSelect(totalPages)}
-        disabled={currentPage === totalPages}
-      >
-        »
-      </button>
+      {/* Next & Last buttons */}
+      {currentPage < totalPages && (
+        <>
+          <button onClick={() => onPageSelect(currentPage + 1)}>›</button>
+          <button onClick={() => onPageSelect(totalPages)}>»</button>
+        </>
+      )}
     </div>
   );
 }
