@@ -15,3 +15,35 @@
 .footer__link:hover {
   font-weight: 700;
 }
+
+.footer__author {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer__author-links {
+  display: inline-flex;
+  gap: 10px;
+
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footer__author-links a {
+  font-size: 14px;
+  color: #ffb6c1;
+  text-decoration: none;
+}
+
+.footer__author-links a:hover {
+  font-weight: 700;
+}
+
+.footer__author:hover .footer__author-links {
+  opacity: 1;
+  transform: translateX(0);
+}
