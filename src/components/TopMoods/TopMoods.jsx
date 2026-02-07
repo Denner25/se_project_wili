@@ -1,18 +1,15 @@
 import { useMemo } from "react";
+import { useOutletContext } from "react-router-dom";
 import ReactWordcloud from "react-wordcloud";
-import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
-import useTargetUser from "../../hooks/useTargetUser";
 
 import "./TopMoods.css";
 
-function TopMoods({ actions, onEditProfile, onLogOut }) {
-  const { profileUser, isOwner, loading, targetId } = useTargetUser();
+function TopMoods({ actions }) {
+  const { profileUser, isOwner } = useOutletContext();
 
-  // Get moods for target user via actions hook
   const targetUserMoods = useMemo(
-    () => actions.getUserMoods(targetId),
-    [actions, targetId]
+    () => actions.getUserMoods(profileUser._id),
+    [actions, profileUser._id]
   );
 
   const moodCounts = useMemo(() => {
@@ -53,28 +50,17 @@ function TopMoods({ actions, onEditProfile, onLogOut }) {
     deterministic: false,
   };
 
-  if (loading || !profileUser) return <LoadingSpinner />;
-
-  return (
-    <PageWithSidebar
-      profileUser={profileUser}
-      isOwner={isOwner}
-      onEditProfile={onEditProfile}
-      onLogOut={onLogOut}
-    >
-      {words.length === 0 ? (
-        <p className="top-moods__empty">No moods tracked yet.</p>
-      ) : (
-        <>
-          <h1 className="top-moods__title">
-            {isOwner ? "Your Top Moods:" : `${profileUser.name}'s Top Moods:`}
-          </h1>
-          <div className="top-moods__cloud">
-            <ReactWordcloud words={words} options={options} />
-          </div>
-        </>
-      )}
-    </PageWithSidebar>
+  return words.length === 0 ? (
+    <p className="top-moods__empty">No moods tracked yet.</p>
+  ) : (
+    <>
+      <h1 className="top-moods__title">
+        {isOwner ? "Your Top Moods:" : `${profileUser.name}'s Top Moods:`}
+      </h1>
+      <div className="top-moods__cloud">
+        <ReactWordcloud words={words} options={options} />
+      </div>
+    </>
   );
 }
 

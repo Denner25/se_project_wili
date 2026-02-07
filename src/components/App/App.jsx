@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Navigate, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 import Layout from "../Layout/Layout";
@@ -8,6 +8,7 @@ import TopMoods from "../TopMoods/TopMoods";
 import WiliAi from "../WiliAi/WiliAi";
 import Support from "../Support/Support";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import ProfileShell from "../ProfileShell/ProfileShell";
 
 import ItemModal from "../ItemModal/ItemModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
@@ -84,20 +85,19 @@ function App() {
                 }
               />
               <Route
-                path="/profile/:userId"
-                element={
-                  <Profile
-                    items={items.allUsersMoods}
-                    onCardClick={(item) =>
-                      modals.setSelectedItem(item) || modals.openModal("item")
-                    }
-                  />
-                }
-              />
-              <Route
                 path="/profile"
                 element={
                   <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
+                    <ProfileShell
+                      onEditProfile={() => modals.openModal("edit-profile")}
+                      onLogOut={actions.handleLogOut}
+                    />
+                  </ProtectedRoute>
+                }
+              >
+                <Route
+                  index
+                  element={
                     <Profile
                       items={items.allUsersMoods}
                       onCardClick={(item) =>
@@ -107,35 +107,38 @@ function App() {
                         modals.setPendingDeleteId(id) ||
                         modals.openModal("confirmation")
                       }
-                      onEditProfile={() => modals.openModal("edit-profile")}
-                      onLogOut={actions.handleLogOut}
                     />
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
+                <Route path="top-moods" element={<TopMoods actions={actions} />} />
+                <Route
+                  path="wili-ai"
+                  element={<WiliAi items={items.allUsersMoods} />}
+                />
+              </Route>
               <Route
-                path="/top-moods/:userId?"
-                element={
-                  <TopMoods
-                    userMoods={actions.userMoods}
-                    onEditProfile={() => modals.openModal("edit-profile")}
-                    onLogOut={actions.handleLogOut}
-                    actions={actions}
-                  />
-                }
-              />
-              <Route
-                path="/wili-ai/:userId?"
-                element={
-                  <WiliAi
-                    userMoods={actions.userMoods}
-                    onEditProfile={() => modals.openModal("edit-profile")}
-                    onLogOut={actions.handleLogOut}
-                    actions={actions}
-                    items={items.allUsersMoods}
-                  />
-                }
-              />
+                path="/profile/:userId"
+                element={<ProfileShell />}
+              >
+                <Route
+                  index
+                  element={
+                    <Profile
+                      items={items.allUsersMoods}
+                      onCardClick={(item) =>
+                        modals.setSelectedItem(item) || modals.openModal("item")
+                      }
+                    />
+                  }
+                />
+                <Route path="top-moods" element={<TopMoods actions={actions} />} />
+                <Route
+                  path="wili-ai"
+                  element={<WiliAi items={items.allUsersMoods} />}
+                />
+              </Route>
+              <Route path="/top-moods/:userId?" element={<Navigate to="/profile" replace />} />
+              <Route path="/wili-ai/:userId?" element={<Navigate to="/profile" replace />} />
               <Route path="/support" element={<Support />} />
             </Route>
           </Routes>

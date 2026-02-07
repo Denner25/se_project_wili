@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 
-import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import Autocomplete from "../Autocomplete/Autocomplete";
 
-import useTargetUser from "../../hooks/useTargetUser";
 import { getWiliResponse } from "../../utils/Api";
 import getFirstName from "../../utils/getFirstName";
 
 import "./WiliAi.css";
 
-function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
-  const { profileUser, isOwner, loading } = useTargetUser();
+function WiliAi({ items, resetAutocomplete }) {
+  const { profileUser, isOwner } = useOutletContext();
 
   const [query, setQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -24,8 +22,6 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
     setQuery("");
     setSelectedItem(null);
   }, [resetAutocomplete]);
-
-  if (loading) return <LoadingSpinner />;
 
   const handleGenerateResponse = async () => {
     if (!selectedItem) {
@@ -77,12 +73,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
   };
 
   return (
-    <PageWithSidebar
-      profileUser={profileUser}
-      isOwner={isOwner}
-      onEditProfile={onEditProfile}
-      onLogOut={onLogOut}
-    >
+    <>
       <h1 className="wili-ai__title">Would I like it?</h1>
 
       <div className="wili-ai__content">
@@ -117,7 +108,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
           {loadingResponse ? "Thinking..." : "Generate AI response"}
         </button>
       </div>
-    </PageWithSidebar>
+    </>
   );
 }
 
