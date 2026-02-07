@@ -6,9 +6,11 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
   const targetFirstName = getFirstName(profileUser?.name);
   if (!profileUser) return null;
 
+  const profileBasePath = isOwner ? "/profile" : `/profile/${profileUser._id}`;
+
   return (
     <div className="sidebar">
-      <NavLink className="sidebar__profile" to=".">
+      <NavLink className="sidebar__profile" to={profileBasePath} end>
         <img
           className="sidebar__avatar"
           src={profileUser.avatarUrl}
@@ -18,11 +20,11 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
       </NavLink>
 
       <div className="sidebar__buttons">
-        <NavLink className="sidebar__link" to="wili-ai">
+        <NavLink className="sidebar__link" to={`${profileBasePath}/wili-ai`}>
           <button className="sidebar__button">Would I like it?</button>
         </NavLink>
 
-        <NavLink className="sidebar__link" to="top-moods">
+        <NavLink className="sidebar__link" to={`${profileBasePath}/top-moods`}>
           <button className="sidebar__button">
             {isOwner ? "Your Top Moods" : `${targetFirstName}'s Top Moods`}
           </button>

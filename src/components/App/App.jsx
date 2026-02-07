@@ -1,4 +1,4 @@
-import { Navigate, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 import Layout from "../Layout/Layout";
@@ -9,6 +9,7 @@ import WiliAi from "../WiliAi/WiliAi";
 import Support from "../Support/Support";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import ProfileShell from "../ProfileShell/ProfileShell";
+import LegacyProfileTabRedirect from "../LegacyProfileTabRedirect/LegacyProfileTabRedirect";
 
 import ItemModal from "../ItemModal/ItemModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
@@ -137,8 +138,14 @@ function App() {
                   element={<WiliAi items={items.allUsersMoods} />}
                 />
               </Route>
-              <Route path="/top-moods/:userId?" element={<Navigate to="/profile" replace />} />
-              <Route path="/wili-ai/:userId?" element={<Navigate to="/profile" replace />} />
+              <Route
+                path="/top-moods/:userId?"
+                element={<LegacyProfileTabRedirect tab="top-moods" />}
+              />
+              <Route
+                path="/wili-ai/:userId?"
+                element={<LegacyProfileTabRedirect tab="wili-ai" />}
+              />
               <Route path="/support" element={<Support />} />
             </Route>
           </Routes>
