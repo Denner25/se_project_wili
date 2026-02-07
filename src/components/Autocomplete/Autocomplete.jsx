@@ -18,6 +18,7 @@ function Autocomplete({
 
   const [filterType, setFilterType] = useState("media");
   const [showFilter, setShowFilter] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   const { suggestions, loading, error, handleChange, closeDropdown } =
     useAutocomplete({
@@ -86,12 +87,24 @@ function Autocomplete({
             </button>
 
             {showFilter && (
-              <div className="autocomplete__filter-dropdown">
+              <div
+                className={`autocomplete__filter-dropdown ${
+                  isClosing ? "autocomplete__filter-dropdown--closing" : ""
+                }`}
+              >
                 <label>
                   <input
                     type="radio"
                     checked={filterType === "media"}
-                    onChange={() => setFilterType("media")}
+                    onChange={() => {
+                      setFilterType("media");
+                      setIsClosing(true);
+
+                      setTimeout(() => {
+                        setShowFilter(false);
+                        setIsClosing(false);
+                      }, 350);
+                    }}
                     className="autocomplete__radio-input"
                   />
                   Media
@@ -100,7 +113,15 @@ function Autocomplete({
                   <input
                     type="radio"
                     checked={filterType === "users"}
-                    onChange={() => setFilterType("users")}
+                    onChange={() => {
+                      setFilterType("users");
+                      setIsClosing(true);
+
+                      setTimeout(() => {
+                        setShowFilter(false);
+                        setIsClosing(false);
+                      }, 350);
+                    }}
                     className="autocomplete__radio-input"
                   />
                   Users

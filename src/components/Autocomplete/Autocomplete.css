@@ -50,6 +50,17 @@
   flex-direction: column;
   z-index: 10;
   margin-top: 4px;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 350ms ease,
+    transform 350ms ease;
+}
+
+.autocomplete__filter-dropdown--closing {
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
 }
 
 .autocomplete__filter-dropdown label {
@@ -59,6 +70,7 @@
   color: #f88397;
   font-weight: 600;
 }
+
 .autocomplete__filter-dropdown label:last-child {
   margin-bottom: 0;
 }
