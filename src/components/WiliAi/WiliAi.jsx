@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import Autocomplete from "../Autocomplete/Autocomplete";
 
@@ -10,7 +9,7 @@ import getFirstName from "../../utils/getFirstName";
 
 import "./WiliAi.css";
 
-function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
+function WiliAi({ items, resetAutocomplete }) {
   const { profileUser, isOwner, loading } = useTargetUser();
 
   const [query, setQuery] = useState("");
@@ -41,7 +40,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
         .map((item) => {
           const moods = item.moods || [];
           const filteredMoods = moods.filter((m) =>
-            m.users.includes(profileUser._id)
+            m.users.includes(profileUser._id),
           );
 
           if (!filteredMoods.length) return null;
@@ -77,12 +76,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
   };
 
   return (
-    <PageWithSidebar
-      profileUser={profileUser}
-      isOwner={isOwner}
-      onEditProfile={onEditProfile}
-      onLogOut={onLogOut}
-    >
+    <>
       <h1 className="wili-ai__title">Would I like it?</h1>
 
       <div className="wili-ai__content">
@@ -117,7 +111,7 @@ function WiliAi({ items, onEditProfile, onLogOut, resetAutocomplete }) {
           {loadingResponse ? "Thinking..." : "Generate AI response"}
         </button>
       </div>
-    </PageWithSidebar>
+    </>
   );
 }
 

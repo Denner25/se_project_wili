@@ -40,7 +40,9 @@ function Autocomplete({
   }, [closeDropdown]);
 
   const handleSelect = (item) => {
+    closeDropdown();
     if (item.mediaType === "user") {
+      if (!lockSelectedValue) setQuery(""); // clear the text
       navigate(`/profile/${item.id}`);
       return;
     }
@@ -50,7 +52,6 @@ function Autocomplete({
     } else {
       setQuery(""); // existing behavior
     }
-    closeDropdown();
   };
 
   return (

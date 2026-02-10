@@ -1,6 +1,8 @@
 import ItemCard from "../ItemCard/ItemCard";
 import Pagination from "../Pagination/Pagination";
 import usePagination from "../../hooks/usePagination";
+import { useOutletContext } from "react-router-dom";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import { useRef } from "react";
 import "./ItemsSection.css";
 
@@ -8,10 +10,10 @@ function ItemsSection({
   items,
   onCardClick,
   onDeleteRequest,
-  showAllMoods,
-  profileUser, // user whose profile is displayed
-  isOwner, // true if current user is viewing their own profile
+  showAllMoods, // user whose profile is displayed
 }) {
+  const { profileUser, loading, isOwner } = useOutletContext();
+  if (loading || !profileUser) return <LoadingSpinner />;
   const userItems = items
     .map((item) => {
       const moods = item.moods || [];

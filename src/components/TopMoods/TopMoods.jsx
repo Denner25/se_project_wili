@@ -1,18 +1,17 @@
 import { useMemo } from "react";
 import ReactWordcloud from "react-wordcloud";
-import PageWithSidebar from "../PageWithSidebar/PageWithSidebar";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import useTargetUser from "../../hooks/useTargetUser";
 
 import "./TopMoods.css";
 
-function TopMoods({ actions, onEditProfile, onLogOut }) {
+function TopMoods({ actions }) {
   const { profileUser, isOwner, loading, targetId } = useTargetUser();
 
   // Get moods for target user via actions hook
   const targetUserMoods = useMemo(
     () => actions.getUserMoods(targetId),
-    [actions, targetId]
+    [actions, targetId],
   );
 
   const moodCounts = useMemo(() => {
@@ -56,12 +55,7 @@ function TopMoods({ actions, onEditProfile, onLogOut }) {
   if (loading || !profileUser) return <LoadingSpinner />;
 
   return (
-    <PageWithSidebar
-      profileUser={profileUser}
-      isOwner={isOwner}
-      onEditProfile={onEditProfile}
-      onLogOut={onLogOut}
-    >
+    <>
       {words.length === 0 ? (
         <p className="top-moods__empty">No moods tracked yet.</p>
       ) : (
@@ -74,7 +68,7 @@ function TopMoods({ actions, onEditProfile, onLogOut }) {
           </div>
         </>
       )}
-    </PageWithSidebar>
+    </>
   );
 }
 
