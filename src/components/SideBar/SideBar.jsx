@@ -1,5 +1,5 @@
 import "./SideBar.css";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import getFirstName from "../../utils/getFirstName";
 
 function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
@@ -10,26 +10,44 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
   return (
     <div className="sidebar">
       {/* Profile root */}
-      <Link className="sidebar__profile" to=".">
+      <NavLink
+        to="."
+        end
+        className={({ isActive }) =>
+          `sidebar__profile sidebar__link ${
+            isActive ? "sidebar__link--active" : ""
+          }`
+        }
+      >
         <img
           className="sidebar__avatar"
           src={profileUser.avatarUrl}
           alt={`${profileUser.name}'s avatar`}
         />
         <p className="sidebar__username">{profileUser.name}</p>
-      </Link>
+      </NavLink>
 
       <div className="sidebar__buttons">
         {/* Tabs */}
-        <Link className="sidebar__link" to="wili-ai">
+        <NavLink
+          to="wili-ai"
+          className={({ isActive }) =>
+            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+          }
+        >
           <button className="sidebar__button">Would I like it?</button>
-        </Link>
+        </NavLink>
 
-        <Link className="sidebar__link" to="top-moods">
+        <NavLink
+          to="top-moods"
+          className={({ isActive }) =>
+            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+          }
+        >
           <button className="sidebar__button">
             {isOwner ? "Your Top Moods" : `${targetFirstName}'s Top Moods`}
           </button>
-        </Link>
+        </NavLink>
 
         {/* Owner-only actions */}
         {isOwner && (

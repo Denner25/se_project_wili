@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import ReactWordcloud from "react-wordcloud";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import useTargetUser from "../../hooks/useTargetUser";
+import PageMotion from "../PageMotion/PageMotion";
 
 import "./TopMoods.css";
 
@@ -56,18 +57,20 @@ function TopMoods({ actions }) {
 
   return (
     <>
-      {words.length === 0 ? (
-        <p className="top-moods__empty">No moods tracked yet.</p>
-      ) : (
-        <>
-          <h1 className="top-moods__title">
-            {isOwner ? "Your Top Moods:" : `${profileUser.name}'s Top Moods:`}
-          </h1>
-          <div className="top-moods__cloud">
-            <ReactWordcloud words={words} options={options} />
-          </div>
-        </>
-      )}
+      <PageMotion>
+        {words.length === 0 ? (
+          <p className="top-moods__empty">No moods tracked yet.</p>
+        ) : (
+          <>
+            <h1 className="top-moods__title">
+              {isOwner ? "Your Top Moods:" : `${profileUser.name}'s Top Moods:`}
+            </h1>
+            <div className="top-moods__cloud">
+              <ReactWordcloud words={words} options={options} />
+            </div>
+          </>
+        )}
+      </PageMotion>
     </>
   );
 }

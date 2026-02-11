@@ -1,5 +1,4 @@
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
 
 import Layout from "../Layout/Layout";
 import Main from "../Main/Main";
@@ -57,112 +56,110 @@ function App() {
       }}
     >
       <CurrentUserContext.Provider value={auth.currentUser}>
-        <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location}>
+        <Routes location={location}>
+          <Route
+            element={
+              <Layout
+                onItemClick={(item) =>
+                  modals.setSelectedItem(item) || modals.openModal("item")
+                }
+                resetAutocomplete={false}
+                onSignUpClick={() => modals.openModal("register")}
+                onLogInClick={() => modals.openModal("log-in")}
+                isLoggedIn={auth.isLoggedIn}
+              />
+            }
+          >
             <Route
+              path="/"
               element={
-                <Layout
-                  onItemClick={(item) =>
+                <Main
+                  items={items.allUsersMoods}
+                  latestItems={items.latestItems}
+                  onCardClick={(item) =>
                     modals.setSelectedItem(item) || modals.openModal("item")
                   }
-                  resetAutocomplete={false}
-                  onSignUpClick={() => modals.openModal("register")}
-                  onLogInClick={() => modals.openModal("log-in")}
-                  isLoggedIn={auth.isLoggedIn}
+                />
+              }
+            />
+            {/* ---------------- Profile routes ---------------- */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
+                  <Profile
+                    onEditProfile={() => modals.openModal("edit-profile")}
+                    onLogOut={actions.handleLogOut}
+                  />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                index
+                element={
+                  <ItemsSection
+                    items={items.allUsersMoods}
+                    profileUser={auth.currentUser}
+                    isOwner={true}
+                    showAllMoods={false}
+                    onCardClick={(item) =>
+                      modals.setSelectedItem(item) || modals.openModal("item")
+                    }
+                    onDeleteRequest={(id) =>
+                      modals.setPendingDeleteId(id) ||
+                      modals.openModal("confirmation")
+                    }
+                  />
+                }
+              />
+
+              <Route
+                path="top-moods"
+                element={<TopMoods actions={actions} />}
+              />
+              <Route
+                path="wili-ai"
+                element={
+                  <WiliAi items={items.allUsersMoods} actions={actions} />
+                }
+              />
+            </Route>
+            {/* ---------------- Visiting another user ---------------- */}
+            <Route
+              path="/profile/:userId"
+              element={
+                <Profile
+                  onEditProfile={() => modals.openModal("edit-profile")}
+                  onLogOut={actions.handleLogOut}
                 />
               }
             >
               <Route
-                path="/"
+                index
                 element={
-                  <Main
+                  <ItemsSection
                     items={items.allUsersMoods}
-                    latestItems={items.latestItems}
+                    showAllMoods={false}
                     onCardClick={(item) =>
                       modals.setSelectedItem(item) || modals.openModal("item")
                     }
                   />
                 }
               />
-              {/* ---------------- Profile routes ---------------- */}
               <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
-                    <Profile
-                      onEditProfile={() => modals.openModal("edit-profile")}
-                      onLogOut={actions.handleLogOut}
-                    />
-                  </ProtectedRoute>
-                }
-              >
-                <Route
-                  index
-                  element={
-                    <ItemsSection
-                      items={items.allUsersMoods}
-                      profileUser={auth.currentUser}
-                      isOwner={true}
-                      showAllMoods={false}
-                      onCardClick={(item) =>
-                        modals.setSelectedItem(item) || modals.openModal("item")
-                      }
-                      onDeleteRequest={(id) =>
-                        modals.setPendingDeleteId(id) ||
-                        modals.openModal("confirmation")
-                      }
-                    />
-                  }
-                />
-
-                <Route
-                  path="top-moods"
-                  element={<TopMoods actions={actions} />}
-                />
-                <Route
-                  path="wili-ai"
-                  element={
-                    <WiliAi items={items.allUsersMoods} actions={actions} />
-                  }
-                />
-              </Route>
-              {/* ---------------- Visiting another user ---------------- */}
+                path="top-moods"
+                element={<TopMoods actions={actions} />}
+              />
               <Route
-                path="/profile/:userId"
+                path="wili-ai"
                 element={
-                  <Profile
-                    onEditProfile={() => modals.openModal("edit-profile")}
-                    onLogOut={actions.handleLogOut}
-                  />
+                  <WiliAi items={items.allUsersMoods} actions={actions} />
                 }
-              >
-                <Route
-                  index
-                  element={
-                    <ItemsSection
-                      items={items.allUsersMoods}
-                      showAllMoods={false}
-                      onCardClick={(item) =>
-                        modals.setSelectedItem(item) || modals.openModal("item")
-                      }
-                    />
-                  }
-                />
-                <Route
-                  path="top-moods"
-                  element={<TopMoods actions={actions} />}
-                />
-                <Route
-                  path="wili-ai"
-                  element={
-                    <WiliAi items={items.allUsersMoods} actions={actions} />
-                  }
-                />
-              </Route>
-              <Route path="/support" element={<Support />} />
+              />
             </Route>
-          </Routes>
-        </AnimatePresence>
+            <Route path="/support" element={<Support />} />
+          </Route>
+        </Routes>
 
         {/* ---------------- Modals ---------------- */}
         <RegisterModal

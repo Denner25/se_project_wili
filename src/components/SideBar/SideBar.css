@@ -48,18 +48,19 @@
   color: inherit;
   display: inline-block;
   align-self: start;
+  transition: transform 0.18s ease;
 }
 
 .sidebar__link {
   text-align: start;
 }
 
+.sidebar__link--active .sidebar__button {
+  transform: scale(1.1);
+}
+
 @media screen and (max-width: 620px) {
   .sidebar {
     margin-top: 0;
   }
-
-  /* .sidebar__profile {
-    display: none;
-  } */
 }

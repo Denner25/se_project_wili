@@ -6,6 +6,7 @@ import Autocomplete from "../Autocomplete/Autocomplete";
 import useTargetUser from "../../hooks/useTargetUser";
 import { getWiliResponse } from "../../utils/Api";
 import getFirstName from "../../utils/getFirstName";
+import PageMotion from "../PageMotion/PageMotion";
 
 import "./WiliAi.css";
 
@@ -77,40 +78,42 @@ function WiliAi({ items, resetAutocomplete }) {
 
   return (
     <>
-      <h1 className="wili-ai__title">Would I like it?</h1>
+      <PageMotion>
+        <h1 className="wili-ai__title">Would I like it?</h1>
 
-      <div className="wili-ai__content">
-        <p className="wili-ai__prompt">
-          {isOwner
-            ? "Ask Wili if you would like this suggestion:"
-            : `Ask Wili if ${targetFirstName} would like your suggestion:`}
-        </p>
+        <div className="wili-ai__content">
+          <p className="wili-ai__prompt">
+            {isOwner
+              ? "Ask Wili if you would like this suggestion:"
+              : `Ask Wili if ${targetFirstName} would like your suggestion:`}
+          </p>
 
-        <Autocomplete
-          onlyMedia
-          query={query}
-          setQuery={setQuery}
-          onSelect={setSelectedItem}
-          selectedItem={selectedItem}
-          lockSelectedValue
-        />
+          <Autocomplete
+            onlyMedia
+            query={query}
+            setQuery={setQuery}
+            onSelect={setSelectedItem}
+            selectedItem={selectedItem}
+            lockSelectedValue
+          />
 
-        {error && <p className="wili-ai__error">{error}</p>}
+          {error && <p className="wili-ai__error">{error}</p>}
 
-        <div className="wili-ai__results">
-          {wiliResult.map((item, i) => (
-            <p key={i}>{item}</p>
-          ))}
+          <div className="wili-ai__results">
+            {wiliResult.map((item, i) => (
+              <p key={i}>{item}</p>
+            ))}
+          </div>
+
+          <button
+            className="wili-ai__button"
+            onClick={handleGenerateResponse}
+            disabled={loadingResponse}
+          >
+            {loadingResponse ? "Thinking..." : "Generate AI response"}
+          </button>
         </div>
-
-        <button
-          className="wili-ai__button"
-          onClick={handleGenerateResponse}
-          disabled={loadingResponse}
-        >
-          {loadingResponse ? "Thinking..." : "Generate AI response"}
-        </button>
-      </div>
+      </PageMotion>
     </>
   );
 }
