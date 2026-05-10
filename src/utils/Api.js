@@ -78,23 +78,46 @@ function getUsers(query) {
   return fetch(url).then(handleResponse);
 }
 
-function getWiliResponse({
-  userLikes,
-  candidate,
-  isOwner,
-  targetName: targetFirstName,
-}) {
+function createMessage(data) {
+  // ✅ Include JWT automatically from localStorage
+  const token = localStorage.getItem("jwt");
+
   return fetch(`${BASE_URL}/wili`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
     },
-    body: JSON.stringify({
-      userLikes,
-      candidate,
-      isOwner,
-      targetName: targetFirstName,
-    }),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+}
+
+function getMessages(chatId, token) {
+  return fetch(`${BASE_URL}/chats/${chatId}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }).then(handleResponse);
+}
+
+function deleteMessage(messageId, token) {
+  return fetch(`${BASE_URL}/messages/${messageId}`, {
+    method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }).then(handleResponse);
+}
+
+// utils/Api.js
+function getChats(token) {
+  return fetch(`${BASE_URL}/chats`, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  }).then(handleResponse);
+}
+
+function deleteChat(chatId, token) {
+  return fetch(`${BASE_URL}/chats/${chatId}`, {
+    method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   }).then(handleResponse);
 }
 
@@ -109,5 +132,9 @@ export {
   getLatestItems,
   getUserById,
   getUsers,
-  getWiliResponse,
+  createMessage,
+  getMessages,
+  deleteMessage,
+  getChats,
+  deleteChat,
 };

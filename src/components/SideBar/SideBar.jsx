@@ -1,11 +1,17 @@
 import "./SideBar.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useMatch, useResolvedPath } from "react-router-dom";
 import getFirstName from "../../utils/getFirstName";
+import Chats from "../Chats/Chats";
+import useAuth from "../../hooks/useAuth";
 
 function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
   const targetFirstName = getFirstName(profileUser?.name);
+  const { token } = useAuth();
 
   if (!profileUser) return null;
+
+  const chatsPath = useResolvedPath("wili-ai");
+  const chatsMatch = useMatch({ path: chatsPath.pathname, end: false });
 
   return (
     <div className="sidebar">
@@ -28,15 +34,14 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
       </NavLink>
 
       <div className="sidebar__buttons">
-        {/* Tabs */}
-        <NavLink
-          to="wili-ai"
-          className={({ isActive }) =>
-            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-          }
+        {/* Chats (active via route match, NOT NavLink) */}
+        <div
+          className={`sidebar__link ${
+            chatsMatch ? "sidebar__link--active" : ""
+          }`}
         >
-          <button className="sidebar__button">Would I like it?</button>
-        </NavLink>
+          <Chats token={token} />
+        </div>
 
         <NavLink
           to="top-moods"

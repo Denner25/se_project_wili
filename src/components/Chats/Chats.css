@@ -1,0 +1,74 @@
+.sidebar__new-chat {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 10px;
+}
+
+.sidebar__chat-list {
+  list-style-type: none;
+}
+
+.sidebar__chat-item {
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+/* Hover state */
+.sidebar__chat-item:hover {
+  background: rgb(0, 0, 40);
+}
+
+/* Active / selected state (NavLink auto applies 'sidebar__chat-link--active') */
+.sidebar__chat-item--active {
+  background: rgb(0, 0, 35);
+}
+
+.sidebar__arrow {
+  display: inline-block;
+  margin-left: 10px;
+  transition: transform 0.2s ease;
+  font-weight: bold;
+  font-size: 1em;
+  transform-origin: center;
+}
+
+.sidebar__arrow.open {
+  transform: rotate(90deg);
+}
+
+.sidebar__dropdown-content {
+  max-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transform: translateY(-6px);
+  transition:
+    max-height 0.5s ease,
+    transform 0.5s ease;
+}
+
+.sidebar__dropdown-content--open {
+  max-height: 300px;
+  transform: translateY(0);
+}
+
+.sidebar__dropdown-content > * {
+  overflow: hidden;
+}
+
+.sidebar__dropdown-content::-webkit-scrollbar {
+  width: 0;
+}
+.sidebar__dropdown-content:hover::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar__dropdown-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar__dropdown-content::-webkit-scrollbar-thumb {
+  background: rgb(0, 0, 35);
+  border-radius: 3px;
+  border: 1px solid transparent;
+}

@@ -1,0 +1,48 @@
+.chatview {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+}
+
+.chatview__title {
+  font-size: 20px;
+  margin: 35px 0 16px 0;
+  text-align: start;
+}
+
+.chatview__messages {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 400px;
+}
+
+.chatview__messages::-webkit-scrollbar {
+  width: 0;
+}
+
+.chatview__messages:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatview__messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatview__messages::-webkit-scrollbar-thumb {
+  background: rgb(0, 0, 35);
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+
+.chatview__generate-btn {
+  align-self: center;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f88397;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 16px;
+}

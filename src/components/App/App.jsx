@@ -6,6 +6,7 @@ import Profile from "../Profile/Profile";
 import ItemsSection from "../ItemsSection/ItemsSection";
 import TopMoods from "../TopMoods/TopMoods";
 import WiliAi from "../WiliAi/WiliAi";
+import ChatView from "../ChatView/ChatView";
 import Support from "../Support/Support";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 
@@ -20,6 +21,7 @@ import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import MoodsContext from "../../contexts/MoodsContext";
+import { ChatsProvider } from "../../contexts/ChatsContext";
 
 import useAuth from "../../hooks/useAuth";
 import useItems from "../../hooks/useItems";
@@ -49,167 +51,179 @@ function App() {
   }
 
   return (
-    <MoodsContext.Provider
-      value={{
-        allUsersMoods: items.allUsersMoods,
-        userMoods: actions.userMoods,
-      }}
-    >
-      <CurrentUserContext.Provider value={auth.currentUser}>
-        <Routes location={location}>
-          <Route
-            element={
-              <Layout
-                onItemClick={(item) =>
-                  modals.setSelectedItem(item) || modals.openModal("item")
-                }
-                resetAutocomplete={false}
-                onSignUpClick={() => modals.openModal("register")}
-                onLogInClick={() => modals.openModal("log-in")}
-                isLoggedIn={auth.isLoggedIn}
-              />
-            }
-          >
+    <ChatsProvider>
+      <MoodsContext.Provider
+        value={{
+          allUsersMoods: items.allUsersMoods,
+          userMoods: actions.userMoods,
+        }}
+      >
+        <CurrentUserContext.Provider value={auth.currentUser}>
+          <Routes location={location}>
             <Route
-              path="/"
               element={
-                <Main
-                  items={items.allUsersMoods}
-                  latestItems={items.latestItems}
-                  onCardClick={(item) =>
+                <Layout
+                  onItemClick={(item) =>
                     modals.setSelectedItem(item) || modals.openModal("item")
                   }
+                  resetAutocomplete={false}
+                  onSignUpClick={() => modals.openModal("register")}
+                  onLogInClick={() => modals.openModal("log-in")}
+                  isLoggedIn={auth.isLoggedIn}
                 />
               }
-            />
-            {/* ---------------- Profile routes ---------------- */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
+            >
+              <Route
+                path="/"
+                element={
+                  <Main
+                    items={items.allUsersMoods}
+                    latestItems={items.latestItems}
+                    onCardClick={(item) =>
+                      modals.setSelectedItem(item) || modals.openModal("item")
+                    }
+                  />
+                }
+              />
+              {/* ---------------- Profile routes ---------------- */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
+                    <Profile
+                      onEditProfile={() => modals.openModal("edit-profile")}
+                      onLogOut={actions.handleLogOut}
+                    />
+                  </ProtectedRoute>
+                }
+              >
+                <Route
+                  index
+                  element={
+                    <ItemsSection
+                      items={items.allUsersMoods}
+                      profileUser={auth.currentUser}
+                      isOwner={true}
+                      showAllMoods={false}
+                      onCardClick={(item) =>
+                        modals.setSelectedItem(item) || modals.openModal("item")
+                      }
+                      onDeleteRequest={(id) =>
+                        modals.setPendingDeleteId(id) ||
+                        modals.openModal("confirmation")
+                      }
+                    />
+                  }
+                />
+
+                <Route
+                  path="top-moods"
+                  element={<TopMoods actions={actions} />}
+                />
+                <Route
+                  path="wili-ai"
+                  element={
+                    <WiliAi items={items.allUsersMoods} actions={actions} />
+                  }
+                />
+                <Route
+                  path="chats/:chatId"
+                  element={
+                    <ChatView token={auth.token} items={items.allUsersMoods} />
+                  }
+                />
+              </Route>
+              {/* ---------------- Visiting another user ---------------- */}
+              <Route
+                path="/profile/:userId"
+                element={
                   <Profile
                     onEditProfile={() => modals.openModal("edit-profile")}
                     onLogOut={actions.handleLogOut}
                   />
-                </ProtectedRoute>
-              }
-            >
-              <Route
-                index
-                element={
-                  <ItemsSection
-                    items={items.allUsersMoods}
-                    profileUser={auth.currentUser}
-                    isOwner={true}
-                    showAllMoods={false}
-                    onCardClick={(item) =>
-                      modals.setSelectedItem(item) || modals.openModal("item")
-                    }
-                    onDeleteRequest={(id) =>
-                      modals.setPendingDeleteId(id) ||
-                      modals.openModal("confirmation")
-                    }
-                  />
                 }
-              />
-
-              <Route
-                path="top-moods"
-                element={<TopMoods actions={actions} />}
-              />
-              <Route
-                path="wili-ai"
-                element={
-                  <WiliAi items={items.allUsersMoods} actions={actions} />
-                }
-              />
-            </Route>
-            {/* ---------------- Visiting another user ---------------- */}
-            <Route
-              path="/profile/:userId"
-              element={
-                <Profile
-                  onEditProfile={() => modals.openModal("edit-profile")}
-                  onLogOut={actions.handleLogOut}
+              >
+                <Route
+                  index
+                  element={
+                    <ItemsSection
+                      items={items.allUsersMoods}
+                      showAllMoods={false}
+                      onCardClick={(item) =>
+                        modals.setSelectedItem(item) || modals.openModal("item")
+                      }
+                    />
+                  }
                 />
-              }
-            >
-              <Route
-                index
-                element={
-                  <ItemsSection
-                    items={items.allUsersMoods}
-                    showAllMoods={false}
-                    onCardClick={(item) =>
-                      modals.setSelectedItem(item) || modals.openModal("item")
-                    }
-                  />
-                }
-              />
-              <Route
-                path="top-moods"
-                element={<TopMoods actions={actions} />}
-              />
-              <Route
-                path="wili-ai"
-                element={
-                  <WiliAi items={items.allUsersMoods} actions={actions} />
-                }
-              />
+                <Route
+                  path="top-moods"
+                  element={<TopMoods actions={actions} />}
+                />
+                <Route
+                  path="wili-ai"
+                  element={
+                    <WiliAi items={items.allUsersMoods} actions={actions} />
+                  }
+                />
+              </Route>
+              <Route path="/support" element={<Support />} />
             </Route>
-            <Route path="/support" element={<Support />} />
-          </Route>
-        </Routes>
+          </Routes>
 
-        {/* ---------------- Modals ---------------- */}
-        <RegisterModal
-          isOpen={modals.activeModal === "register"}
-          onClose={modals.closeModal}
-          onSignUp={actions.handleSignUp}
-          onLogInClick={() => modals.openModal("log-in")}
-        />
-        <LogInModal
-          isOpen={modals.activeModal === "log-in"}
-          onClose={modals.closeModal}
-          onLogIn={actions.handleLogIn}
-          onSignUpClick={() => modals.openModal("register")}
-        />
-        <ItemModal
-          item={modals.selectedItem}
-          isOpen={modals.activeModal === "item"}
-          onClose={modals.closeModal}
-          onSave={actions.handleSave}
-          onDeleteRequest={(id) =>
-            modals.setPendingDeleteId(id) || modals.openModal("confirmation")
-          }
-          isLoggedIn={auth.isLoggedIn}
-          onSignUpClick={() => modals.openModal("register")}
-        />
-        <ConfirmationModal
-          isOpen={modals.activeModal === "confirmation"}
-          onClose={modals.closeModal}
-          onConfirm={() => actions.handleConfirmDelete(modals.pendingDeleteId)}
-        />
-        <EditProfileModal
-          isOpen={modals.activeModal === "edit-profile"}
-          onClose={() => modals.setPendingAvatarUrl("") || modals.closeModal()}
-          onSubmit={actions.handleProfileSubmit}
-          onOpenAvatarModal={() => modals.openSubModal("avatar")}
-          avatarUrl={
-            modals.pendingAvatarUrl || auth.currentUser?.avatarUrl || ""
-          }
-          isLoggedIn={auth.isLoggedIn}
-        />
-        <AvatarModal
-          isOpen={modals.subModal === "avatar"}
-          onClose={modals.closeSubModal}
-          isLoggedIn={auth.isLoggedIn}
-          onSave={(url) =>
-            modals.setPendingAvatarUrl(url) || modals.closeSubModal()
-          }
-        />
-      </CurrentUserContext.Provider>
-    </MoodsContext.Provider>
+          {/* ---------------- Modals ---------------- */}
+          <RegisterModal
+            isOpen={modals.activeModal === "register"}
+            onClose={modals.closeModal}
+            onSignUp={actions.handleSignUp}
+            onLogInClick={() => modals.openModal("log-in")}
+          />
+          <LogInModal
+            isOpen={modals.activeModal === "log-in"}
+            onClose={modals.closeModal}
+            onLogIn={actions.handleLogIn}
+            onSignUpClick={() => modals.openModal("register")}
+          />
+          <ItemModal
+            item={modals.selectedItem}
+            isOpen={modals.activeModal === "item"}
+            onClose={modals.closeModal}
+            onSave={actions.handleSave}
+            onDeleteRequest={(id) =>
+              modals.setPendingDeleteId(id) || modals.openModal("confirmation")
+            }
+            isLoggedIn={auth.isLoggedIn}
+            onSignUpClick={() => modals.openModal("register")}
+          />
+          <ConfirmationModal
+            isOpen={modals.activeModal === "confirmation"}
+            onClose={modals.closeModal}
+            onConfirm={() =>
+              actions.handleConfirmDelete(modals.pendingDeleteId)
+            }
+          />
+          <EditProfileModal
+            isOpen={modals.activeModal === "edit-profile"}
+            onClose={() =>
+              modals.setPendingAvatarUrl("") || modals.closeModal()
+            }
+            onSubmit={actions.handleProfileSubmit}
+            onOpenAvatarModal={() => modals.openSubModal("avatar")}
+            avatarUrl={
+              modals.pendingAvatarUrl || auth.currentUser?.avatarUrl || ""
+            }
+            isLoggedIn={auth.isLoggedIn}
+          />
+          <AvatarModal
+            isOpen={modals.subModal === "avatar"}
+            onClose={modals.closeSubModal}
+            isLoggedIn={auth.isLoggedIn}
+            onSave={(url) =>
+              modals.setPendingAvatarUrl(url) || modals.closeSubModal()
+            }
+          />
+        </CurrentUserContext.Provider>
+      </MoodsContext.Provider>
+    </ChatsProvider>
   );
 }
 

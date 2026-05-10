@@ -14,7 +14,7 @@ export default function useAppActions({
   getAvatarUrl, // function to get avatar URL from seed
 }) {
   // --------- Destructuring auth object ---------
-  const { currentUser, setCurrentUser, setIsLoggedIn } = auth;
+  const { currentUser, setCurrentUser, setIsLoggedIn, setToken } = auth;
 
   // --------- Destructuring items object ---------
   const {
@@ -37,7 +37,7 @@ export default function useAppActions({
       (item) =>
         item.moods
           ?.filter((m) => m.users.includes(currentUser._id))
-          .map((m) => m.name) || []
+          .map((m) => m.name) || [],
     );
   }, [allUsersMoods, currentUser]); // dependency array for useMemo
 
@@ -49,10 +49,10 @@ export default function useAppActions({
         (item) =>
           item.moods
             ?.filter((m) => m.users.includes(userId))
-            .map((m) => m.name) || []
+            .map((m) => m.name) || [],
       );
     },
-    [allUsersMoods]
+    [allUsersMoods],
   );
 
   // ---------- Profile workflows ----------
@@ -69,7 +69,7 @@ export default function useAppActions({
         })
         .catch(console.error);
     },
-    [setCurrentUser, closeModal] // dependency array for useCallback
+    [setCurrentUser, closeModal], // dependency array for useCallback
   );
 
   // ---------- Auth + Modal workflows ----------
@@ -77,6 +77,7 @@ export default function useAppActions({
     ({ email, password }) => {
       return login({ email, password }).then((res) => {
         localStorage.setItem("jwt", res.token);
+        auth.setToken(res.token)
         setIsLoggedIn(true);
 
         return checkToken(res.token).then((user) => {
@@ -101,7 +102,7 @@ export default function useAppActions({
       closeModal,
       navigate,
       getItems,
-    ]
+    ],
   );
 
   const handleSignUp = useCallback(
@@ -113,11 +114,11 @@ export default function useAppActions({
         .then(() =>
           handleLogIn({ email, password }).then(() => {
             return handleProfileSubmit({ name, avatarUrl: defaultAvatarUrl });
-          })
+          }),
         )
         .catch(console.error);
     },
-    [seeds, getAvatarUrl, handleLogIn, handleProfileSubmit]
+    [seeds, getAvatarUrl, handleLogIn, handleProfileSubmit],
   );
 
   const handleLogOut = useCallback(() => {
@@ -180,7 +181,7 @@ export default function useAppActions({
           .catch(console.error);
       }
     },
-    [allUsersMoods, setAllUsersMoods, closeModal, addItem, updateItemMoods]
+    [allUsersMoods, setAllUsersMoods, closeModal, addItem, updateItemMoods],
   );
 
   const handleConfirmDelete = useCallback(
@@ -200,7 +201,7 @@ export default function useAppActions({
         deleteItem(pendingDeleteId, token)
           .then(() => {
             setAllUsersMoods((prev) =>
-              prev.filter((i) => i._id !== pendingDeleteId)
+              prev.filter((i) => i._id !== pendingDeleteId),
             );
             closeModal();
           })
@@ -209,7 +210,7 @@ export default function useAppActions({
         updateItemMoods(pendingDeleteId, filteredMoods, token)
           .then((res) => {
             setAllUsersMoods((prev) =>
-              prev.map((i) => (i._id === res.data._id ? res.data : i))
+              prev.map((i) => (i._id === res.data._id ? res.data : i)),
             );
             closeModal();
           })
@@ -223,7 +224,7 @@ export default function useAppActions({
       closeModal,
       deleteItem,
       updateItemMoods,
-    ]
+    ],
   );
 
   return {
