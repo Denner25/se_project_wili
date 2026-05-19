@@ -1,3 +1,4 @@
+/* ChatView.css */
 .chatview {
   display: flex;
   flex-direction: column;
@@ -11,6 +12,8 @@
 }
 
 .chatview__messages {
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 400px;
@@ -34,15 +37,65 @@
   border: 1px solid transparent;
 }
 
-.chatview__generate-btn {
+.chatview__input-row {
+  display: flex;
+  align-items: center;
   align-self: center;
-  padding: 6px 16px;
+  margin-top: 16px;
+  background: var(--background-secondary);
+  border-radius: 999px;
+  padding: 6px 6px 6px 18px;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.chatview__input {
+  flex: 1;
   border: none;
-  border-radius: 8px;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  color: inherit;
+}
+
+.chatview__input::placeholder {
+  opacity: 0.4;
+}
+
+.chatview__send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
   background: #f88397;
   color: white;
-  font-weight: bold;
   cursor: pointer;
+  flex-shrink: 0;
   transition: background 0.2s ease;
-  margin-top: 16px;
+}
+
+.chatview__send-btn:hover {
+  background: #f56d85;
+}
+
+.chatview__send-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.chatview__error {
+  font-size: 13px;
+  opacity: 0.6;
+  margin-top: 8px;
+  align-self: center;
+}
+
+.chatview__empty {
+  font-size: 14px;
+  opacity: 0.5;
+  margin-top: 12px;
 }

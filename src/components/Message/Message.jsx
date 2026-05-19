@@ -1,9 +1,9 @@
 // src/components/Message/Message.jsx
 import "./Message.css";
 
-function Message({ message, onDelete }) {
+function Message({ message, onDelete, onSuggest }) {
   const timestamp = new Date(message.createdAt);
-  const itemsConsidered = message.meta?.itemsConsidered ?? 0; // <-- get from meta
+  const itemsConsidered = message.meta?.itemsConsidered ?? 0;
 
   const handleDelete = (e) => {
     e.stopPropagation();
@@ -11,11 +11,26 @@ function Message({ message, onDelete }) {
   };
 
   return (
-    <div className="message">
+    <div className={`message message--${message.role}`}>
       <button className="message__delete-btn" onClick={handleDelete} />
 
       {message.content && (
-        <p className="message__ai-response">{message.content}</p>
+        <p className="message__content">{message.content}</p>
+      )}
+
+      {message.role === "assistant" && message.suggestedPrompts?.length > 0 && (
+        <ul className="message__prompts">
+          {message.suggestedPrompts.map((prompt, i) => (
+            <li key={i}>
+              <span
+                className="message__prompt-link"
+                onClick={() => onSuggest(prompt)}
+              >
+                {prompt}
+              </span>
+            </li>
+          ))}
+        </ul>
       )}
 
       <span className="message__timestamp">

@@ -19,41 +19,34 @@ function ChatView({ token, items }) {
   const [error, setError] = useState("");
   const [chatInfo, setChatInfo] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [inputText, setInputText] = useState("");
 
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load messages for this chat
   useEffect(() => {
-  if (!chatId) return;
+    if (!chatId || !token) return;
 
-  // wait until token exists instead of bailing
-  if (!token) return;
+    setLoading(true);
 
-  setLoading(true);
+    getMessages(chatId, token)
+      .then((data) => {
+        setMessages(data.messages || []);
+        if (data.messages?.length > 0) {
+          setChatInfo(data.messages[0].chat);
+        }
+        setError("");
+      })
+      .catch((err) => {
+        console.error("Failed to load messages", err);
+        setError("Could not load messages");
+      })
+      .finally(() => setLoading(false));
+  }, [chatId, token]);
 
-  getMessages(chatId, token)
-    .then((data) => {
-      setMessages(data.messages || []);
-
-      if (data.messages?.length > 0) {
-        setChatInfo(data.messages[0].chat);
-      }
-
-      setError("");
-    })
-    .catch((err) => {
-      console.error("Failed to load messages", err);
-      setError("Could not load messages");
-    })
-    .finally(() => setLoading(false));
-}, [chatId, token]);
-
-  // Delete message handler
   const handleDeleteMessage = (messageId) => {
     setMessages((prev) => prev.filter((m) => m._id !== messageId));
 
@@ -69,41 +62,43 @@ function ChatView({ token, items }) {
       });
   };
 
-  // Generate AI response for current chat with live user likes
-  const handleGenerateResponse = () => {
-    if (!chatInfo) return;
+  const handleSend = (text) => {
+    if (!text.trim() || !chatInfo || generating) return;
 
+    setInputText("");
     setGenerating(true);
     setError("");
 
     const targetUserId = chatInfo.aboutPerson.user.toString();
 
-    // Step 1: Use the items passed from props
-    // Step 2: Build userLikes just like WiliAi
     const userLikes = items
       .map((item) => {
-        const moods = item.moods || [];
-        const filteredMoods = moods.filter((m) =>
-          (m.users || []).map(String).includes(targetUserId),
+        const filteredMoods = (item.moods || []).filter((m) =>
+          (m.users || []).map(String).includes(targetUserId)
         );
         if (!filteredMoods.length) return null;
-
-        return {
-          id: item._id,
-          title: item.title,
-          moods: filteredMoods.map((m) => m.name),
-          mediaType: item.mediaType,
-        };
+        return { id: item._id, title: item.title, mediaType: item.mediaType };
       })
       .filter(Boolean);
 
-    if (!userLikes.length) {
-      setError("No liked items available for AI analysis");
-      setGenerating(false);
-      return;
-    }
+    const ownerLikes = items
+      .map((item) => {
+        const filteredMoods = (item.moods || []).filter((m) =>
+          (m.users || []).map(String).includes(currentUser._id.toString())
+        );
+        if (!filteredMoods.length) return null;
+        return { id: item._id, title: item.title, mediaType: item.mediaType };
+      })
+      .filter(Boolean);
 
-    // Step 3: Call createMessage with userLikes
+    const optimisticUserMsg = {
+      _id: `temp-${Date.now()}`,
+      role: "user",
+      content: text,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticUserMsg]);
+
     createMessage({
       persist: true,
       ownerId: currentUser._id,
@@ -111,23 +106,29 @@ function ChatView({ token, items }) {
       aboutPersonName: chatInfo.aboutPerson.nameSnapshot,
       candidate: {
         id: chatInfo.aboutItem.itemId,
-        title: chatInfo.aboutItem.titleSnapshot || chatInfo.aboutItem.title,
+        title: chatInfo.aboutItem.titleSnapshot,
         mediaType: chatInfo.aboutItem.itemType,
       },
-      userLikes, // passes items considered
+      userLikes,
+      ownerLikes,
       isOwner: currentUser._id === chatInfo.aboutPerson.user,
-      targetName: chatInfo.aboutPerson.nameSnapshot || "there",
+      targetName: chatInfo.aboutPerson.nameSnapshot,
+      userMessage: text,
     })
       .then((resp) => {
         if (!resp) return;
-
-        // Step 4: Add the new message to state
-        const newMsg = resp.chat?.messages?.[resp.chat.messages.length - 1];
-        if (newMsg) setMessages((prev) => [...prev, newMsg]);
+        const newMessages = resp.chat?.messages?.slice(-2) || [];
+        setMessages((prev) => [
+          ...prev.filter((m) => m._id !== optimisticUserMsg._id),
+          ...newMessages,
+        ]);
       })
       .catch((err) => {
-        console.error("Failed to generate response", err);
-        setError(err.message || "Failed to generate response");
+        console.error("Failed to send message", err);
+        setError(err.message || "Failed to send message");
+        setMessages((prev) =>
+          prev.filter((m) => m._id !== optimisticUserMsg._id)
+        );
       })
       .finally(() => setGenerating(false));
   };
@@ -158,6 +159,7 @@ function ChatView({ token, items }) {
                 key={msg._id}
                 message={msg}
                 onDelete={handleDeleteMessage}
+                onSuggest={handleSend}
               />
             ))
           ) : (
@@ -165,13 +167,35 @@ function ChatView({ token, items }) {
           )}
           <div ref={messagesEndRef} />
         </div>
-        <button
-          className="chatview__generate-btn"
-          onClick={handleGenerateResponse}
-          disabled={generating}
-        >
-          {generating ? "Thinking..." : "Generate new AI response"}
-        </button>
+
+        <div className="chatview__input-row">
+          <input
+            className="chatview__input"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend(inputText)}
+            placeholder="Ask Wili anything..."
+            disabled={generating}
+          />
+          <button
+            className="chatview__send-btn"
+            onClick={() => handleSend(inputText)}
+            disabled={generating}
+          >
+            {generating ? (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+                <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="none" strokeDasharray="31.4" strokeDashoffset="10">
+                  <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
     </PageMotion>
   );
