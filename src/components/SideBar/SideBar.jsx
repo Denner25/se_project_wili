@@ -4,7 +4,7 @@ import getFirstName from "../../utils/getFirstName";
 import Chats from "../Chats/Chats";
 import useAuth from "../../hooks/useAuth";
 
-function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
+function SideBar({ profileUser, isOwner, onLogOut }) {
   const targetFirstName = getFirstName(profileUser?.name);
   const { token } = useAuth();
 
@@ -57,9 +57,14 @@ function SideBar({ profileUser, isOwner, onEditProfile, onLogOut }) {
         {/* Owner-only actions */}
         {isOwner && (
           <>
-            <button className="sidebar__button" onClick={onEditProfile}>
-              Edit profile
-            </button>
+            <NavLink
+              to="settings"
+              className={({ isActive }) =>
+                `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+              }
+            >
+              <button className="sidebar__button">Settings</button>
+            </NavLink>
 
             <button className="sidebar__button" onClick={onLogOut}>
               Log out

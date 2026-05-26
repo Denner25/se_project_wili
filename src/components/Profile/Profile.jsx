@@ -6,14 +6,14 @@ import PageMotion from "../PageMotion/PageMotion";
 import { useMemo } from "react";
 import "./Profile.css";
 
-function Profile({ onEditProfile, onLogOut }) {
+function Profile({ onLogOut }) {
   const location = useLocation();
   const { profileUser, isOwner, isLoading } = useTargetUser();
 
   // Memoize context to prevent unnecessary re-renders
   const outletContext = useMemo(
-    () => ({ profileUser, isOwner, onEditProfile, onLogOut }),
-    [profileUser, isOwner, onEditProfile, onLogOut],
+    () => ({ profileUser, isOwner, onLogOut }),
+    [profileUser, isOwner, onLogOut],
   );
 
   if (isLoading || !profileUser) return <LoadingSpinner />;
@@ -26,7 +26,6 @@ function Profile({ onEditProfile, onLogOut }) {
           <SideBar
             profileUser={profileUser}
             isOwner={isOwner}
-            onEditProfile={onEditProfile}
             onLogOut={onLogOut}
           />
         </section>

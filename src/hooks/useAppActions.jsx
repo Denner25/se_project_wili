@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from "react";
 import { signup, login, checkToken } from "../utils/auth";
+import { changePassword, deleteAccount } from "../utils/Api";
 
 /*
   useAppActions is a custom hook (uses useMemo and useCallback internally)
@@ -61,23 +62,44 @@ export default function useAppActions({
       const token = localStorage.getItem("jwt");
       const payload = { ...data };
 
-      updateProfile(payload, token)
+      return updateProfile(payload, token)
         .then((updatedUser) => {
           setCurrentUser(updatedUser);
           setPendingAvatarUrl("");
-          closeModal();
         })
         .catch(console.error);
     },
-    [setCurrentUser, closeModal], // dependency array for useCallback
+    [setCurrentUser, setPendingAvatarUrl], // dependency array for useCallback
   );
+
+  // ---------- Change password workflow ----------
+  const handleChangePassword = useCallback(
+    ({ currentPassword, newPassword }) => {
+      const token = localStorage.getItem("jwt");
+      return changePassword({ currentPassword, newPassword }, token);
+    },
+    [],
+  );
+
+  // ---------- Delete account workflow ----------
+  const handleDeleteAccount = useCallback(() => {
+    const token = localStorage.getItem("jwt");
+
+    return deleteAccount(token).then(() => {
+      localStorage.removeItem("jwt");
+      auth.setCurrentUser(null);
+      auth.setIsLoggedIn(false);
+      auth.setToken(null);
+      navigate("/");
+    });
+  }, [auth, navigate]);
 
   // ---------- Auth + Modal workflows ----------
   const handleLogIn = useCallback(
     ({ email, password }) => {
       return login({ email, password }).then((res) => {
         localStorage.setItem("jwt", res.token);
-        auth.setToken(res.token)
+        auth.setToken(res.token);
         setIsLoggedIn(true);
 
         return checkToken(res.token).then((user) => {
@@ -236,5 +258,7 @@ export default function useAppActions({
     handleConfirmDelete,
     handleProfileSubmit,
     getUserMoods,
+    handleChangePassword,
+    handleDeleteAccount,
   };
 }

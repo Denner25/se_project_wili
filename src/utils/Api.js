@@ -121,6 +121,24 @@ function deleteChat(chatId, token) {
   }).then(handleResponse);
 }
 
+function changePassword(data, token) {
+  return fetch(`${BASE_URL}/users/me/password`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+}
+
+function deleteAccount(token) {
+  return fetch(`${BASE_URL}/users/me`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(handleResponse);
+}
+
 export {
   getItems,
   addItem,
@@ -137,4 +155,6 @@ export {
   deleteMessage,
   getChats,
   deleteChat,
+  changePassword,
+  deleteAccount,
 };

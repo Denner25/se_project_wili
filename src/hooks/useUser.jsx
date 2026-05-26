@@ -4,22 +4,34 @@ import { getUserById } from "../utils/Api";
 
 export default function useUser(targetId) {
   const currentUser = useContext(CurrentUserContext);
-  const [profileUser, setProfileUser] = useState(null);
+  const [fetchedUser, setFetchedUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!targetId) return;
-    const token = localStorage.getItem("jwt");
+  const isOwnProfile = targetId === currentUser?._id;
 
+  useEffect(() => {
+    // If viewing own profile, no fetch needed — use context directly
+    if (isOwnProfile) {
+      setLoading(false);
+      return;
+    }
+
+    if (!targetId) return;
+
+    const token = localStorage.getItem("jwt");
     setLoading(true);
-    getUserById(targetId === currentUser?._id ? undefined : targetId, token)
-      .then(setProfileUser)
+
+    getUserById(targetId, token)
+      .then(setFetchedUser)
       .catch((err) => {
         console.error("useUser error:", err);
-        setProfileUser(null);
+        setFetchedUser(null);
       })
       .finally(() => setLoading(false));
-  }, [targetId, currentUser?._id]);
+  }, [targetId, isOwnProfile]);
+
+  // Own profile always comes from context so it stays in sync
+  const profileUser = isOwnProfile ? currentUser : fetchedUser;
 
   return { profileUser, loading };
 }

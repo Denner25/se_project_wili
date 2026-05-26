@@ -8,11 +8,11 @@ import TopMoods from "../TopMoods/TopMoods";
 import WiliAi from "../WiliAi/WiliAi";
 import ChatView from "../ChatView/ChatView";
 import Support from "../Support/Support";
+import Settings from "../Settings/Settings";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 
 import ItemModal from "../ItemModal/ItemModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
-import EditProfileModal from "../EditProfileModal/EditProfileModal";
 import LogInModal from "../LogInModal/LogInModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
 import AvatarModal, { seeds, getAvatarUrl } from "../AvatarModal/AvatarModal";
@@ -90,10 +90,7 @@ function App() {
                 path="/profile"
                 element={
                   <ProtectedRoute isLoggedIn={auth.isLoggedIn}>
-                    <Profile
-                      onEditProfile={() => modals.openModal("edit-profile")}
-                      onLogOut={actions.handleLogOut}
-                    />
+                    <Profile onLogOut={actions.handleLogOut} />
                   </ProtectedRoute>
                 }
               >
@@ -115,7 +112,6 @@ function App() {
                     />
                   }
                 />
-
                 <Route
                   path="top-moods"
                   element={<TopMoods actions={actions} />}
@@ -132,15 +128,28 @@ function App() {
                     <ChatView token={auth.token} items={items.allUsersMoods} />
                   }
                 />
+                {/* ---------------- Settings ---------------- */}
+                <Route
+                  path="settings"
+                  element={
+                    <Settings
+                      actions={actions}
+                      modals={modals}
+                      avatarUrl={
+                        modals.pendingAvatarUrl ||
+                        auth.currentUser?.avatarUrl ||
+                        ""
+                      }
+                      onOpenAvatarModal={() => modals.openSubModal("avatar")}
+                    />
+                  }
+                />
               </Route>
               {/* ---------------- Visiting another user ---------------- */}
               <Route
                 path="/profile/:userId"
                 element={
-                  <Profile
-                    onEditProfile={() => modals.openModal("edit-profile")}
-                    onLogOut={actions.handleLogOut}
-                  />
+                  <Profile onLogOut={actions.handleLogOut} />
                 }
               >
                 <Route
@@ -200,18 +209,6 @@ function App() {
             onConfirm={() =>
               actions.handleConfirmDelete(modals.pendingDeleteId)
             }
-          />
-          <EditProfileModal
-            isOpen={modals.activeModal === "edit-profile"}
-            onClose={() =>
-              modals.setPendingAvatarUrl("") || modals.closeModal()
-            }
-            onSubmit={actions.handleProfileSubmit}
-            onOpenAvatarModal={() => modals.openSubModal("avatar")}
-            avatarUrl={
-              modals.pendingAvatarUrl || auth.currentUser?.avatarUrl || ""
-            }
-            isLoggedIn={auth.isLoggedIn}
           />
           <AvatarModal
             isOpen={modals.subModal === "avatar"}
