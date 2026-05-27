@@ -1,0 +1,30 @@
+.media-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.media-filter__pill {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f88397;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  opacity: 0.4;
+}
+
+.media-filter__pill:hover {
+  background: #f66d85;
+}
+
+.media-filter__pill:active {
+  background: #e85570;
+}
+
+.media-filter__pill--active {
+  opacity: 1;
+}

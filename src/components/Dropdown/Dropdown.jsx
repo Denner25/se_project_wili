@@ -1,3 +1,4 @@
+import { MEDIA_LABELS } from "../../utils/constants";
 import "./Dropdown.css";
 
 function Dropdown({ items, onItemClick }) {
@@ -11,17 +12,9 @@ function Dropdown({ items, onItemClick }) {
           className="dropdown__item"
           onClick={() => onItemClick(item)}
         >
-          {item.poster && (
+          {(item.poster || item.avatar) && (
             <img
-              src={item.poster}
-              alt={item.title}
-              className="dropdown__poster"
-            />
-          )}
-
-          {item.avatar && (
-            <img
-              src={item.avatar}
+              src={item.poster || item.avatar}
               alt={item.title}
               className="dropdown__poster"
             />
@@ -30,11 +23,7 @@ function Dropdown({ items, onItemClick }) {
           <div className="dropdown__info">
             <div className="dropdown__title">{item.title}</div>
             <div className="dropdown__subtitle">
-              {item.mediaType === "user"
-                ? "User"
-                : item.mediaType === "movie"
-                ? "Movie"
-                : "TV"}
+              {MEDIA_LABELS[item.mediaType] ?? item.mediaType}
               {item.length ? ` • ${item.length}` : ""}
             </div>
           </div>

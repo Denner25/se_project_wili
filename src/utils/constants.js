@@ -21,6 +21,15 @@ const IMAGE_SIZES = {
   LARGE: "w500",
 };
 
+const MEDIA_LABELS = {
+  user: "User",
+  movie: "Movie",
+  tv: "TV Show",
+  anime: "Anime",
+  music: "Artist",
+  book: "Book",
+};
+
 export {
   BUTTONS,
   BASE_URL,
@@ -28,4 +37,5 @@ export {
   IMAGE_BASE_URL_W92,
   ERROR_MESSAGES,
   IMAGE_SIZES,
+  MEDIA_LABELS
 };

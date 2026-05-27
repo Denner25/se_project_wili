@@ -28,6 +28,25 @@
   width: 100%;
 }
 
+.main__filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.main__filter-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.main__radio {
+  accent-color: currentColor;
+}
+
 @media screen and (max-width: 620px) {
   .main__grid {
     display: grid;

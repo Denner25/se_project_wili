@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { searchMulti, getDetails } from "../utils/tmdbApi";
+import { searchMulti, getDetails, searchArtists, searchBooks } from "../utils/mediaApi";
 import { getUsers } from "../utils/Api";
 import { IMAGE_BASE_URL_W92, ERROR_MESSAGES } from "../utils/constants";
 
@@ -18,10 +18,8 @@ export function useAutocomplete({ query, setQuery, filterType, token }) {
       item.media_type === "movie"
         ? item.title || item.original_title
         : item.name || item.original_name;
-
     const rawDate =
       item.media_type === "movie" ? item.release_date : item.first_air_date;
-
     const year = rawDate ? rawDate.slice(0, 4) : null;
     return year ? `${rawTitle} (${year})` : rawTitle;
   };
@@ -46,6 +44,45 @@ export function useAutocomplete({ query, setQuery, filterType, token }) {
             title: u.name,
             avatar: u.avatarUrl,
             mediaType: "user",
+          }))
+        );
+        return;
+      }
+
+      // 🎵 MUSIC SEARCH (Deezer)
+      if (filterType === "music") {
+        const data = await searchArtists(text);
+        const artists = data?.data || [];
+        setSuggestions(
+          artists.slice(0, 5).map((a) => ({
+            id: a.id.toString(),
+            title: a.name,
+            mediaType: "music",
+            poster: a.picture_medium || null,
+            length: null,
+          }))
+        );
+        return;
+      }
+
+      // 📚 BOOK SEARCH
+      if (filterType === "book") {
+        const data = await searchBooks(text);
+        const docs = data?.docs || [];
+        setSuggestions(
+          docs.slice(0, 5).map((b) => ({
+            id: b.key?.replace("/works/", ""),
+            title:
+              b.title +
+              (b.first_publish_year ? ` (${b.first_publish_year})` : ""),
+            mediaType: "book",
+            author: b.author_name?.[0] || "",
+            poster: b.cover_i
+              ? `https://covers.openlibrary.org/b/id/${b.cover_i}-M.jpg`
+              : null,
+            length: b.number_of_pages_median
+              ? `${b.number_of_pages_median} pages`
+              : null,
           }))
         );
         return;
@@ -128,7 +165,6 @@ export function useAutocomplete({ query, setQuery, filterType, token }) {
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value);
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchSuggestions(value), 600);
   };

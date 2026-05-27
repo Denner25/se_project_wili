@@ -35,6 +35,7 @@ export default function useTargetUser() {
   // Own profile always reads from context so updates are instant
   const profileUser = isOwnProfile ? currentUser : fetchedUser;
   const isOwner = isOwnProfile;
+  const targetId = profileUser?._id;
 
-  return { profileUser, isOwner, loading };
+  return { profileUser, isOwner, loading, targetId };
 }

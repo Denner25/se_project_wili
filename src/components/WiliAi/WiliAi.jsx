@@ -1,4 +1,3 @@
-// src/components/WiliAi/WiliAi.jsx
 import { useState, useEffect, useContext } from "react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import Autocomplete from "../Autocomplete/Autocomplete";
@@ -11,17 +10,26 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import "./WiliAi.css";
 
 function WiliAi({ items, resetAutocomplete }) {
-  const { profileUser, isOwner, loading } = useTargetUser();
-  const { user: currentUser } = useContext(CurrentUserContext);
+  const { profileUser, isOwner, loading } =
+    useTargetUser();
+
+  const { user: currentUser } = useContext(
+    CurrentUserContext
+  );
+
   const { chats, setChats } = useContext(ChatsContext);
 
   const [query, setQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [chat, setChat] = useState(null);
-  const [loadingResponse, setLoadingResponse] = useState(false);
+  const [loadingResponse, setLoadingResponse] =
+    useState(false);
+
   const [error, setError] = useState("");
 
-  const targetFirstName = getFirstName(profileUser?.name);
+  const targetFirstName = getFirstName(
+    profileUser?.name
+  );
 
   useEffect(() => {
     setQuery("");
@@ -44,9 +52,11 @@ function WiliAi({ items, resetAutocomplete }) {
     const userLikes = items
       .map((item) => {
         const moods = item.moods || [];
+
         const filteredMoods = moods.filter((m) =>
-          m.users.includes(profileUser._id),
+          m.users.includes(profileUser._id)
         );
+
         if (!filteredMoods.length) return null;
 
         return {
@@ -59,8 +69,12 @@ function WiliAi({ items, resetAutocomplete }) {
       .filter(Boolean);
 
     if (!userLikes.length) {
-      setError("No liked items available for AI analysis");
+      setError(
+        "No liked items available for AI analysis"
+      );
+
       setLoadingResponse(false);
+
       return;
     }
 
@@ -75,30 +89,43 @@ function WiliAi({ items, resetAutocomplete }) {
       targetName: targetFirstName,
     })
       .then((data) => {
-        // --- Show only the latest AI message in WiliAi ---
-        const latestMessage = data.chat?.messages?.at(-1) || null;
+        const latestMessage =
+          data.chat?.messages?.at(-1) || null;
+
         setChat({
           ...data.chat,
-          messages: latestMessage ? [latestMessage] : [],
+          messages: latestMessage
+            ? [latestMessage]
+            : [],
         });
 
-        // --- Safely add the chat to sidebar without duplicates ---
         setChats((prev) => {
-          const exists = prev.some((c) => c._id === data.chat._id);
+          const exists = prev.some(
+            (c) => c._id === data.chat._id
+          );
+
           if (exists) return prev;
+
           return [data.chat, ...prev];
         });
       })
       .catch((err) => {
         console.error("WiliAi Exception:", err);
-        setError("Failed to get WiliAi response");
+
+        setError(
+          "Failed to get WiliAi response"
+        );
       })
-      .finally(() => setLoadingResponse(false));
+      .finally(() =>
+        setLoadingResponse(false)
+      );
   };
 
   return (
     <PageMotion>
-      <h1 className="wili-ai__title">Would I like it?</h1>
+      <h1 className="wili-ai__title">
+        Would I like it?
+      </h1>
 
       <div className="wili-ai__content">
         <p className="wili-ai__prompt">
@@ -108,7 +135,6 @@ function WiliAi({ items, resetAutocomplete }) {
         </p>
 
         <Autocomplete
-          onlyMedia
           query={query}
           setQuery={setQuery}
           onSelect={setSelectedItem}
@@ -116,11 +142,17 @@ function WiliAi({ items, resetAutocomplete }) {
           lockSelectedValue
         />
 
-        {error && <p className="wili-ai__error">{error}</p>}
+        {error && (
+          <p className="wili-ai__error">
+            {error}
+          </p>
+        )}
 
         <div className="wili-ai__results">
           {chat?.messages?.map((message) => (
-            <p key={message._id}>{message.content}</p>
+            <p key={message._id}>
+              {message.content}
+            </p>
           ))}
         </div>
 
@@ -129,7 +161,9 @@ function WiliAi({ items, resetAutocomplete }) {
           onClick={handleGenerateResponse}
           disabled={loadingResponse}
         >
-          {loadingResponse ? "Thinking..." : "Generate AI response"}
+          {loadingResponse
+            ? "Thinking..."
+            : "Generate AI response"}
         </button>
       </div>
     </PageMotion>

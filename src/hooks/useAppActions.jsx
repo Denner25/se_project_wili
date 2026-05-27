@@ -2,22 +2,15 @@ import { useMemo, useCallback } from "react";
 import { signup, login, checkToken } from "../utils/auth";
 import { changePassword, deleteAccount } from "../utils/Api";
 
-/*
-  useAppActions is a custom hook (uses useMemo and useCallback internally)
-  It orchestrates workflows across multiple domain hooks: auth, items, modals.
-*/
 export default function useAppActions({
-  auth, // object destructuring: auth hook object
-  items, // object destructuring: items hook object
-  modals, // object destructuring: modal hook object
-  navigate, // navigation function from react-router
-  seeds, // avatar seeds array
-  getAvatarUrl, // function to get avatar URL from seed
+  auth,
+  items,
+  modals,
+  navigate,
+  seeds,
+  getAvatarUrl,
 }) {
-  // --------- Destructuring auth object ---------
   const { currentUser, setCurrentUser, setIsLoggedIn, setToken } = auth;
-
-  // --------- Destructuring items object ---------
   const {
     allUsersMoods,
     setAllUsersMoods,
@@ -25,66 +18,59 @@ export default function useAppActions({
     updateItemMoods,
     deleteItem,
     updateProfile,
-    getItems, // added to use directly
+    getItems,
   } = items;
-
-  // --------- Destructuring modals object ---------
   const { closeModal, setPendingAvatarUrl } = modals;
 
-  // ---------- Derived state ----------
   const userMoods = useMemo(() => {
     if (!currentUser || !allUsersMoods) return [];
     return allUsersMoods.flatMap(
       (item) =>
         item.moods
           ?.filter((m) => m.users.includes(currentUser._id))
-          .map((m) => m.name) || [],
+          .map((m) => m.name) || []
     );
-  }, [allUsersMoods, currentUser]); // dependency array for useMemo
+  }, [allUsersMoods, currentUser]);
 
-  // ---------- New function: get any user's moods ----------
+  // accepts array [] = all, or ["movie", "music"] etc.
   const getUserMoods = useCallback(
-    (userId) => {
+    (userId, mediaFilter = []) => {
       if (!allUsersMoods) return [];
-      return allUsersMoods.flatMap(
-        (item) =>
-          item.moods
-            ?.filter((m) => m.users.includes(userId))
-            .map((m) => m.name) || [],
-      );
+      return allUsersMoods
+        .filter(
+          (item) =>
+            mediaFilter.length === 0 || mediaFilter.includes(item.mediaType)
+        )
+        .flatMap(
+          (item) =>
+            item.moods
+              ?.filter((m) => m.users.includes(userId))
+              .map((m) => m.name) || []
+        );
     },
-    [allUsersMoods],
+    [allUsersMoods]
   );
 
-  // ---------- Profile workflows ----------
   const handleProfileSubmit = useCallback(
     (data) => {
       const token = localStorage.getItem("jwt");
-      const payload = { ...data };
-
-      return updateProfile(payload, token)
+      return updateProfile({ ...data }, token)
         .then((updatedUser) => {
           setCurrentUser(updatedUser);
           setPendingAvatarUrl("");
         })
         .catch(console.error);
     },
-    [setCurrentUser, setPendingAvatarUrl], // dependency array for useCallback
+    [setCurrentUser, setPendingAvatarUrl]
   );
 
-  // ---------- Change password workflow ----------
-  const handleChangePassword = useCallback(
-    ({ currentPassword, newPassword }) => {
-      const token = localStorage.getItem("jwt");
-      return changePassword({ currentPassword, newPassword }, token);
-    },
-    [],
-  );
+  const handleChangePassword = useCallback(({ currentPassword, newPassword }) => {
+    const token = localStorage.getItem("jwt");
+    return changePassword({ currentPassword, newPassword }, token);
+  }, []);
 
-  // ---------- Delete account workflow ----------
   const handleDeleteAccount = useCallback(() => {
     const token = localStorage.getItem("jwt");
-
     return deleteAccount(token).then(() => {
       localStorage.removeItem("jwt");
       auth.setCurrentUser(null);
@@ -94,84 +80,63 @@ export default function useAppActions({
     });
   }, [auth, navigate]);
 
-  // ---------- Auth + Modal workflows ----------
   const handleLogIn = useCallback(
     ({ email, password }) => {
       return login({ email, password }).then((res) => {
         localStorage.setItem("jwt", res.token);
         auth.setToken(res.token);
         setIsLoggedIn(true);
-
         return checkToken(res.token).then((user) => {
           setCurrentUser(user);
-
-          // --- Fetch items immediately after login ---
           getItems?.(res.token)
-            .then((itemsRes) => {
-              setAllUsersMoods(itemsRes?.data || []);
-            })
+            .then((itemsRes) => setAllUsersMoods(itemsRes?.data || []))
             .catch(console.error);
-
           closeModal();
           navigate("/profile");
         });
       });
     },
-    [
-      setIsLoggedIn,
-      setCurrentUser,
-      setAllUsersMoods,
-      closeModal,
-      navigate,
-      getItems,
-    ],
+    [setIsLoggedIn, setCurrentUser, setAllUsersMoods, closeModal, navigate, getItems]
   );
 
   const handleSignUp = useCallback(
     ({ name, email, password }) => {
       const randomSeed = seeds[Math.floor(Math.random() * seeds.length)];
       const defaultAvatarUrl = getAvatarUrl(randomSeed);
-
       signup({ name, email, password })
         .then(() =>
-          handleLogIn({ email, password }).then(() => {
-            return handleProfileSubmit({ name, avatarUrl: defaultAvatarUrl });
-          }),
+          handleLogIn({ email, password }).then(() =>
+            handleProfileSubmit({ name, avatarUrl: defaultAvatarUrl })
+          )
         )
         .catch(console.error);
     },
-    [seeds, getAvatarUrl, handleLogIn, handleProfileSubmit],
+    [seeds, getAvatarUrl, handleLogIn, handleProfileSubmit]
   );
 
   const handleLogOut = useCallback(() => {
-    auth.setIsLoggingOut(true); // show spinner immediately
-    navigate("/"); // route change starts
-
-    // check periodically until items finish loading, then clear auth
+    auth.setIsLoggingOut(true);
+    navigate("/");
     const interval = setInterval(() => {
       if (items.isLoaded) {
         clearInterval(interval);
-
         localStorage.removeItem("jwt");
         auth.setCurrentUser(null);
         auth.setIsLoggedIn(false);
         auth.setIsLoggingOut(false);
       }
-    }, 10); // small interval
+    }, 10);
   }, [auth, items, navigate]);
 
-  // ---------- Items workflows ----------
   const handleSave = useCallback(
     (updatedItem) => {
       if (!updatedItem) return;
       const token = localStorage.getItem("jwt");
-
       const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
 
       if (existingItem) {
         const moodsChanged =
-          JSON.stringify(existingItem.moods) !==
-          JSON.stringify(updatedItem.moods);
+          JSON.stringify(existingItem.moods) !== JSON.stringify(updatedItem.moods);
         if (!moodsChanged) return closeModal();
 
         updateItemMoods(updatedItem._id, updatedItem.moods, token)
@@ -188,8 +153,9 @@ export default function useAppActions({
           _id: updatedItem._id || updatedItem.id,
           title: updatedItem.title,
           mediaType: updatedItem.mediaType,
-          poster: updatedItem.poster,
-          length: updatedItem.length,
+          poster: updatedItem.poster || null,
+          length: updatedItem.length || null,
+          author: updatedItem.author || null,
           moods: updatedItem.moods.map((m) => ({
             name: m.name,
             users: m.users.map((u) => u.toString()),
@@ -203,7 +169,7 @@ export default function useAppActions({
           .catch(console.error);
       }
     },
-    [allUsersMoods, setAllUsersMoods, closeModal, addItem, updateItemMoods],
+    [allUsersMoods, setAllUsersMoods, closeModal, addItem, updateItemMoods]
   );
 
   const handleConfirmDelete = useCallback(
@@ -222,9 +188,7 @@ export default function useAppActions({
       if (filteredMoods.length === 0) {
         deleteItem(pendingDeleteId, token)
           .then(() => {
-            setAllUsersMoods((prev) =>
-              prev.filter((i) => i._id !== pendingDeleteId),
-            );
+            setAllUsersMoods((prev) => prev.filter((i) => i._id !== pendingDeleteId));
             closeModal();
           })
           .catch(console.error);
@@ -232,21 +196,14 @@ export default function useAppActions({
         updateItemMoods(pendingDeleteId, filteredMoods, token)
           .then((res) => {
             setAllUsersMoods((prev) =>
-              prev.map((i) => (i._id === res.data._id ? res.data : i)),
+              prev.map((i) => (i._id === res.data._id ? res.data : i))
             );
             closeModal();
           })
           .catch(console.error);
       }
     },
-    [
-      allUsersMoods,
-      currentUser,
-      setAllUsersMoods,
-      closeModal,
-      deleteItem,
-      updateItemMoods,
-    ],
+    [allUsersMoods, currentUser, setAllUsersMoods, closeModal, deleteItem, updateItemMoods]
   );
 
   return {

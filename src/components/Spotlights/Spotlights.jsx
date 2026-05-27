@@ -2,6 +2,7 @@ import Slider from "react-slick";
 import "./Spotlights.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { MEDIA_LABELS } from "../../utils/constants";
 
 export default function Spotlights({ latestItems }) {
   const settings = {
@@ -38,15 +39,25 @@ export default function Spotlights({ latestItems }) {
           <div key={item._id} className="spotlight-slide">
             <div className="spotlight-content">
               <div className="spotlight__description-container">
-                <h1 className="spotlight-title">Latest user additions:</h1>
+                <h1 className="spotlight-title">
+                  Latest mood activity:
+                </h1>
+
                 <div className="spotlight-description">
                   <h2>{item.title}</h2>
-                  <p>{item.mediaType === "movie" ? "Movie" : "TV Show"}</p>
+
+                  <p>
+                    {MEDIA_LABELS[item.mediaType] ??
+                      item.mediaType}
+                  </p>
                 </div>
               </div>
+
               <div
                 className="spotlight-poster"
-                style={{ backgroundImage: `url(${item.poster})` }}
+                style={{
+                  backgroundImage: `url(${item.poster})`,
+                }}
               >
                 <div className="poster-overlay" />
               </div>

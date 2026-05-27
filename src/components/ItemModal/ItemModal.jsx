@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { fetchKeywords } from "../../utils/tmdbApi";
+import { useState, useEffect, useContext } from "react";
+import { fetchMoodKeywords } from "../../utils/mediaApi";
 import "./ItemModal.css";
-import { BUTTONS } from "../../utils/constants";
+import { BUTTONS, MEDIA_LABELS } from "../../utils/constants";
 import MoodsCloud from "../MoodsCloud/MoodsCloud";
-import { useContext } from "react";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import useModalClose from "../../hooks/useModalClose";
 
@@ -20,14 +19,11 @@ function ItemModal({
   const [userMoods, setUserMoods] = useState([]);
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);
-  const [activeTab, setActiveTab] = useState("available"); // "available" | "allUsers"
-
-  // This state keeps the item mounted for transitions
+  const [activeTab, setActiveTab] = useState("available");
   const [currentItem, setCurrentItem] = useState(item);
 
   useModalClose(isOpen, onClose);
 
-  // Update currentItem when modal opens
   useEffect(() => {
     if (isOpen && item) {
       setCurrentItem(item);
@@ -45,30 +41,29 @@ function ItemModal({
     const _id = currentItem._id || currentItem.id;
     const mediaType = currentItem.mediaType || currentItem.originalMediaType;
 
-    // Fetch external keywords if available
-    if (_id && mediaType) {
-      fetchKeywords(_id, mediaType).then((keywords) => {
-        setAvailableMoods(keywords.map((k) => k.name));
-      });
-    } else {
-      setAvailableMoods([]);
-    }
-
-    // Set current user's moods
     setUserMoods(
       currentItem.moods
         ?.filter((m) => m.users.includes(currentUser?._id))
         .map((m) => m.name) || []
     );
 
-    // Set all users' moods (read-only for display)
     setAllUsersMoods(
-      currentItem.moods?.flatMap((m) => Array(m.users.length).fill(m.name)) ||
-        []
+      currentItem.moods?.flatMap((m) =>
+        Array(m.users.length).fill(m.name)
+      ) || []
     );
+
+    if (_id && mediaType) {
+      let cancelled = false;
+      fetchMoodKeywords(currentItem).then((keywords) => {
+        if (!cancelled) setAvailableMoods((keywords || []).map((k) => k.name));
+      });
+      return () => { cancelled = true; };
+    } else {
+      setAvailableMoods([]);
+    }
   }, [currentItem, isOpen, currentUser]);
 
-  // Toggle user's mood selection
   const handleMoodChange = (moodName) => {
     setUserMoods((prev) =>
       prev.includes(moodName)
@@ -77,49 +72,56 @@ function ItemModal({
     );
   };
 
-  // Save updated moods for current user
   const handleSave = () => {
     if (!currentItem) return;
 
-    const updatedMoods = (currentItem.moods || []).map((m) => ({ ...m }));
+    const updatedMoods = (currentItem.moods || []).map((m) => ({
+      ...m,
+      users: [...m.users],
+    }));
 
     updatedMoods.forEach((m) => {
       m.users = m.users.filter((u) => u !== currentUser._id);
     });
 
     userMoods.forEach((moodName) => {
-      const existingMood = updatedMoods.find((m) => m.name === moodName);
-      if (existingMood) {
-        if (!existingMood.users.includes(currentUser._id)) {
-          existingMood.users.push(currentUser._id);
+      const existing = updatedMoods.find((m) => m.name === moodName);
+      if (existing) {
+        if (!existing.users.includes(currentUser._id)) {
+          existing.users.push(currentUser._id);
         }
       } else {
         updatedMoods.push({ name: moodName, users: [currentUser._id] });
       }
     });
 
-    const filteredMoods = updatedMoods.filter((m) => m.users.length > 0);
-
-    onSave?.({ ...currentItem, moods: filteredMoods });
+    onSave?.({
+      ...currentItem,
+      moods: updatedMoods.filter((m) => m.users.length > 0),
+    });
     onClose();
   };
 
-  // If there's no currentItem, render empty modal container for transition
+  const getPosterSrc = (i) => {
+    if (!i?.poster) return null;
+    if (i.mediaType === "movie" || i.mediaType === "tv") {
+      return i.poster.replace("/w92", "/w500");
+    }
+    return i.poster;
+  };
+
   if (!currentItem) {
     return (
       <div
         className={`item-modal${isOpen ? " item-modal_open" : ""}`}
         onClick={onClose}
       >
-        <div
-          className="item-modal__content"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* empty content */}
-        </div>
+        <div className="item-modal__content" onClick={(e) => e.stopPropagation()} />
       </div>
     );
   }
+
+  const posterSrc = getPosterSrc(currentItem);
 
   return (
     <div
@@ -134,9 +136,9 @@ function ItemModal({
         />
 
         <div className="item-modal__poster-wrapper">
-          {currentItem.poster && (
+          {posterSrc && (
             <img
-              src={currentItem.poster.replace("/w92", "/w500")}
+              src={posterSrc}
               alt={currentItem.title}
               className="item-modal__poster"
             />
@@ -145,13 +147,13 @@ function ItemModal({
 
         <div className="item-modal__description">
           <p className="item-modal__subtitle">
-            {currentItem.mediaType === "movie" ? "Movie" : "TV Show"}
+            {MEDIA_LABELS[currentItem.mediaType] ?? currentItem.mediaType}
             {currentItem.length ? ` • ${currentItem.length}` : ""}
+            {currentItem.author ? ` • ${currentItem.author}` : ""}
           </p>
 
           {isLoggedIn &&
-            currentItem.moods &&
-            currentItem.moods.some((m) =>
+            currentItem.moods?.some((m) =>
               m.users.includes(currentUser?._id)
             ) && (
               <button
@@ -161,27 +163,21 @@ function ItemModal({
               />
             )}
 
-          {/* Tabs */}
           <div className="item-modal__tabs">
             <button
-              className={`item-modal__tab ${
-                activeTab === "available" ? "active" : ""
-              }`}
+              className={`item-modal__tab${activeTab === "available" ? " active" : ""}`}
               onClick={() => setActiveTab("available")}
             >
               Available Moods
             </button>
             <button
-              className={`item-modal__tab ${
-                activeTab === "allUsers" ? "active" : ""
-              }`}
+              className={`item-modal__tab${activeTab === "allUsers" ? " active" : ""}`}
               onClick={() => setActiveTab("allUsers")}
             >
               All Users' Moods
             </button>
           </div>
 
-          {/* Tab Content */}
           {activeTab === "available" && (
             <div className="item-modal__tags">
               {availableMoods.length === 0 ? (
@@ -193,9 +189,7 @@ function ItemModal({
                     className={`item-modal__tag${
                       isLoggedIn && userMoods.includes(mood) ? " selected" : ""
                     }${!isLoggedIn ? " disabled" : ""}`}
-                    onClick={
-                      isLoggedIn ? () => handleMoodChange(mood) : undefined
-                    }
+                    onClick={isLoggedIn ? () => handleMoodChange(mood) : undefined}
                   >
                     {mood}
                   </label>

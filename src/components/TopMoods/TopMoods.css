@@ -34,6 +34,42 @@
   transform: translate(-10%, -10%) !important; /* nudge into corner */
 }
 
+.top-moods__filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.top-moods__filter-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.top-moods__radio {
+  accent-color: currentColor;
+}
+
+.top-moods__columns {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.top-moods__column {
+  flex: 1;
+  min-width: 240px;
+}
+
+.top-moods__column-label {
+  font-size: 14px;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
 @media screen and (max-width: 526px) {
   .top-moods {
     flex-direction: column;
