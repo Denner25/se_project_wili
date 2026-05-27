@@ -5,7 +5,7 @@ import AvatarModal from "../AvatarModal/AvatarModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function Settings({ actions, modals, avatarUrl, onOpenAvatarModal }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { user: currentUser } = useContext(CurrentUserContext);
 
   // ---------- Profile form ----------
   const profileForm = useFormValidator({ name: "", avatarUrl: "" });

@@ -58,7 +58,10 @@ function App() {
           userMoods: actions.userMoods,
         }}
       >
-        <CurrentUserContext.Provider value={auth.currentUser}>
+        {/* Single source of truth: both user and token live here */}
+        <CurrentUserContext.Provider
+          value={{ user: auth.currentUser, token: auth.token }}
+        >
           <Routes location={location}>
             <Route
               element={
@@ -99,7 +102,6 @@ function App() {
                   element={
                     <ItemsSection
                       items={items.allUsersMoods}
-                      profileUser={auth.currentUser}
                       isOwner={true}
                       showAllMoods={false}
                       onCardClick={(item) =>
@@ -125,7 +127,7 @@ function App() {
                 <Route
                   path="chats/:chatId"
                   element={
-                    <ChatView token={auth.token} items={items.allUsersMoods} />
+                    <ChatView items={items.allUsersMoods} />
                   }
                 />
                 {/* ---------------- Settings ---------------- */}
@@ -148,9 +150,7 @@ function App() {
               {/* ---------------- Visiting another user ---------------- */}
               <Route
                 path="/profile/:userId"
-                element={
-                  <Profile onLogOut={actions.handleLogOut} />
-                }
+                element={<Profile onLogOut={actions.handleLogOut} />}
               >
                 <Route
                   index

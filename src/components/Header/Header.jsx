@@ -11,7 +11,7 @@ function Header({
   onLogInClick,
 }) {
   const [query, setQuery] = useState("");
-  const currentUser = useContext(CurrentUserContext);
+  const { user: currentUser } = useContext(CurrentUserContext);
 
   useEffect(() => {
     setQuery("");

@@ -1,4 +1,3 @@
-// src/components/ChatView/ChatView.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext, useRef } from "react";
 import { getMessages, deleteMessage, createMessage } from "../../utils/Api";
@@ -9,9 +8,9 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import PageMotion from "../PageMotion/PageMotion";
 import "./ChatView.css";
 
-function ChatView({ token, items }) {
+function ChatView({ items }) {
   const { chatId } = useParams();
-  const currentUser = useContext(CurrentUserContext);
+  const { user: currentUser, token } = useContext(CurrentUserContext);
   const { removeChat } = useContext(ChatsContext);
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);

@@ -16,7 +16,7 @@ function ItemModal({
   isLoggedIn,
   onSignUpClick,
 }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { user: currentUser } = useContext(CurrentUserContext);
   const [userMoods, setUserMoods] = useState([]);
   const [allUsersMoods, setAllUsersMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);

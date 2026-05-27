@@ -1,12 +1,13 @@
 import "./SideBar.css";
 import { NavLink, useMatch, useResolvedPath } from "react-router-dom";
+import { useContext } from "react";
 import getFirstName from "../../utils/getFirstName";
 import Chats from "../Chats/Chats";
-import useAuth from "../../hooks/useAuth";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function SideBar({ profileUser, isOwner, onLogOut }) {
   const targetFirstName = getFirstName(profileUser?.name);
-  const { token } = useAuth();
+  const { token } = useContext(CurrentUserContext);
 
   if (!profileUser) return null;
 

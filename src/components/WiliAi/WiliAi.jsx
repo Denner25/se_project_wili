@@ -3,16 +3,16 @@ import { useState, useEffect, useContext } from "react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import Autocomplete from "../Autocomplete/Autocomplete";
 import useTargetUser from "../../hooks/useTargetUser";
-import useAuth from "../../hooks/useAuth";
 import { createMessage } from "../../utils/Api";
 import getFirstName from "../../utils/getFirstName";
 import PageMotion from "../PageMotion/PageMotion";
 import { ChatsContext } from "../../contexts/ChatsContext";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import "./WiliAi.css";
 
 function WiliAi({ items, resetAutocomplete }) {
   const { profileUser, isOwner, loading } = useTargetUser();
-  const { currentUser } = useAuth();
+  const { user: currentUser } = useContext(CurrentUserContext);
   const { chats, setChats } = useContext(ChatsContext);
 
   const [query, setQuery] = useState("");

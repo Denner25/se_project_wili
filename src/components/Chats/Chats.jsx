@@ -2,12 +2,12 @@ import { useState, useEffect, useContext } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { ChatsContext } from "../../contexts/ChatsContext";
 import { getChats } from "../../utils/Api";
-import useAuth from "../../hooks/useAuth";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import useTargetUser from "../../hooks/useTargetUser";
 import "./Chats.css";
 
 function Chats() {
-  const { token, currentUser } = useAuth();
+  const { user: currentUser, token } = useContext(CurrentUserContext);
   const { isOwner } = useTargetUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);

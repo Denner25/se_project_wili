@@ -1,5 +1,7 @@
 import { createContext } from "react";
 
-const CurrentUserContext = createContext(null);
+// Now carries both user and token so child components
+// never need to call useAuth() directly
+const CurrentUserContext = createContext({ user: null, token: null });
 
 export default CurrentUserContext;
