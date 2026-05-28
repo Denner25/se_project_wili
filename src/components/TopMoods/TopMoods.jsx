@@ -99,7 +99,6 @@ function TopMoods({ actions }) {
           {activeTypes.map(({ value, label }) =>
             moodsByType[value].length === 0 ? null : (
               <div key={value} className="top-moods__column">
-                <p className="top-moods__column-label">{label}</p>
                 <MoodCloud moods={moodsByType[value]} />
               </div>
             )

@@ -9,14 +9,28 @@ import "./ItemsSection.css";
 
 const SECTION_LABELS = {
   movie: "movies and anime",
+  tv: "movies and anime",
+  anime: "movies and anime",
   music: "music",
   book: "books",
 };
 
+const TYPE_LABELS = {
+  "movie,tv,anime": "movies and anime",
+  "music": "music",
+  "book": "books",
+};
+
 function getHeadingLabel(mediaFilter) {
-  if (mediaFilter.length === 0 || mediaFilter.length === 3) return "collection";
-  if (mediaFilter.length === 1) return SECTION_LABELS[mediaFilter[0]] ?? "collection";
-  return mediaFilter.map((f) => SECTION_LABELS[f]).join(" & ");
+  if (mediaFilter.length === 0) return "collection";
+
+  // deduplicate by mapping each active value to its display label
+  const labels = [...new Set(mediaFilter.map((f) => SECTION_LABELS[f]))].filter(Boolean);
+
+  if (labels.length === 0) return "collection";
+  if (labels.length === labels.length && mediaFilter.length === 6) return "collection";
+
+  return labels.join(" & ");
 }
 
 function ItemsSection({ items, onCardClick, onDeleteRequest, showAllMoods }) {
