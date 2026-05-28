@@ -4,7 +4,8 @@ import MediaFilter from "../MediaFilter/MediaFilter";
 import usePagination from "../../hooks/usePagination";
 import { useOutletContext } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
-import { useRef, useState } from "react";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
+import { useRef, useState, useContext } from "react";
 import "./ItemsSection.css";
 
 const SECTION_LABELS = {
@@ -15,47 +16,72 @@ const SECTION_LABELS = {
   book: "books",
 };
 
-const TYPE_LABELS = {
-  "movie,tv,anime": "movies and anime",
-  "music": "music",
-  "book": "books",
-};
-
 function getHeadingLabel(mediaFilter) {
   if (mediaFilter.length === 0) return "collection";
-
-  // deduplicate by mapping each active value to its display label
   const labels = [...new Set(mediaFilter.map((f) => SECTION_LABELS[f]))].filter(Boolean);
-
   if (labels.length === 0) return "collection";
-  if (labels.length === labels.length && mediaFilter.length === 6) return "collection";
-
+  if (mediaFilter.length === 6) return "collection";
   return labels.join(" & ");
 }
 
-function ItemsSection({ items, onCardClick, onDeleteRequest, showAllMoods }) {
+function ItemsSection({ items, onCardClick, onDeleteRequest, onPrivacyChange, showAllMoods }) {
   const { profileUser, loading, isOwner } = useOutletContext();
+  const { user: currentUser } = useContext(CurrentUserContext);
   const [mediaFilter, setMediaFilter] = useState([]);
   const topRef = useRef(null);
 
   if (loading || !profileUser) return <LoadingSpinner />;
 
+  // Only block visitors — never the owner viewing their own profile
+  if (!isOwner && profileUser.collectionPrivate) {
+    return (
+      <div className="items-section items-section--private">
+        <p className="items-section__private-msg">
+          {profileUser.name}'s collection is private.
+        </p>
+      </div>
+    );
+  }
+
+  const privateItemIds = new Set(
+    !isOwner ? (profileUser.privateItems || []).map(String) : []
+  );
+
   const userItems = items
-    .filter((item) => mediaFilter.length === 0 || mediaFilter.includes(item.mediaType))
+    .filter((item) =>
+      mediaFilter.length === 0 || mediaFilter.includes(item.mediaType)
+    )
     .map((item) => {
       const moods = item.moods || [];
-      const filteredMoods = showAllMoods
-        ? moods
-        : moods.filter((m) => m.users.includes(profileUser._id));
+
+      let filteredMoods;
+      if (isOwner) {
+        // Owner always sees their own moods — privacy only affects what others see
+        filteredMoods = showAllMoods
+          ? moods
+          : moods.filter((m) => m.users.includes(profileUser._id));
+      } else {
+        // Visitor: strip the profile user's mood contribution on private items
+        const visibleMoods = privateItemIds.has(String(item._id))
+          ? moods
+              .map((mood) => ({
+                ...mood,
+                users: mood.users.filter((uid) => uid !== profileUser._id),
+              }))
+              .filter((mood) => mood.users.length > 0)
+          : moods;
+
+        filteredMoods = showAllMoods
+          ? visibleMoods
+          : visibleMoods.filter((m) => m.users.includes(profileUser._id));
+      }
+
       if (filteredMoods.length === 0) return null;
       return { ...item, moods: filteredMoods };
     })
     .filter(Boolean);
 
-  const { currentItems, currentPage, totalPages, goToPage } = usePagination(
-    userItems,
-    20
-  );
+  const { currentItems, currentPage, totalPages, goToPage } = usePagination(userItems, 20);
 
   const handlePageSelect = (newPage) => {
     goToPage(newPage);
@@ -83,6 +109,8 @@ function ItemsSection({ items, onCardClick, onDeleteRequest, showAllMoods }) {
                 showAllMoods={showAllMoods}
                 onClick={() => onCardClick(item)}
                 onDeleteRequest={onDeleteRequest}
+                onPrivacyChange={isOwner ? onPrivacyChange : undefined}
+                privateItems={isOwner ? (currentUser?.privateItems || []) : []}
               />
             ))}
           </div>

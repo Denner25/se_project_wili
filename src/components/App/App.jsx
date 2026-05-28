@@ -58,7 +58,6 @@ function App() {
           userMoods: actions.userMoods,
         }}
       >
-        {/* Single source of truth: both user and token live here */}
         <CurrentUserContext.Provider
           value={{ user: auth.currentUser, token: auth.token }}
         >
@@ -88,7 +87,8 @@ function App() {
                   />
                 }
               />
-              {/* ---------------- Profile routes ---------------- */}
+
+              {/* ---------------- Owner profile routes ---------------- */}
               <Route
                 path="/profile"
                 element={
@@ -101,7 +101,7 @@ function App() {
                   index
                   element={
                     <ItemsSection
-                      items={items.allUsersMoods}
+                      items={items.ownerItems}
                       isOwner={true}
                       showAllMoods={false}
                       onCardClick={(item) =>
@@ -111,6 +111,7 @@ function App() {
                         modals.setPendingDeleteId(id) ||
                         modals.openModal("confirmation")
                       }
+                      onPrivacyChange={actions.handlePrivacyChange}
                     />
                   }
                 />
@@ -121,16 +122,13 @@ function App() {
                 <Route
                   path="wili-ai"
                   element={
-                    <WiliAi items={items.allUsersMoods} actions={actions} />
+                    <WiliAi items={items.ownerItems} actions={actions} />
                   }
                 />
                 <Route
                   path="chats/:chatId"
-                  element={
-                    <ChatView items={items.allUsersMoods} />
-                  }
+                  element={<ChatView items={items.ownerItems} />}
                 />
-                {/* ---------------- Settings ---------------- */}
                 <Route
                   path="settings"
                   element={
@@ -147,6 +145,7 @@ function App() {
                   }
                 />
               </Route>
+
               {/* ---------------- Visiting another user ---------------- */}
               <Route
                 path="/profile/:userId"
@@ -175,6 +174,7 @@ function App() {
                   }
                 />
               </Route>
+
               <Route path="/support" element={<Support />} />
             </Route>
           </Routes>

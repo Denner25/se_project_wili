@@ -35,6 +35,18 @@
   accent-color: currentColor;
 }
 
+.items-section--private {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.items-section__private-msg {
+  font-size: 0.9rem;
+  color: rgba(255, 182, 193, 0.5);
+}
+
 @media screen and (max-width: 620px) {
   .items-section__list {
     display: grid;

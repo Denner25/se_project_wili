@@ -13,6 +13,13 @@ function getItems(token) {
   }).then(handleResponse);
 }
 
+// Owner's full unfiltered items
+function getUserItems(token) {
+  return fetch(`${BASE_URL}/user-items`, {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(handleResponse);
+}
+
 function addItem(data, token) {
   return fetch(`${BASE_URL}/items`, {
     method: "POST",
@@ -59,6 +66,28 @@ function updateProfile(data, token) {
   }).then(handleResponse);
 }
 
+function updateCollectionPrivacy({ collectionPrivate }, token) {
+  return fetch(`${BASE_URL}/users/me/collection-privacy`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ collectionPrivate }),
+  }).then(handleResponse);
+}
+
+function updatePrivateItems({ itemId, isPrivate }, token) {
+  return fetch(`${BASE_URL}/users/me/privacy-items`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ itemId, isPrivate }),
+  }).then(handleResponse);
+}
+
 function getLatestItems() {
   return fetch(`${BASE_URL}/items/latest`, {}).then(handleResponse);
 }
@@ -74,14 +103,11 @@ function getUsers(query) {
   const url = query
     ? `${BASE_URL}/users?q=${encodeURIComponent(query)}`
     : `${BASE_URL}/users`;
-
   return fetch(url).then(handleResponse);
 }
 
 function createMessage(data) {
-  // ✅ Include JWT automatically from localStorage
   const token = localStorage.getItem("jwt");
-
   return fetch(`${BASE_URL}/wili`, {
     method: "POST",
     headers: {
@@ -105,7 +131,6 @@ function deleteMessage(messageId, token) {
   }).then(handleResponse);
 }
 
-// utils/Api.js
 function getChats(token) {
   return fetch(`${BASE_URL}/chats`, {
     headers: {
@@ -141,11 +166,14 @@ function deleteAccount(token) {
 
 export {
   getItems,
+  getUserItems,
   addItem,
   deleteItem,
   updateItemMoods,
   getCurrentUser,
   updateProfile,
+  updateCollectionPrivacy,
+  updatePrivateItems,
   handleResponse,
   getLatestItems,
   getUserById,

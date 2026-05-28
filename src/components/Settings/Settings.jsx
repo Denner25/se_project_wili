@@ -21,16 +21,21 @@ function Settings({ actions, modals, avatarUrl, onOpenAvatarModal }) {
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  // ---------- Privacy ----------
+  const [collectionPrivate, setCollectionPrivate] = useState(false);
+  const [privacySuccess, setPrivacySuccess] = useState("");
+  const [privacyError, setPrivacyError] = useState("");
+
   // ---------- Delete form ----------
   const [deleteChecked, setDeleteChecked] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
-  // Pre-fill profile form with current user's name when loaded
   useEffect(() => {
     if (currentUser) {
       profileForm.resetForm({ name: currentUser.name || "" });
+      // Seed the toggle from the user record once loaded
+      setCollectionPrivate(currentUser.collectionPrivate ?? false);
     }
-    // Only run when currentUser first loads
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
@@ -69,9 +74,26 @@ function Settings({ actions, modals, avatarUrl, onOpenAvatarModal }) {
         });
       })
       .catch((err) => {
-        setPasswordError(
-          err?.message || "Something went wrong. Please try again."
-        );
+        setPasswordError(err?.message || "Something went wrong. Please try again.");
+      });
+  };
+
+  const handlePrivacyToggle = () => {
+    const next = !collectionPrivate;
+    setCollectionPrivate(next);
+    setPrivacySuccess("");
+    setPrivacyError("");
+    actions
+      .handlePrivacyUpdate({ collectionPrivate: next })
+      .then(() =>
+        setPrivacySuccess(
+          next ? "Your collection is now private." : "Your collection is now public."
+        )
+      )
+      .catch(() => {
+        // Roll back optimistic toggle on failure
+        setCollectionPrivate(!next);
+        setPrivacyError("Something went wrong. Please try again.");
       });
   };
 
@@ -97,25 +119,19 @@ function Settings({ actions, modals, avatarUrl, onOpenAvatarModal }) {
         <h2 className="settings__title">Settings</h2>
         <form className="settings__form" onSubmit={handleProfileSubmit}>
 
-          {/* Avatar */}
           <div className="settings__avatar-row">
             <span className="settings__label">Avatar</span>
-            <img
-              src={avatarUrl}
-              alt="Current avatar"
-              className="settings__avatar-img"
-            />
+            <img src={avatarUrl} alt="Current avatar" className="settings__avatar-img" />
             <button
               type="button"
               className="settings__avatar-edit"
               onClick={onOpenAvatarModal}
               aria-label="Change avatar"
             >
-            {/* Pencil SVG */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>  
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
             </button>
           </div>
 
@@ -140,11 +156,7 @@ function Settings({ actions, modals, avatarUrl, onOpenAvatarModal }) {
           {profileSuccess && <p className="settings__success">{profileSuccess}</p>}
           {profileError && <p className="settings__error">{profileError}</p>}
 
-          <button
-            type="submit"
-            className="settings__button"
-            disabled={!profileForm.isValid}
-          >
+          <button type="submit" className="settings__button" disabled={!profileForm.isValid}>
             Save changes
           </button>
         </form>
@@ -207,14 +219,37 @@ function Settings({ actions, modals, avatarUrl, onOpenAvatarModal }) {
           {passwordSuccess && <p className="settings__success">{passwordSuccess}</p>}
           {passwordError && <p className="settings__error">{passwordError}</p>}
 
-          <button
-            type="submit"
-            className="settings__button"
-            disabled={!passwordForm.isValid}
-          >
+          <button type="submit" className="settings__button" disabled={!passwordForm.isValid}>
             Update password
           </button>
         </form>
+      </section>
+
+      <div className="settings__divider" />
+
+      {/* -------- Privacy section -------- */}
+      <section className="settings__section">
+        <h2 className="settings__title">Privacy</h2>
+        <div className="settings__privacy-row">
+          <div className="settings__privacy-text">
+            <span className="settings__privacy-label">Hide my collection</span>
+            <span className="settings__privacy-description">
+              Your items won't be visible when others visit your profile.
+            </span>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={collectionPrivate}
+            className={`settings__toggle${collectionPrivate ? " settings__toggle--on" : ""}`}
+            onClick={handlePrivacyToggle}
+            aria-label="Toggle collection visibility"
+          >
+            <span className="settings__toggle-thumb" />
+          </button>
+        </div>
+        {privacySuccess && <p className="settings__success">{privacySuccess}</p>}
+        {privacyError && <p className="settings__error">{privacyError}</p>}
       </section>
 
       <div className="settings__divider" />

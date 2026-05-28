@@ -17,9 +17,12 @@ export default function useAuth() {
 
     checkToken(localToken)
       .then((user) => {
-        setCurrentUser(user);
+        setCurrentUser({
+          ...user,
+          privateItems: (user.privateItems || []).map(String),
+        });
         setIsLoggedIn(true);
-        setToken(localToken); // <-- store token
+        setToken(localToken);
       })
       .catch(() => {
         localStorage.removeItem("jwt");
@@ -39,6 +42,6 @@ export default function useAuth() {
     isLoggingOut,
     setIsLoggingOut,
     token,
-    setToken
+    setToken,
   };
 }

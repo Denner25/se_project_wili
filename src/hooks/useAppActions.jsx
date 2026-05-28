@@ -1,6 +1,14 @@
 import { useMemo, useCallback } from "react";
 import { signup, login, checkToken } from "../utils/auth";
-import { changePassword, deleteAccount } from "../utils/Api";
+import {
+  changePassword,
+  deleteAccount,
+  updateProfile,
+  updatePrivateItems,
+  updateCollectionPrivacy,
+  getItems,
+  getUserItems,
+} from "../utils/Api";
 
 export default function useAppActions({
   auth,
@@ -10,33 +18,32 @@ export default function useAppActions({
   seeds,
   getAvatarUrl,
 }) {
-  const { currentUser, setCurrentUser, setIsLoggedIn, setToken } = auth;
+  const { currentUser, setCurrentUser, setIsLoggedIn } = auth;
   const {
     allUsersMoods,
     setAllUsersMoods,
+    ownerItems,
+    setOwnerItems,
     addItem,
     updateItemMoods,
     deleteItem,
-    updateProfile,
-    getItems,
   } = items;
   const { closeModal, setPendingAvatarUrl } = modals;
 
   const userMoods = useMemo(() => {
-    if (!currentUser || !allUsersMoods) return [];
-    return allUsersMoods.flatMap(
+    if (!currentUser || !ownerItems) return [];
+    return ownerItems.flatMap(
       (item) =>
         item.moods
           ?.filter((m) => m.users.includes(currentUser._id))
           .map((m) => m.name) || []
     );
-  }, [allUsersMoods, currentUser]);
+  }, [ownerItems, currentUser]);
 
-  // accepts array [] = all, or ["movie", "music"] etc.
   const getUserMoods = useCallback(
     (userId, mediaFilter = []) => {
-      if (!allUsersMoods) return [];
-      return allUsersMoods
+      if (!ownerItems) return [];
+      return ownerItems
         .filter(
           (item) =>
             mediaFilter.length === 0 || mediaFilter.includes(item.mediaType)
@@ -48,13 +55,29 @@ export default function useAppActions({
               .map((m) => m.name) || []
         );
     },
-    [allUsersMoods]
+    [ownerItems]
   );
+
+  const refreshAllItems = useCallback(() => {
+    const token = localStorage.getItem("jwt");
+    const sort = (data) =>
+      (data || []).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    getItems()
+      .then((res) => setAllUsersMoods(sort(res.data)))
+      .catch(console.error);
+
+    if (token) {
+      getUserItems(token)
+        .then((res) => setOwnerItems(sort(res.data)))
+        .catch(console.error);
+    }
+  }, [setAllUsersMoods, setOwnerItems]);
 
   const handleProfileSubmit = useCallback(
     (data) => {
       const token = localStorage.getItem("jwt");
-      return updateProfile({ ...data }, token)
+      return updateProfile(data, token)
         .then((updatedUser) => {
           setCurrentUser(updatedUser);
           setPendingAvatarUrl("");
@@ -62,6 +85,80 @@ export default function useAppActions({
         .catch(console.error);
     },
     [setCurrentUser, setPendingAvatarUrl]
+  );
+
+  const handlePrivacyUpdate = useCallback(
+    ({ collectionPrivate }) => {
+      setCurrentUser((prev) => ({ ...prev, collectionPrivate }));
+      const token = localStorage.getItem("jwt");
+      return updateCollectionPrivacy({ collectionPrivate }, token)
+        .then((updatedUser) => {
+          setCurrentUser(updatedUser);
+          getItems()
+            .then((res) =>
+              setAllUsersMoods(
+                res.data.sort(
+                  (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+                )
+              )
+            )
+            .catch(console.error);
+        })
+        .catch((err) => {
+          setCurrentUser((prev) => ({
+            ...prev,
+            collectionPrivate: !collectionPrivate,
+          }));
+          return Promise.reject(err);
+        });
+    },
+    [setCurrentUser, setAllUsersMoods]
+  );
+
+  const handlePrivacyChange = useCallback(
+    (itemId, isPrivate) => {
+      const id = String(itemId);
+
+      // Optimistic update — normalize all ids to strings
+      setCurrentUser((prev) => {
+        const current = (prev.privateItems || []).map(String);
+        const updated = isPrivate
+          ? [...new Set([...current, id])]
+          : current.filter((i) => i !== id);
+        return { ...prev, privateItems: updated };
+      });
+
+      const token = localStorage.getItem("jwt");
+      return updatePrivateItems({ itemId, isPrivate }, token)
+        .then((updatedUser) => {
+          // Normalize server response to strings too
+          setCurrentUser({
+            ...updatedUser,
+            privateItems: (updatedUser.privateItems || []).map(String),
+          });
+          getItems()
+            .then((res) =>
+              setAllUsersMoods(
+                res.data.sort(
+                  (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+                )
+              )
+            )
+            .catch(console.error);
+        })
+        .catch((err) => {
+          // Roll back — normalize here too
+          setCurrentUser((prev) => {
+            const current = (prev.privateItems || []).map(String);
+            const rolled = isPrivate
+              ? current.filter((i) => i !== id)
+              : [...new Set([...current, id])];
+            return { ...prev, privateItems: rolled };
+          });
+          return Promise.reject(err);
+        });
+    },
+    [setCurrentUser, setAllUsersMoods]
   );
 
   const handleChangePassword = useCallback(({ currentPassword, newPassword }) => {
@@ -87,16 +184,26 @@ export default function useAppActions({
         auth.setToken(res.token);
         setIsLoggedIn(true);
         return checkToken(res.token).then((user) => {
-          setCurrentUser(user);
-          getItems?.(res.token)
-            .then((itemsRes) => setAllUsersMoods(itemsRes?.data || []))
+          setCurrentUser({
+            ...user,
+            privateItems: (user.privateItems || []).map(String),
+          });
+          const sort = (data) =>
+            (data || []).sort(
+              (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+            );
+          getItems()
+            .then((itemsRes) => setAllUsersMoods(sort(itemsRes?.data)))
+            .catch(console.error);
+          getUserItems(res.token)
+            .then((itemsRes) => setOwnerItems(sort(itemsRes?.data)))
             .catch(console.error);
           closeModal();
           navigate("/profile");
         });
       });
     },
-    [setIsLoggedIn, setCurrentUser, setAllUsersMoods, closeModal, navigate, getItems]
+    [setIsLoggedIn, setCurrentUser, setAllUsersMoods, setOwnerItems, closeModal, navigate]
   );
 
   const handleSignUp = useCallback(
@@ -132,7 +239,7 @@ export default function useAppActions({
     (updatedItem) => {
       if (!updatedItem) return;
       const token = localStorage.getItem("jwt");
-      const existingItem = allUsersMoods.find((i) => i._id === updatedItem._id);
+      const existingItem = ownerItems.find((i) => i._id === updatedItem._id);
 
       if (existingItem) {
         const moodsChanged =
@@ -141,6 +248,10 @@ export default function useAppActions({
 
         updateItemMoods(updatedItem._id, updatedItem.moods, token)
           .then((res) => {
+            setOwnerItems((prev) => [
+              res.data,
+              ...prev.filter((i) => i._id !== res.data._id),
+            ]);
             setAllUsersMoods((prev) => [
               res.data,
               ...prev.filter((i) => i._id !== res.data._id),
@@ -162,21 +273,31 @@ export default function useAppActions({
           })),
         };
         addItem(itemToSend, token)
-          .then((res) => {
-            setAllUsersMoods((prev) => [res.data, ...prev]);
-            closeModal();
-          })
-          .catch(console.error);
+  .then((res) => {
+    setOwnerItems((prev) => [res.data, ...prev]);
+    // Don't add to public feed if user has collection privacy on —
+    // their moods shouldn't be the reason an item appears on main
+    if (!currentUser?.collectionPrivate) {
+      setAllUsersMoods((prev) => {
+        const exists = prev.some((i) => i._id === res.data._id);
+        return exists
+          ? prev.map((i) => (i._id === res.data._id ? res.data : i))
+          : [res.data, ...prev];
+      });
+    }
+    closeModal();
+  })
+  .catch(console.error);
       }
     },
-    [allUsersMoods, setAllUsersMoods, closeModal, addItem, updateItemMoods]
+    [ownerItems, setOwnerItems, setAllUsersMoods, closeModal, addItem, updateItemMoods]
   );
 
   const handleConfirmDelete = useCallback(
     (pendingDeleteId) => {
       if (!pendingDeleteId || !currentUser) return;
       const token = localStorage.getItem("jwt");
-      const item = allUsersMoods.find((i) => i._id === pendingDeleteId);
+      const item = ownerItems.find((i) => i._id === pendingDeleteId);
       if (!item) return;
 
       const updatedMoods = item.moods.map((m) => ({
@@ -188,6 +309,7 @@ export default function useAppActions({
       if (filteredMoods.length === 0) {
         deleteItem(pendingDeleteId, token)
           .then(() => {
+            setOwnerItems((prev) => prev.filter((i) => i._id !== pendingDeleteId));
             setAllUsersMoods((prev) => prev.filter((i) => i._id !== pendingDeleteId));
             closeModal();
           })
@@ -195,6 +317,9 @@ export default function useAppActions({
       } else {
         updateItemMoods(pendingDeleteId, filteredMoods, token)
           .then((res) => {
+            setOwnerItems((prev) =>
+              prev.map((i) => (i._id === res.data._id ? res.data : i))
+            );
             setAllUsersMoods((prev) =>
               prev.map((i) => (i._id === res.data._id ? res.data : i))
             );
@@ -203,7 +328,7 @@ export default function useAppActions({
           .catch(console.error);
       }
     },
-    [allUsersMoods, currentUser, setAllUsersMoods, closeModal, deleteItem, updateItemMoods]
+    [ownerItems, currentUser, setOwnerItems, setAllUsersMoods, closeModal, deleteItem, updateItemMoods]
   );
 
   return {
@@ -214,8 +339,11 @@ export default function useAppActions({
     handleSave,
     handleConfirmDelete,
     handleProfileSubmit,
+    handlePrivacyUpdate,
+    handlePrivacyChange,
     getUserMoods,
     handleChangePassword,
     handleDeleteAccount,
+    refreshAllItems,
   };
 }

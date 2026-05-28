@@ -10,33 +10,6 @@
   position: relative;
 }
 
-.item-card:hover .item-card__delete {
-  display: block;
-}
-
-.item-card__delete {
-  background: url("../../assets/delete-button.svg");
-  background-size: contain;
-  border: none;
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  transition:
-    transform 0.2s,
-    color 0.2s;
-  z-index: 10;
-  display: none;
-  /* used z-index so that poster transition doesn't go over delete button */
-}
-
-.item-card__delete:hover {
-  transform: scale(1.2);
-  opacity: 0.7;
-  cursor: pointer;
-}
-
 .item-card:hover {
   transform: scale(1.03);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
@@ -81,4 +54,108 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ── Action tray ── */
+.item-card__action-tray {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: none;
+  gap: 5px;
+  align-items: center;
+  z-index: 10;
+}
+
+.item-card:hover .item-card__action-tray {
+  display: flex;
+}
+
+/* ── Shared action button ── */
+.item-card__action-btn {
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, opacity 0.2s;
+  color: #f88397;
+}
+
+.item-card__action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.item-card__action-btn:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
+}
+
+/* ── Privacy wrapper (anchor for dropdown) ── */
+.item-card__privacy-wrapper {
+  position: relative;
+}
+
+/* ── Dropdown ── */
+.item-card__privacy-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  padding: 4px 0;
+  min-width: 112px;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.item-card__privacy-option {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+  user-select: none;
+}
+
+.item-card__privacy-option:hover {
+  background: #fdf0f4;
+}
+
+.item-card__privacy-option input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: #f88397;
+}
+
+.item-card__privacy-option svg {
+  flex-shrink: 0;
+  color: #f88397;
+}
+
+/* ── Persistent lock badge when private ── */
+.item-card__private-badge {
+  position: absolute;
+  bottom: 7px;
+  left: 7px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  color: #f88397;
+}
+
+.item-card__private-badge svg {
+  width: 20px;
+  height: 20px;
 }
