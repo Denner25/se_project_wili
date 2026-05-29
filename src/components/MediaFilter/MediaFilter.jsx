@@ -1,9 +1,25 @@
 import "./MediaFilter.css";
 
 const TYPES = [
-  { value: ["movie", "tv", "anime"], label: "Movies & Anime 🎬" },
-  { value: ["music"], label: "Music 🎵" },
-  { value: ["book"], label: "Books 📚" },
+  {
+    value: ["movie", "tv", "anime"],
+    label: "Movies & Anime 🎬",
+  },
+
+  {
+    value: ["music"],
+    label: "Music 🎵",
+  },
+
+  {
+    value: ["book"],
+    label: "Books 📚",
+  },
+
+  {
+    value: ["game"],
+    label: "Games 🎮",
+  },
 ];
 
 function MediaFilter({ value, onChange }) {

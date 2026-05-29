@@ -61,11 +61,12 @@ function Autocomplete({ onSelect, query, setQuery, token, onlyMedia, lockSelecte
 };
 
   const placeholderMap = {
-    media: "Search movies or animes...",
-    music: "Search music...",
-    book: "Search books...",
-    users: "Search users...",
-  };
+  media: "Search movies or animes...",
+  music: "Search music...",
+  book: "Search books...",
+  game: "Search games...",
+  users: "Search users...",
+};
 
   const placeholder = onlyMedia
     ? "Search movies or animes..."
@@ -108,6 +109,7 @@ function Autocomplete({ onSelect, query, setQuery, token, onlyMedia, lockSelecte
                   { value: "media", label: "Movies & Anime" },
                   { value: "music", label: "Music" },
                   { value: "book", label: "Books" },
+                  { value: "game", label: "Games" },
                   { value: "users", label: "Users" },
                 ].map(({ value, label }) => (
                   <label key={value}>

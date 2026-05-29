@@ -14,6 +14,7 @@ const SECTION_LABELS = {
   anime: "movies and anime",
   music: "music",
   book: "books",
+  game: "games",
 };
 
 function getHeadingLabel(mediaFilter) {

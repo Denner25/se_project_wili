@@ -28,6 +28,7 @@ const MEDIA_LABELS = {
   anime: "Anime",
   music: "Artist",
   book: "Book",
+  game: "Game",
 };
 
 export {

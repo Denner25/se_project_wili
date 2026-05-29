@@ -1,12 +1,44 @@
 # WILI - Would I Like It?
 
-This is the 16th and final project of the Software Engineering program at TripleTen as well as my first creative project. It's an application that uses the TMDB API to allow users to search for their favorite movies and animes, and mark mood and genre descriptive boxes describing the specific aspects they like about their items, allowing for a deeper level of expression than just a list, it generates a grid that appears in main and profile. Cards are generated through engaging with the mood boxes rather than a like or favorite button.
+WILI is a cross-media taste exploration platform that allows users to search, save, and express their preferences across movies, TV shows, anime, music, books, and games. Instead of simple likes or favorites, users mark items with mood tags that build a richer expression of taste and personality.
 
-AI Recommendations (WiliAi): Using an AI model (currently Gemini API), the app predicts whether a user would like a suggested item based on their existing liked items. Chats are persistent and grouped by item and person discussed, supporting real follow-up conversations — users can type free-form messages and Wili responses are aware of full context including both users' taste profiles and items in common. Guess history is kept as messages within each chat, with each message remembering how many items were considered and the time, tracking taste evolution and changes. The AI payload is minimal, only titles and media type, ensuring efficiency. The system is designed to allow other AI providers in the future.
+The app generates interactive grids in the main feed and profile pages based on these mood interactions.
 
-There is a "Your top moods" section that utilizes react's wordcloud library to create a fun display that highlights the user's most marked moods in proportional size, random colors and arrangement upon every visit or change.
+## AI Recommendations Chat (WiliAi)
 
-Per-user separation of moods was achieved in the backend through a nested mood subdocument consisting of an object with the mood name string and an array of all users who marked that mood.
+Using an AI model, the app predicts whether a user would like a suggested item based on their existing liked items across all supported media types.
+
+Chats are persistent and grouped by item and person discussed, supporting follow-up conversations. Users can type free-form messages and Wili responses are aware of full context including both users' taste profiles and shared items.
+
+The AI payload is minimal (titles + mediaType + moods) to ensure efficiency and scalability, and is designed to support future AI providers.
+
+## Privacy System
+
+Users now have full control over item visibility:
+
+- Per-item privacy toggles (public/private)
+- Private items are hidden from other users' profiles
+- Public profile view respects ownership-based filtering while preserving full access for the owner
+- Privacy state is persisted and reflected across all item views and cards
+
+## Top Moods
+
+There is a "Your Top Moods" section that uses React’s wordcloud library to visualize user preferences with proportional sizing, dynamic colors, and randomized layout updates on each visit or change.
+
+Mood tracking remains per-user via nested mood subdocuments, allowing shared items while preserving individual expression.
+
+## Media Type Support
+
+WILI now supports multiple media types:
+
+- Movies
+- TV Shows
+- Anime
+- Music
+- Books
+- Games
+
+Media type filter pills allow users to browse by category or mix all types together. The word cloud adapts dynamically based on selected filters.
 
 ## Deployed application
 
@@ -20,11 +52,15 @@ https://github.com/Denner25/se_project_wili_backend
 
 - Reusable functional components
 - React Router
-- AI recommendations
+- AI recommendations chat
+- Multi-media search & tagging system
+- Per-item privacy controls
 - JavaScript
 - API integration
 - Flexbox
 
 ## Plan on improving the project
 
-- Dynamic posters based on popularity or latest user additions.
+- Dynamic ranking of items across all media types
+- More advanced privacy controls (lists, collections, sharing rules)
+- Improved AI personalization using long-term taste evolution

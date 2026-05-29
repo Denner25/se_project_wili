@@ -1,30 +1,63 @@
 import { useState, useRef } from "react";
-import { searchMulti, getDetails, searchArtists, searchBooks } from "../utils/mediaApi";
+import {
+  searchMulti,
+  getDetails,
+  searchArtists,
+  searchBooks,
+  searchGames,
+} from "../utils/mediaApi";
+
 import { getUsers } from "../utils/Api";
-import { IMAGE_BASE_URL_W92, ERROR_MESSAGES } from "../utils/constants";
+import {
+  IMAGE_BASE_URL_W92,
+  ERROR_MESSAGES,
+} from "../utils/constants";
 
 const detailCache = {};
 
-export function useAutocomplete({ query, setQuery, filterType, token }) {
-  const [suggestions, setSuggestions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export function useAutocomplete({
+  query,
+  setQuery,
+  filterType,
+  token,
+}) {
+  const [suggestions, setSuggestions] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState(null);
+
   const debounceRef = useRef(null);
 
-  const closeDropdown = () => setSuggestions([]);
+  const closeDropdown = () =>
+    setSuggestions([]);
 
   const formatTitle = (item) => {
     const rawTitle =
       item.media_type === "movie"
         ? item.title || item.original_title
         : item.name || item.original_name;
+
     const rawDate =
-      item.media_type === "movie" ? item.release_date : item.first_air_date;
-    const year = rawDate ? rawDate.slice(0, 4) : null;
-    return year ? `${rawTitle} (${year})` : rawTitle;
+      item.media_type === "movie"
+        ? item.release_date
+        : item.first_air_date;
+
+    const year = rawDate
+      ? rawDate.slice(0, 4)
+      : null;
+
+    return year
+      ? `${rawTitle} (${year})`
+      : rawTitle;
   };
 
-  const fetchSuggestions = async (text) => {
+  const fetchSuggestions = async (
+    text
+  ) => {
     if (!text.trim()) {
       setSuggestions([]);
       setError(null);
@@ -37,7 +70,11 @@ export function useAutocomplete({ query, setQuery, filterType, token }) {
     try {
       // 👤 USER SEARCH
       if (filterType === "users") {
-        const users = await getUsers(text, token);
+        const users = await getUsers(
+          text,
+          token
+        );
+
         setSuggestions(
           users.slice(0, 5).map((u) => ({
             id: u._id,
@@ -46,117 +83,240 @@ export function useAutocomplete({ query, setQuery, filterType, token }) {
             mediaType: "user",
           }))
         );
+
         return;
       }
 
-      // 🎵 MUSIC SEARCH (Deezer)
+      // 🎵 MUSIC SEARCH
       if (filterType === "music") {
-        const data = await searchArtists(text);
+        const data =
+          await searchArtists(text);
+
         const artists = data?.data || [];
+
         setSuggestions(
           artists.slice(0, 5).map((a) => ({
             id: a.id.toString(),
             title: a.name,
             mediaType: "music",
-            poster: a.picture_medium || null,
+            poster:
+              a.picture_medium || null,
             length: null,
           }))
         );
+
         return;
       }
 
       // 📚 BOOK SEARCH
       if (filterType === "book") {
-        const data = await searchBooks(text);
+        const data = await searchBooks(
+          text
+        );
+
         const docs = data?.docs || [];
+
         setSuggestions(
           docs.slice(0, 5).map((b) => ({
-            id: b.key?.replace("/works/", ""),
+            id: b.key?.replace(
+              "/works/",
+              ""
+            ),
+
             title:
               b.title +
-              (b.first_publish_year ? ` (${b.first_publish_year})` : ""),
+              (b.first_publish_year
+                ? ` (${b.first_publish_year})`
+                : ""),
+
             mediaType: "book",
-            author: b.author_name?.[0] || "",
+
+            author:
+              b.author_name?.[0] || "",
+
             poster: b.cover_i
               ? `https://covers.openlibrary.org/b/id/${b.cover_i}-M.jpg`
               : null,
-            length: b.number_of_pages_median
-              ? `${b.number_of_pages_median} pages`
-              : null,
+
+            length:
+              b.number_of_pages_median
+                ? `${b.number_of_pages_median} pages`
+                : null,
           }))
         );
+
         return;
       }
 
-      // 🎬 MEDIA SEARCH (TMDB)
-      const yearMatch = text.match(/(\d{4})$/);
-      const year = yearMatch ? yearMatch[1] : null;
-      const titleQuery = year ? text.replace(/\d{4}$/, "").trim() : text;
+      // 🎮 GAME SEARCH
+      if (filterType === "game") {
+        const data = await searchGames(
+          text
+        );
 
-      const data = await searchMulti(titleQuery);
+        const games = data?.results || [];
+
+        setSuggestions(
+          games.slice(0, 5).map((g) => ({
+            id: g.id.toString(),
+
+            title:
+              g.name +
+              (g.released
+                ? ` (${g.released.slice(
+                    0,
+                    4
+                  )})`
+                : ""),
+
+            mediaType: "game",
+
+            poster:
+              g.background_image || null,
+
+            length: null,
+          }))
+        );
+
+        return;
+      }
+
+      // 🎬 TMDB SEARCH
+      const yearMatch =
+        text.match(/(\d{4})$/);
+
+      const year = yearMatch
+        ? yearMatch[1]
+        : null;
+
+      const titleQuery = year
+        ? text
+            .replace(/\d{4}$/, "")
+            .trim()
+        : text;
+
+      const data = await searchMulti(
+        titleQuery
+      );
+
       let results = data.results || [];
 
       if (year) {
-        results = results.filter((item) => {
-          const releaseDate =
-            item.media_type === "movie"
-              ? item.release_date
-              : item.first_air_date;
-          return releaseDate?.startsWith(year);
-        });
+        results = results.filter(
+          (item) => {
+            const releaseDate =
+              item.media_type ===
+              "movie"
+                ? item.release_date
+                : item.first_air_date;
+
+            return releaseDate?.startsWith(
+              year
+            );
+          }
+        );
       }
 
       const baseResults = results
         .filter(
           (item) =>
-            (item.media_type === "movie" || item.media_type === "tv") &&
+            (item.media_type ===
+              "movie" ||
+              item.media_type ===
+                "tv") &&
             (item.title || item.name)
         )
+
         .slice(0, 5)
+
         .map((item) => ({
           id: item.id,
-          mediaType: item.media_type,
+
+          mediaType:
+            item.media_type,
+
           title: formatTitle(item),
+
           poster: item.poster_path
             ? `${IMAGE_BASE_URL_W92}${item.poster_path}`
             : null,
+
           length: null,
         }));
 
       setSuggestions(baseResults);
 
-      baseResults.forEach(async (item, index) => {
-        const cacheKey = `${item.mediaType}-${item.id}`;
-        if (detailCache[cacheKey]) {
+      baseResults.forEach(
+        async (item, index) => {
+          const cacheKey = `${item.mediaType}-${item.id}`;
+
+          if (detailCache[cacheKey]) {
+            setSuggestions((prev) =>
+              prev.map((s, i) =>
+                i === index
+                  ? {
+                      ...s,
+                      length:
+                        detailCache[
+                          cacheKey
+                        ],
+                    }
+                  : s
+              )
+            );
+
+            return;
+          }
+
+          const detail =
+            await getDetails(
+              item.id,
+              item.mediaType
+            );
+
+          let lengthInfo = null;
+
+          if (
+            item.mediaType ===
+            "movie"
+          ) {
+            lengthInfo = detail.runtime
+              ? `${detail.runtime} min`
+              : null;
+          } else {
+            const episodes =
+              detail.number_of_episodes;
+
+            const runtime =
+              detail
+                .episode_run_time?.[0];
+
+            if (episodes && runtime) {
+              lengthInfo = `${episodes} ep • ${runtime} min`;
+            } else if (episodes) {
+              lengthInfo = `${episodes} episodes`;
+            }
+          }
+
+          detailCache[cacheKey] =
+            lengthInfo;
+
           setSuggestions((prev) =>
             prev.map((s, i) =>
-              i === index ? { ...s, length: detailCache[cacheKey] } : s
+              i === index
+                ? {
+                    ...s,
+                    length: lengthInfo,
+                  }
+                : s
             )
           );
-          return;
         }
-
-        const detail = await getDetails(item.id, item.mediaType);
-        let lengthInfo = null;
-
-        if (item.mediaType === "movie") {
-          lengthInfo = detail.runtime ? `${detail.runtime} min` : null;
-        } else {
-          const episodes = detail.number_of_episodes;
-          const runtime = detail.episode_run_time?.[0];
-          if (episodes && runtime)
-            lengthInfo = `${episodes} ep • ${runtime} min`;
-          else if (episodes) lengthInfo = `${episodes} episodes`;
-        }
-
-        detailCache[cacheKey] = lengthInfo;
-
-        setSuggestions((prev) =>
-          prev.map((s, i) => (i === index ? { ...s, length: lengthInfo } : s))
-        );
-      });
+      );
     } catch {
-      setError(ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED);
+      setError(
+        ERROR_MESSAGES.FETCH_SUGGESTIONS_FAILED
+      );
     } finally {
       setLoading(false);
     }
@@ -164,9 +324,20 @@ export function useAutocomplete({ query, setQuery, filterType, token }) {
 
   const handleChange = (e) => {
     const value = e.target.value;
+
     setQuery(value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchSuggestions(value), 600);
+
+    if (debounceRef.current) {
+      clearTimeout(
+        debounceRef.current
+      );
+    }
+
+    debounceRef.current =
+      setTimeout(
+        () => fetchSuggestions(value),
+        600
+      );
   };
 
   return {

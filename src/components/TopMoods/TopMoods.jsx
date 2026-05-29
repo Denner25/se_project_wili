@@ -24,6 +24,7 @@ const ALL_TYPES = [
   { value: "movie", label: "Movies & Anime" },
   { value: "music", label: "Music" },
   { value: "book", label: "Books" },
+  { value: "game", label: "Games" },
 ];
 
 function buildWords(moods) {
