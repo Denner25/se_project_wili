@@ -5,6 +5,7 @@ import { BUTTONS, MEDIA_LABELS } from "../../utils/constants";
 import MoodsCloud from "../MoodsCloud/MoodsCloud";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import useModalClose from "../../hooks/useModalClose";
+import MoodsContext from "../../contexts/MoodsContext";
 
 function ItemModal({
   item,
@@ -16,8 +17,10 @@ function ItemModal({
   onSignUpClick,
 }) {
   const { user: currentUser } = useContext(CurrentUserContext);
+  // Pull full unfiltered allUsersMoods from context to get everyone's moods
+  const { allUsersMoods } = useContext(MoodsContext);
   const [userMoods, setUserMoods] = useState([]);
-  const [allUsersMoods, setAllUsersMoods] = useState([]);
+  const [allModalMoods, setAllModalMoods] = useState([]);
   const [availableMoods, setAvailableMoods] = useState([]);
   const [activeTab, setActiveTab] = useState("available");
   const [currentItem, setCurrentItem] = useState(item);
@@ -33,7 +36,7 @@ function ItemModal({
   useEffect(() => {
     if (!currentItem || !isOpen) {
       setUserMoods([]);
-      setAllUsersMoods([]);
+      setAllModalMoods([]);
       setAvailableMoods([]);
       return;
     }
@@ -41,14 +44,18 @@ function ItemModal({
     const _id = currentItem._id || currentItem.id;
     const mediaType = currentItem.mediaType || currentItem.originalMediaType;
 
+    // Use full item from allUsersMoods context so all users' moods are present,
+    // not the potentially filtered version passed through from ItemsSection
+    const fullItem = allUsersMoods?.find((i) => i._id === _id) || currentItem;
+
     setUserMoods(
-      currentItem.moods
+      fullItem.moods
         ?.filter((m) => m.users.includes(currentUser?._id))
         .map((m) => m.name) || []
     );
 
-    setAllUsersMoods(
-      currentItem.moods?.flatMap((m) =>
+    setAllModalMoods(
+      fullItem.moods?.flatMap((m) =>
         Array(m.users.length).fill(m.name)
       ) || []
     );
@@ -56,13 +63,20 @@ function ItemModal({
     if (_id && mediaType) {
       let cancelled = false;
       fetchMoodKeywords(currentItem).then((keywords) => {
-        if (!cancelled) setAvailableMoods((keywords || []).map((k) => k.name));
+        if (!cancelled) {
+          setAvailableMoods(
+            (keywords || []).map((k) =>
+              // Strip underscores from book mood names (Open Library keyword format)
+              k.name.replace(/_/g, " ")
+            )
+          );
+        }
       });
       return () => { cancelled = true; };
     } else {
       setAvailableMoods([]);
     }
-  }, [currentItem, isOpen, currentUser]);
+  }, [currentItem, isOpen, currentUser, allUsersMoods]);
 
   const handleMoodChange = (moodName) => {
     setUserMoods((prev) =>
@@ -75,7 +89,10 @@ function ItemModal({
   const handleSave = () => {
     if (!currentItem) return;
 
-    const updatedMoods = (currentItem.moods || []).map((m) => ({
+    // Build updated moods against the full item so we don't lose other users' moods
+    const fullItem = allUsersMoods?.find((i) => i._id === (currentItem._id || currentItem.id)) || currentItem;
+
+    const updatedMoods = (fullItem.moods || []).map((m) => ({
       ...m,
       users: [...m.users],
     }));
@@ -200,7 +217,7 @@ function ItemModal({
 
           {activeTab === "allUsers" && (
             <div className="item-modal__cloud">
-              <MoodsCloud moods={allUsersMoods} />
+              <MoodsCloud moods={allModalMoods} />
             </div>
           )}
 

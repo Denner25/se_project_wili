@@ -119,7 +119,6 @@ export default function useAppActions({
     (itemId, isPrivate) => {
       const id = String(itemId);
 
-      // Optimistic update — normalize all ids to strings
       setCurrentUser((prev) => {
         const current = (prev.privateItems || []).map(String);
         const updated = isPrivate
@@ -131,7 +130,6 @@ export default function useAppActions({
       const token = localStorage.getItem("jwt");
       return updatePrivateItems({ itemId, isPrivate }, token)
         .then((updatedUser) => {
-          // Normalize server response to strings too
           setCurrentUser({
             ...updatedUser,
             privateItems: (updatedUser.privateItems || []).map(String),
@@ -147,7 +145,6 @@ export default function useAppActions({
             .catch(console.error);
         })
         .catch((err) => {
-          // Roll back — normalize here too
           setCurrentUser((prev) => {
             const current = (prev.privateItems || []).map(String);
             const rolled = isPrivate
@@ -252,10 +249,19 @@ export default function useAppActions({
               res.data,
               ...prev.filter((i) => i._id !== res.data._id),
             ]);
-            setAllUsersMoods((prev) => [
-              res.data,
-              ...prev.filter((i) => i._id !== res.data._id),
-            ]);
+            const itemIsPrivate =
+              currentUser?.collectionPrivate ||
+              (currentUser?.privateItems || []).map(String).includes(String(res.data._id));
+            if (!itemIsPrivate) {
+              setAllUsersMoods((prev) => [
+                res.data,
+                ...prev.filter((i) => i._id !== res.data._id),
+              ]);
+            } else {
+              setAllUsersMoods((prev) =>
+                prev.filter((i) => i._id !== res.data._id)
+              );
+            }
             closeModal();
           })
           .catch(console.error);
@@ -273,24 +279,29 @@ export default function useAppActions({
           })),
         };
         addItem(itemToSend, token)
-  .then((res) => {
-    setOwnerItems((prev) => [res.data, ...prev]);
-    // Don't add to public feed if user has collection privacy on —
-    // their moods shouldn't be the reason an item appears on main
-    if (!currentUser?.collectionPrivate) {
-      setAllUsersMoods((prev) => {
-        const exists = prev.some((i) => i._id === res.data._id);
-        return exists
-          ? prev.map((i) => (i._id === res.data._id ? res.data : i))
-          : [res.data, ...prev];
-      });
-    }
-    closeModal();
-  })
-  .catch(console.error);
+          .then((res) => {
+            setOwnerItems((prev) => [res.data, ...prev]);
+            const itemIsPrivate =
+              currentUser?.collectionPrivate ||
+              (currentUser?.privateItems || []).map(String).includes(String(res.data._id));
+            if (!itemIsPrivate) {
+              setAllUsersMoods((prev) => {
+                const exists = prev.some((i) => i._id === res.data._id);
+                return exists
+                  ? prev.map((i) => (i._id === res.data._id ? res.data : i))
+                  : [res.data, ...prev];
+              });
+            } else {
+              setAllUsersMoods((prev) =>
+                prev.filter((i) => i._id !== res.data._id)
+              );
+            }
+            closeModal();
+          })
+          .catch(console.error);
       }
     },
-    [ownerItems, setOwnerItems, setAllUsersMoods, closeModal, addItem, updateItemMoods]
+    [currentUser, ownerItems, setOwnerItems, setAllUsersMoods, closeModal, addItem, updateItemMoods]
   );
 
   const handleConfirmDelete = useCallback(
