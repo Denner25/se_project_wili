@@ -12,18 +12,26 @@ Chats are persistent and grouped by item and person discussed, supporting follow
 
 The AI payload is minimal (titles + mediaType + moods) to ensure efficiency and scalability, and is designed to support future AI providers.
 
+## Infrastructure & Monetization
+
+* Stripe subscription billing with full webhook lifecycle handling, one-time purchase packs, and a billing portal
+* Automated cost controls capping AI spend using real-time token usage from the Gemini API
+* Production deployment with Nginx and PM2, including health checks and automatic MongoDB reconnect handling
+* Custom native Android integration via Capacitor — engineered solutions for edge-to-edge rendering, microphone access, and WebView behavior beyond what standard documentation covers
+* Migrated Stripe integration from test to live mode for production launch
+
 ## Privacy System
 
 Users now have full control over item visibility:
 
-- Per-item privacy toggles (public/private)
-- Private items are hidden from other users' profiles
-- Public profile view respects ownership-based filtering while preserving full access for the owner
-- Privacy state is persisted and reflected across all item views and cards
+* Per-item privacy toggles (public/private)
+* Private items are hidden from other users' profiles
+* Public profile view respects ownership-based filtering while preserving full access for the owner
+* Privacy state is persisted and reflected across all item views and cards
 
 ## Top Moods
 
-There is a "Your Top Moods" section that uses React’s wordcloud library to visualize user preferences with proportional sizing, dynamic colors, and randomized layout updates on each visit or change.
+There is a "Your Top Moods" section that uses React's wordcloud library to visualize user preferences with proportional sizing, dynamic colors, and randomized layout updates on each visit or change.
 
 Mood tracking remains per-user via nested mood subdocuments, allowing shared items while preserving individual expression.
 
@@ -31,36 +39,32 @@ Mood tracking remains per-user via nested mood subdocuments, allowing shared ite
 
 WILI now supports multiple media types:
 
-- Movies
-- TV Shows
-- Anime
-- Music
-- Books
-- Games
+* Movies
+* TV Shows
+* Anime
+* Music
+* Books
+* Games
 
 Media type filter pills allow users to browse by category or mix all types together. The word cloud adapts dynamically based on selected filters.
 
-## Deployed application
-
-https://wili.nya.pub
-
 ## Backend repository
 
-https://github.com/Denner25/se_project_wili_backend
+https://github.com/Denner25/wili-backend-public
 
 ## Project features
 
-- Reusable functional components
-- React Router
-- AI recommendations chat
-- Multi-media search & tagging system
-- Per-item privacy controls
-- JavaScript
-- API integration
-- Flexbox
+* Reusable functional components
+* React Router
+* AI recommendations chat
+* Multi-media search & tagging system
+* Per-item privacy controls
+* JavaScript
+* API integration
+* Flexbox
 
 ## Plan on improving the project
 
-- Dynamic ranking of items across all media types
-- More advanced privacy controls (lists, collections, sharing rules)
-- Improved AI personalization using long-term taste evolution
+* Dynamic ranking of items across all media types
+* More advanced privacy controls (lists, collections, sharing rules)
+* Improved AI personalization using long-term taste evolution
